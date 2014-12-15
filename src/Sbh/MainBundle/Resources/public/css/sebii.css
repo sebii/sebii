@@ -1,0 +1,189 @@
+/* *****************************************************************************
+ * FONTS
+ * ************************************************************************** */
+@font-face {
+  font-family: "LeviBrush";
+  src: url("../fonts/levibrush.ttf") format("truetype");
+}
+
+/* *****************************************************************************
+ * HACK BOOTSTRAP
+ * ************************************************************************** */
+
+/* *****************************************************************************
+ * HEADER
+ * ************************************************************************** */
+header {
+    width:  100%;
+    height: 100px;
+    
+    background-image: linear-gradient(to bottom, #111111, #111111, #000000);
+    background-color: #111111;
+}
+header .navbar-header {
+    width:  100%;
+    height: 100px;
+}
+header .navbar-header h1 {
+    margin:  0px;
+    padding: 0px;
+    width:   100%;
+    height:  100px;
+    
+    font-family: LeviBrush;
+}
+header .navbar-header h1 a.navbar-brand {
+    padding-top:    6px;
+    padding-bottom: 0px;
+    padding-left:   0px;
+    padding-right:  0px;
+    
+    overflow: hidden;
+    height:   100px;
+    width:    300px;
+    
+    font-size: 40px;
+}
+
+/* *****************************************************************************
+ * NAVIGATION
+ * ************************************************************************** */
+nav {
+    background-image: linear-gradient(to bottom, #AA0000, #AA0000, #880000);
+    background-color: #AA0000;
+}
+nav ul.nav.navbar-nav li a {
+    padding-top:    10px;
+    padding-bottom: 5px;
+    
+    font-size:   25px;
+    font-family: LeviBrush;
+    color:       #FFFFFF;
+}
+nav ul.nav.navbar-nav li a:hover {
+    background-image: linear-gradient(to bottom, #DD0000, #DD0000, #AA0000);
+    background-color: #880000;
+}
+nav ul.nav.navbar-nav li.active > a {
+    background-image: linear-gradient(to bottom, #880000, #880000, #550000);
+    background-color: #880000;
+}
+nav ul.nav.navbar-nav li.open a {
+    background-image: linear-gradient(to bottom, #880000, #880000, #550000);
+    background-image: #880000;
+}
+nav ul.nav.navbar-nav li.open ul.dropdown-menu li a {
+    padding-top:    3px;
+    padding-bottom: 3px;
+    
+    background-image: none;
+    background-color: #FFFFFF;
+    
+    font-size:   20px;
+    font-family: LeviBrush;
+    color:       #111111;
+}
+nav ul.nav.navbar-nav li.open ul.dropdown-menu li a:hover {
+    background-image: linear-gradient(to bottom, #DD0000, #DD0000, #AA0000);
+    background-color: #880000;
+    
+    color: #FFFFFF;
+}
+.navbar.navbar-fixed-top {
+    padding-left:  0px;
+    padding-right: 0px;
+}
+
+/* *****************************************************************************
+ * COTE
+ * ************************************************************************** */
+
+aside {
+    margin-top: 150px;
+}
+aside section {
+    border-top-left-radius:     5px;
+    border-top-right-radius:    5px;
+    border-bottom-left-radius:  5px;
+    border-bottom-right-radius: 5px;
+    
+    margin-bottom: 10px;
+}
+aside section:last-child {
+    margin-bottom: 0px;
+}
+aside section .aside-section-title {
+    background-image: linear-gradient(to bottom, #AA0000, #AA0000, #880000);
+    background-color: #AA0000;
+    
+    border-top-left-radius:  5px;
+    border-top-right-radius: 5px;
+}
+aside section .aside-section-title h3 {
+    margin: 0px;
+    padding: 0px;
+    padding-top:    10px;
+    padding-bottom: 5px;
+    padding-left:   10px;
+    padding-right:  10px;
+    
+    font-size:   20px;
+    font-family: LeviBrush;
+    color:       #FFFFFF;
+}
+aside section .aside-section-content {
+    margin:      0px;
+    padding:     0px;
+    padding-top: 5px;
+    
+    border: 1px #880000 solid;
+    border-top-width:    0px;
+    border-bottom-width: 0px;
+}
+aside section .aside-section-footer {
+    margin:         0px;
+    padding:        0px;
+    padding-bottom: 5px;
+    
+    border:           1px #880000 solid;
+    border-top-width: 0px;
+    
+    border-bottom-left-radius:  5px;
+    border-bottom-right-radius: 5px;
+}
+
+aside section#aside-social p {
+    margin: 0px 5px 0px 5px;
+    padding: 0px;
+    
+    text-align: center;
+}
+aside section#aside-social p img {
+    width: 50px;
+    border-radius: 10px;
+}
+
+.show-case {
+    min-height: 100px;
+}
+
+/* *****************************************************************************
+ * CONTENU
+ * ************************************************************************** */
+
+#content {
+    margin-top: 150px;
+}
+
+h2 {
+    margin: 0px;
+    padding: 0px;
+    padding-top:    10px;
+    padding-bottom: 10px;
+    padding-left:   0px;
+    padding-right:  0px;
+    
+    font-size:   30px;
+    font-family: LeviBrush;
+    color:       #111111;
+}

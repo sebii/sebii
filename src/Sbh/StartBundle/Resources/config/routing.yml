@@ -1,0 +1,3 @@
+sbh_start_homepage:
+    path:     /hello/{name}
+    defaults: { _controller: SbhStartBundle:Default:index }

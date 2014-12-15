@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>{% block title %}sebii.fr{% endblock %}</title>
+        <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}" />
+        <link rel="stylesheet" href="{{ asset("/bundles/sbhstart/css/bootstrap/3.3.1/css/bootstrap.min.css") }}" />
+        <link rel="stylesheet" href="{{ asset("/bundles/sbhmain/css/sebii.css") }}" />
+        {% block css %}{% endblock css %}
+    </head>
+    <body>
+        <div class="navbar navbar-inverse navbar-fixed-top">
+            <header>
+                <div class="navbar-header">
+                    <div class="container">
+                        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                        </button>
+                        <h1>
+                            <a class="navbar-brand" href="/">
+                                <img src="{{ asset("/bundles/sbhmain/images/head_me.png") }}" alt="[]" />
+                                sebii.fr
+                            </a>
+                        </h1>
+                    </div>
+                </div>
+            </header>
+            <nav>
+                <div class="collapse navbar-collapse">
+                    <div class="container">
+                        <ul class="nav navbar-nav pull-right">
+                            <li>
+                                <a class="dropdown-toggle" data-toggle="dropdown" href="#">mon compte <span class="caret"></span></a>
+                                <ul class="dropdown-menu" role="menu">
+                                    <li><a href="/login">connexion</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                        <ul class="nav navbar-nav">
+                            <li><a href="{{ path("home") }}">home</a></li>
+                            <li><a href="#">japon</a></li>
+                            <li><a href="#">gamiing</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+        </div>
+        {% block content %}
+        {% endblock content %}
+        {% block js %}
+        {% endblock js %}
+    </body>
+</html>
