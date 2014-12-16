@@ -44,6 +44,9 @@ header .navbar-header h1 a.navbar-brand {
     
     font-size: 40px;
 }
+header .navbar-header h1 a.navbar-brand img {
+    display: inline-block;
+}
 
 /* *****************************************************************************
  * NAVIGATION
