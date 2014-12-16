@@ -6,7 +6,3 @@ sbh_main:
     resource: "@SbhMainBundle/Controller"
     type:     annotation
     prefix:   /
-
-app:
-    resource: @AppBundle/Controller/
-    type:     annotation

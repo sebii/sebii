@@ -1,0 +1,23 @@
+<database name="default" namespace="Sbh\StartBundle\Model" defaultIdMethod="native">
+    <table name="user">
+        <!--<column name="id" type="integer" primaryString="true" autoIncrement="true" />-->
+        <column name="username" type="varchar" size="100" required="true" />
+        <column name="username_canonical" type="varchar" />
+        <column name="salt" type="varchar" size="15" />
+        <column name="password" type="varchar" size="100" />
+        <column name="email" type="varchar" />
+        <column name="roles" type="array" />
+        <column name="origin" type="enum" valueSet="registration,command,admin,partner" defaultValue="registration" />
+        <column name="activation_key" type="varchar" size="30" />
+        <column name="is_active" type="boolean" default="false" />
+        <column name="is_delete" type="boolean" default="false" />
+        <column name="is_erase" type="boolean" default="false" />
+        
+        <unique name="unique_username_canonical">
+            <unique-column name="username_canonical" />
+        </unique>
+        <unique name="unique_email">
+            <unique-column name="email" />
+        </unique>
+    </table>
+</database>
