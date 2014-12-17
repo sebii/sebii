@@ -1,29 +1,4 @@
 {% extends "::base.html.twig" %}
 
 {% block content %}
-    <br />
-    <br />
-    <br />
-    <br />
-    <br />
-    <br />
-    <br />
-    <br />
-    <br />
-    <br />
-    <table style="width: 100%;">
-        <thead></thead>
-        <tfoot></tfoot>
-        <tbody>
-{% for i in 1..1000 %}
-    {% if (i % 10) == 1 %}
-            <tr>
-    {% endif %}
-                <td>{{ i }} <b>&#{{ i }};</b></td>
-    {% if (i % 10) == 0 or loop.last %}
-            </tr>
-    {% endif %}
-{% endfor %}
-        </tbody>
-    </table>
 {% endblock content %}

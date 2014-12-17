@@ -1,0 +1,97 @@
+{% extends "::base.html.twig" %}
+
+{% block content %}
+    <table style="width: 100%;">
+        <thead></thead>
+        <tfoot></tfoot>
+        <tbody>
+            <tr>
+                <td colspan="10"><b>Caractères non-printables</b></td>
+            </tr>
+{% for i in 1..32 %}
+    {% if (loop.index % 10) == 1 %}
+            <tr>
+    {% endif %}
+                <td>{{ i }} <b>&#{{ i }};</b></td>
+    {% if (loop.index % 10) == 0 or loop.last %}
+            </tr>
+    {% endif %}
+{% endfor %}
+            <tr>
+                <td colspan="10"><hr /></td>
+            </tr>
+            <tr>
+                <td colspan="10"><b>Ponctuation #1</b></td>
+            </tr>
+{% for i in 33..47 %}
+    {% if (loop.index % 10) == 1 %}
+            <tr>
+    {% endif %}
+                <td>{{ i }} <b>&#{{ i }};</b></td>
+    {% if (loop.index % 10) == 0 or loop.last %}
+            </tr>
+    {% endif %}
+{% endfor %}
+            <tr>
+                <td colspan="10"><hr /></td>
+            </tr>
+            <tr>
+                <td colspan="10"><b>Numérotation</b></td>
+            </tr>
+{% for i in 48..57 %}
+    {% if (loop.index % 10) == 1 %}
+            <tr>
+    {% endif %}
+                <td>{{ i }} <b>&#{{ i }};</b></td>
+    {% if (loop.index % 10) == 0 or loop.last %}
+            </tr>
+    {% endif %}
+{% endfor %}
+            <tr>
+                <td colspan="10"><hr /></td>
+            </tr>
+            <tr>
+                <td colspan="10"><b>Ponctuation #2</b></td>
+            </tr>
+{% for i in 58..64 %}
+    {% if (loop.index % 10) == 1 %}
+            <tr>
+    {% endif %}
+                <td>{{ i }} <b>&#{{ i }};</b></td>
+    {% if (loop.index % 10) == 0 or loop.last %}
+            </tr>
+    {% endif %}
+{% endfor %}
+            <tr>
+                <td colspan="10"><hr /></td>
+            </tr>
+            <tr>
+                <td colspan="10"><b>Alphabet occidental</b></td>
+            </tr>
+{% for i in 65..122 %}
+    {% if (loop.index % 10) == 1 %}
+            <tr>
+    {% endif %}
+                <td>{{ i }} <b>&#{{ i }};</b></td>
+    {% if (loop.index % 10) == 0 or loop.last %}
+            </tr>
+    {% endif %}
+{% endfor %}
+            <tr>
+                <td colspan="10"><hr /></td>
+            </tr>
+            <tr>
+                <td colspan="10"><b>Autre</b></td>
+            </tr>
+{% for i in 123..3000 %}
+    {% if (loop.index % 10) == 1 %}
+            <tr>
+    {% endif %}
+                <td>{{ i }} <b>&#{{ i }};</b></td>
+    {% if (loop.index % 10) == 0 or loop.last %}
+            </tr>
+    {% endif %}
+{% endfor %}
+        </tbody>
+    </table>
+{% endblock content %}

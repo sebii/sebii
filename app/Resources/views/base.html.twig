@@ -31,14 +31,14 @@
             <nav>
                 <div class="collapse navbar-collapse">
                     <div class="container">
-                        <ul class="nav navbar-nav pull-right">
+                        {#<ul class="nav navbar-nav pull-right">
                             <li>
                                 <a class="dropdown-toggle" data-toggle="dropdown" href="#">mon compte <span class="caret"></span></a>
                                 <ul class="dropdown-menu" role="menu">
                                     <li><a href="/login">connexion</a></li>
                                 </ul>
                             </li>
-                        </ul>
+                        </ul>#}
                         <ul class="nav navbar-nav">
                             <li><a href="{{ path("home") }}">home</a></li>
                             <li><a href="#">japon</a></li>
@@ -48,9 +48,18 @@
                 </div>
             </nav>
         </div>
-        {% block content %}
-        {% endblock content %}
-        {% block js %}
-        {% endblock js %}
+        <div class="container">
+            <div class="row">
+                <aside class="col-sm-4 hidden-xs pull-right"></aside>
+                <div class="col-xs-12 col-sm-8" id="content">
+                    <h2></h2>
+                    <ol class="breadcrumb">
+                        <li><a href="/">Home</a></li>
+                    </ol>
+                    {% block content %}{% endblock content %}
+                </div>
+            </div>
+        </div>
+        {% block js %}{% endblock js %}
     </body>
 </html>

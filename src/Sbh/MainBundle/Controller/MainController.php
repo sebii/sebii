@@ -15,4 +15,13 @@ class MainController extends Controller
     {
         return $this->render('SbhMainBundle:Main:index.html.twig');
     }
+    
+    /**
+     * 
+     * @Route("/{_lang}/htmlspchars", name="sbh_main_main_htmlspecialchars", requirements={"_lang"="\w{2}"}, defaults={"_lang"="fr"})
+     */
+    public function htmlspecialcharsAction()
+    {
+        return $this->render('SbhMainBundle:Main:htmlspecialchars.html.twig');
+    }
 }

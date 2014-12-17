@@ -1,0 +1,43 @@
+security:
+    encoders:
+        Sbh\StartBundle\Model\User: sha512
+        
+    providers:
+        main:
+            propel:
+                class:    Sbh\StartBundle\Model\User
+                property: username
+                
+    firewalls:
+        dev:
+            pattern:  ^/(_(profiler|wdt)|css|images|js)/
+            security: false
+            
+        main:
+            pattern:                            ^/
+            form_login:
+                login_path:                     /login
+                check_path:                     /login/check
+                failure_path:                   /login/fail
+                default_targer_path:            /profile
+                always_use_default_target_path: false
+                username_parameter:             _username
+                password_parameter:             _password
+                csrf_token:                     _csrf_token
+                intention:                      authenticate
+            logout:
+                path:                           /logout
+                target:                         /
+            security:                           true
+            anonymous:                          true
+            switch_user:                        true
+            remember_me:
+                key:                            "%secret%"
+                lifetime:                       31526000
+                path:                           /
+                domain:                         ~
+                
+    access_control:
+        - { path: ^/iiadmin/, roles: ROLE_ADMIN }
+        #- { path: ^/login, roles: IS_AUTHENTICATED_ANONYMOUSLY, requires_channel: https }
+        #- { path: ^/_internal/secure, roles: IS_AUTHENTICATED_ANONYMOUSLY, ip: 127.0.0.1 }

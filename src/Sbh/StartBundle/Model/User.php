@@ -69,11 +69,21 @@ class User extends BaseUser implements AdvancedUserInterface
         return $salt;
     }
     
+    /**
+     * generation du usernameCanonical
+     * 
+     * La fonction prend le username enregistré et en génère la forme
+     * canonicale.
+     * @access public
+     * @since 1.0.0 Création -- sebii
+     * @return Sbh\StartBundle\Model\User
+     */
     public function generateUsernameCanonical()
     {
         $username          = strtolower($this->getUsername());
         $canonicalUsername = '';
         $usernameArray     = str_split($username);
+        
         for ($i = 0, $iMax = count($usernameArray); $i < $iMax; $iMax++)
         {
             switch ($usernameArray[$i])
@@ -254,6 +264,254 @@ class User extends BaseUser implements AdvancedUserInterface
                         $canonicalUsername .= '-';
                     }
             }
+            
+            $canonicalUsername = trim($canonicalUsername, '-');
+            $this->setUsernameCanonical($canonicalUsername);
+            
+            return $this;
         }
     }
+    
+    /**
+     * generation du salt
+     * 
+     * Génération du grain de sel (salt) pour le mot de passe.
+     * @access public
+     * @since 1.0.0 Création -- sebii
+     * @return Sbh\StartBundle\Model\User
+     */
+    public function generateSalt()
+    {
+        $salt       = '';
+        $choooseIn  = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890';
+        $saltLength = 15;
+        $choooseInLenght = strlen($choooseIn);
+        for ($i = 0; $i < $saltLength; $i++)
+        {
+            $salt .= $choooseIn[rand(0, $choooseInLenght - 1)];
+        }
+        $this->setSalt($salt);
+        
+        return $this;
+    }
+    
+    /**
+     * Ajouter un role
+     * 
+     * Ajouter un role à l'utilisateur
+     * @since 1.0.0 Création -- sebii
+     * @access public
+     * @param string $role
+     * @return Sbh\StartBundle\Model\User
+     */
+    public function addRole($role)
+    {
+        $role  = trim($role);
+        $roles = $this->getRoles();
+        if (!empty($role) && !in_array($role, $roles))
+        {
+            $roles[] = $role;
+            $this->setRoles($roles);
+        }
+        
+        return $this;
+    }
+    
+    /**
+     * Supprimer un role
+     * 
+     * Supprimer un role à l'utilisateur
+     * @since 1.0.0 Création -- sebii
+     * @access public
+     * @param string $role
+     * @return Sbh\StartBundle\Model\User
+     */
+    public function removeRole($role)
+    {
+        $role  = trim($role);
+        $roles = $this->getRoles();
+        
+        if (!empty($role) && in_array($role, $roles))
+        {
+            for ($i = 0, $key = null; isset($roles[$i]); $i++)
+            {
+                if ($roles[$i] == $role)
+                {
+                    $key = $i;
+                    break;
+                }
+            }
+            if ($key !== null)
+            {
+                array_splice($roles, $key, 1);
+            }
+            $this->setRoles($roles);
+        }
+        
+        return $this;
+    }
+    
+    /**
+     * a le role ?
+     * 
+     * Vérifie si l'utilisateur possède le role demandé
+     * @since 1.0.0 Création -- sebii
+     * @access public
+     * @param string $role
+     * @return boolean
+     */
+    public function hasRole($role)
+    {
+        $hasRole = in_array($role, $this->getRoles());
+        
+        return $hasRole;
+    }
+    
+    /**
+     * generation de l'activationKey
+     * 
+     * Génération de la clef d'activation du compte
+     * @since 1.0.0 Création -- sebii
+     * @access public
+     * @return Sbh\StartBundle\Model\User
+     */
+    public function generateActivationKey()
+    {
+        $activationKey = '';
+        $choooseIn     = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890';
+        $keyLength     = 30;
+        $choooseInLenght = strlen($choooseIn);
+        for ($i = 0; $i < $keyLength; $i++)
+        {
+            $activationKey .= $choooseIn[rand(0, $choooseInLenght - 1)];
+        }
+        $this->setActivationKey($activationKey);
+        
+        return $this;
+    }
+    
+    /**
+     * 
+     * @since 1.0.0 Création -- sebii
+     * @access public
+     * @return void
+     */
+    public function eraseCredentials()
+    {
+        
+    }
+    
+    /**
+     * 
+     * @since 1.0.0 Création -- sebii
+     * @access public
+     * @return boolean
+     */
+    public function isAccountNonExpired()
+    {
+        return true;
+    }
+    
+    /**
+     * 
+     * @since 1.0.0 Création -- sebii
+     * @access public
+     * @return boolean
+     */
+    public function isAccountNonLocked()
+    {
+        $isDelete    = $this->getIsDelete();
+        
+        $isNonLocked = !$isDelete;
+        
+        return $isNonLocked;
+    }
+    
+    /**
+     * 
+     * @since 1.0.0 Création -- sebii
+     * @access public
+     * @return boolean
+     */
+    public function isCredentialsNonExpired()
+    {
+        return true;
+    }
+    
+    /**
+     * 
+     * @since 1.0.0 Création -- sebii
+     * @access public
+     * @return boolean
+     */
+    public function isEnabled()
+    {
+        $isActive  = $this->getIsActive();
+        
+        $isEnabled = $isActive;
+        
+        return $isEnabled;
+    }
+        
+    /**
+     * 
+     * @since 1.0.0 Création -- sebii
+     * @access public
+     * @return Sbh\StartBundle\Model\User
+     */
+    public function operationsAfterForm()
+    {
+        $this
+            ->setUsername(trim($this->getUsername()))
+            ->generateUsernameCanonical()
+            ->generateSalt()
+            ->generateActivationKey()
+            ->setOrigin(UserPeer::ORIGIN_ADMIN)
+            ->setIsActive(true);
+        return $this;
+    }
+    
+    /**
+     * 
+     * @since 1.0.0 Création -- sebii
+     * @access public
+     * @param string $password
+     * @return boolean
+     */
+    public function createAfterForm($password)
+    {
+        $this
+            ->setPassword($password)
+            ->addRole('ROLE_USER');
+        try
+        {
+            $this->save();
+            $isUserCreated = true;
+        }
+        catch (PropelException $e)
+        {
+            $isUserCreated = false;
+        }
+        return $isUserCreated;
+    }
+    
+//    /**
+//     * 
+//     * @since 1.0.0 Création -- sebii
+//     * @access public
+//     * @param iiTools\StartBundle\Model\Site $site
+//     * @return boolean
+//     */
+//    public function isAdminSite(Site $site)
+//    {
+//        $isAdminSite = false;
+//        foreach ($this->getUserAdminSitesRelatedByUserId() as $userAdminSite)
+//        {
+//            if ($userAdminSite->getSite() == $site)
+//            {
+//                $isAdminSite = true;
+//            }
+//        }
+//        return $isAdminSite;
+//    }
 }
