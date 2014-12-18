@@ -19,11 +19,11 @@ security:
                 login_path:                     /login
                 check_path:                     /login/check
                 failure_path:                   /login/fail
-                default_targer_path:            /profile
+                default_target_path:            /profile
                 always_use_default_target_path: false
                 username_parameter:             _username
                 password_parameter:             _password
-                csrf_token:                     _csrf_token
+                csrf_parameter:                 _csrf_token
                 intention:                      authenticate
             logout:
                 path:                           /logout

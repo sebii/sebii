@@ -30,5 +30,25 @@ CREATE TABLE `user`
     UNIQUE INDEX `unique_email` (`email`)
 ) ENGINE=InnoDB;
 
+-- ---------------------------------------------------------------------
+-- file
+-- ---------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `file`;
+
+CREATE TABLE `file`
+(
+    `type` TINYINT DEFAULT 0,
+    `original_path` VARCHAR(255),
+    `path` VARCHAR(255),
+    `original_ext` TINYINT DEFAULT 0,
+    `guess_ext` TINYINT DEFAULT 0,
+    `ext` TINYINT DEFAULT 0,
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `created_at` DATETIME,
+    `updated_at` DATETIME,
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB;
+
 # This restores the fkey checks, after having unset them earlier
 SET FOREIGN_KEY_CHECKS = 1;

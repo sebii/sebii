@@ -1,12 +1,2 @@
-security:
-    providers:
-        in_memory:
-            memory: ~
-
-    firewalls:
-        dev:
-            pattern: ^/(_(profiler|wdt)|css|images|js)/
-            security: false
-
-        default:
-            anonymous: ~
+imports:
+    - { resource: "@SbhStartBundle/Resources/config/security.yml" }

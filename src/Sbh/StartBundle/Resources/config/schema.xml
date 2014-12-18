@@ -1,6 +1,5 @@
 <database name="default" namespace="Sbh\StartBundle\Model" defaultIdMethod="native">
     <table name="user">
-        <!--<column name="id" type="integer" primaryString="true" autoIncrement="true" />-->
         <column name="username" type="varchar" size="100" required="true" />
         <column name="username_canonical" type="varchar" />
         <column name="salt" type="varchar" size="15" />
@@ -19,5 +18,13 @@
         <unique name="unique_email">
             <unique-column name="email" />
         </unique>
+    </table>
+    <table name="file">
+        <column name="type" type="enum" valueSet="binary,music" defaultValue="binary" />
+        <column name="original_path" type="varchar" />
+        <column name="path" type="varchar" />
+        <column name="original_ext" type="enum" valueSet="bin,mp3,ogg,aac,flac,mpga,wav" defaultValue="bin" />
+        <column name="guess_ext" type="enum" valueSet="bin,mp3,ogg,aac,flac,mpga,wav" defaultValue="bin" />
+        <column name="ext" type="enum" valueSet="bin,mp3,ogg,aac,flac,mpga,wav" defaultValue="bin" />
     </table>
 </database>
