@@ -1,5 +1,6 @@
 sbh_start:
-    resource: "@SbhStartBundle/Resources/config/routing.yml"
+    resource: "@SbhStartBundle/Controller"
+    type:     annotation
     prefix:   /
 
 sbh_main:
