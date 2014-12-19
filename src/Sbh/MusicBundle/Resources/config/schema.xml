@@ -1,0 +1,20 @@
+<database name="default" namespace="Sbh\MusicBundle\Model" defaultIdMethod="native">
+    <table name="music_file">
+        <column name="file_id" type="integer" />
+        <column name="scan_original_tag" type="boolean" defaultValue="true" />
+        
+        <foreign-key foreignTable="file" onDelete="setnull" onUpdate="cascade" name="fk_music_file_file">
+            <reference local="file_id" foreign="id" />
+        </foreign-key>
+    </table>
+    <table name="music_original_tag">
+        <column name="music_file_id" type="integer" />
+        <column name="type" type="varchar" />
+        <column name="name" type="varchar" />
+        <column name="value" type="varchar" />
+        
+        <foreign-key foreignTable="music_file" onDelete="setnull" onUpdate="cascade" name="fk_music_original_tag_music_file">
+            <reference local="music_file_id" foreign="id" />
+        </foreign-key>
+    </table>
+</database>

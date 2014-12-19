@@ -1,13 +1,13 @@
 <?php
 
-namespace Sbh\StartBundle\Model\map;
+namespace Sbh\MusicBundle\Model\map;
 
 use \RelationMap;
 use \TableMap;
 
 
 /**
- * This class defines the structure of the 'file' table.
+ * This class defines the structure of the 'music_original_tag' table.
  *
  *
  *
@@ -16,15 +16,15 @@ use \TableMap;
  * ORDER BY clause to know whether it needs to apply SQL to make the ORDER BY case-insensitive
  * (i.e. if it's a text column type).
  *
- * @package    propel.generator.src.Sbh.StartBundle.Model.map
+ * @package    propel.generator.src.Sbh.MusicBundle.Model.map
  */
-class FileTableMap extends TableMap
+class MusicOriginalTagTableMap extends TableMap
 {
 
     /**
      * The (dot-path) name of this class
      */
-    const CLASS_NAME = 'src.Sbh.StartBundle.Model.map.FileTableMap';
+    const CLASS_NAME = 'src.Sbh.MusicBundle.Model.map.MusicOriginalTagTableMap';
 
     /**
      * Initialize the table attributes, columns and validators
@@ -36,49 +36,16 @@ class FileTableMap extends TableMap
     public function initialize()
     {
         // attributes
-        $this->setName('file');
-        $this->setPhpName('File');
-        $this->setClassname('Sbh\\StartBundle\\Model\\File');
-        $this->setPackage('src.Sbh.StartBundle.Model');
+        $this->setName('music_original_tag');
+        $this->setPhpName('MusicOriginalTag');
+        $this->setClassname('Sbh\\MusicBundle\\Model\\MusicOriginalTag');
+        $this->setPackage('src.Sbh.MusicBundle.Model');
         $this->setUseIdGenerator(true);
         // columns
-        $this->addColumn('type', 'Type', 'ENUM', false, null, 'binary');
-        $this->getColumn('type', false)->setValueSet(array (
-  0 => 'binary',
-  1 => 'music',
-));
-        $this->addColumn('original_path', 'OriginalPath', 'VARCHAR', false, 255, null);
-        $this->addColumn('path', 'Path', 'VARCHAR', false, 255, null);
-        $this->addColumn('original_ext', 'OriginalExt', 'ENUM', false, null, 'bin');
-        $this->getColumn('original_ext', false)->setValueSet(array (
-  0 => 'bin',
-  1 => 'mp3',
-  2 => 'ogg',
-  3 => 'aac',
-  4 => 'flac',
-  5 => 'mpga',
-  6 => 'wav',
-));
-        $this->addColumn('guess_ext', 'GuessExt', 'ENUM', false, null, 'bin');
-        $this->getColumn('guess_ext', false)->setValueSet(array (
-  0 => 'bin',
-  1 => 'mp3',
-  2 => 'ogg',
-  3 => 'aac',
-  4 => 'flac',
-  5 => 'mpga',
-  6 => 'wav',
-));
-        $this->addColumn('ext', 'Ext', 'ENUM', false, null, 'bin');
-        $this->getColumn('ext', false)->setValueSet(array (
-  0 => 'bin',
-  1 => 'mp3',
-  2 => 'ogg',
-  3 => 'aac',
-  4 => 'flac',
-  5 => 'mpga',
-  6 => 'wav',
-));
+        $this->addForeignKey('music_file_id', 'MusicFileId', 'INTEGER', 'music_file', 'id', false, null, null);
+        $this->addColumn('type', 'Type', 'VARCHAR', false, 255, null);
+        $this->addColumn('name', 'Name', 'VARCHAR', false, 255, null);
+        $this->addColumn('value', 'Value', 'VARCHAR', false, 255, null);
         $this->addPrimaryKey('id', 'Id', 'INTEGER', true, null, null);
         $this->addColumn('created_at', 'CreatedAt', 'TIMESTAMP', false, null, null);
         $this->addColumn('updated_at', 'UpdatedAt', 'TIMESTAMP', false, null, null);
@@ -90,7 +57,7 @@ class FileTableMap extends TableMap
      */
     public function buildRelations()
     {
-        $this->addRelation('MusicFile', 'Sbh\\MusicBundle\\Model\\MusicFile', RelationMap::ONE_TO_MANY, array('id' => 'file_id', ), 'SET NULL', 'CASCADE', 'MusicFiles');
+        $this->addRelation('MusicFile', 'Sbh\\MusicBundle\\Model\\MusicFile', RelationMap::MANY_TO_ONE, array('music_file_id' => 'id', ), 'SET NULL', 'CASCADE');
     } // buildRelations()
 
     /**

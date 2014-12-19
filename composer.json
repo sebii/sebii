@@ -18,7 +18,8 @@
         "sensio/distribution-bundle": "~3.0",
         "sensio/framework-extra-bundle": "~3.0",
         "incenteev/composer-parameter-handler": "~2.0",
-        "propel/propel-bundle": "1.4.x-dev"
+        "propel/propel-bundle": "1.4.x-dev",
+        "nass600/get-id3": "1.0.*@dev"
     },
     "require-dev": {
         "sensio/generator-bundle": "~2.3"

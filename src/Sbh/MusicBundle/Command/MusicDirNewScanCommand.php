@@ -1,6 +1,6 @@
 <?php
 
-namespace Sbh\MainBundle\Command;
+namespace Sbh\MusicBundle\Command;
 
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
@@ -18,7 +18,7 @@ use Sbh\StartBundle\Model\FilePeer;
  * @version 1.0.0
  * @author Sébastien "sebii" Bloino <sebii@sebiiheckel.fr>
  */
-class MusicScanCommand extends ContainerAwareCommand
+class MusicDirNewScanCommand extends ContainerAwareCommand
 {
     /**
      * configuration
@@ -31,7 +31,7 @@ class MusicScanCommand extends ContainerAwareCommand
     protected function configure()
     {
         $this
-            ->setName('sbh:music:scan')
+            ->setName('sbh:music:scan:dir')
             ->setDescription('Scan new musics in web/ii/scan_music');
     }
     

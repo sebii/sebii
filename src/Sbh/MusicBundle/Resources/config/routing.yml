@@ -1,0 +1,3 @@
+sbh_music_homepage:
+    path:     /hello/{name}
+    defaults: { _controller: SbhMusicBundle:Default:index }

@@ -1,6 +1,6 @@
 <?php
 
-namespace Sbh\StartBundle\Model\om;
+namespace Sbh\MusicBundle\Model\om;
 
 use \BasePeer;
 use \Criteria;
@@ -9,101 +9,59 @@ use \PDOStatement;
 use \Propel;
 use \PropelException;
 use \PropelPDO;
+use Sbh\MusicBundle\Model\MusicFile;
 use Sbh\MusicBundle\Model\MusicFilePeer;
-use Sbh\StartBundle\Model\File;
+use Sbh\MusicBundle\Model\MusicOriginalTagPeer;
+use Sbh\MusicBundle\Model\map\MusicFileTableMap;
 use Sbh\StartBundle\Model\FilePeer;
-use Sbh\StartBundle\Model\map\FileTableMap;
 
-abstract class BaseFilePeer
+abstract class BaseMusicFilePeer
 {
 
     /** the default database name for this class */
     const DATABASE_NAME = 'default';
 
     /** the table name for this class */
-    const TABLE_NAME = 'file';
+    const TABLE_NAME = 'music_file';
 
     /** the related Propel class for this table */
-    const OM_CLASS = 'Sbh\\StartBundle\\Model\\File';
+    const OM_CLASS = 'Sbh\\MusicBundle\\Model\\MusicFile';
 
     /** the related TableMap class for this table */
-    const TM_CLASS = 'Sbh\\StartBundle\\Model\\map\\FileTableMap';
+    const TM_CLASS = 'Sbh\\MusicBundle\\Model\\map\\MusicFileTableMap';
 
     /** The total number of columns. */
-    const NUM_COLUMNS = 9;
+    const NUM_COLUMNS = 5;
 
     /** The number of lazy-loaded columns. */
     const NUM_LAZY_LOAD_COLUMNS = 0;
 
     /** The number of columns to hydrate (NUM_COLUMNS - NUM_LAZY_LOAD_COLUMNS) */
-    const NUM_HYDRATE_COLUMNS = 9;
+    const NUM_HYDRATE_COLUMNS = 5;
 
-    /** the column name for the type field */
-    const TYPE = 'file.type';
+    /** the column name for the file_id field */
+    const FILE_ID = 'music_file.file_id';
 
-    /** the column name for the original_path field */
-    const ORIGINAL_PATH = 'file.original_path';
-
-    /** the column name for the path field */
-    const PATH = 'file.path';
-
-    /** the column name for the original_ext field */
-    const ORIGINAL_EXT = 'file.original_ext';
-
-    /** the column name for the guess_ext field */
-    const GUESS_EXT = 'file.guess_ext';
-
-    /** the column name for the ext field */
-    const EXT = 'file.ext';
+    /** the column name for the scan_original_tag field */
+    const SCAN_ORIGINAL_TAG = 'music_file.scan_original_tag';
 
     /** the column name for the id field */
-    const ID = 'file.id';
+    const ID = 'music_file.id';
 
     /** the column name for the created_at field */
-    const CREATED_AT = 'file.created_at';
+    const CREATED_AT = 'music_file.created_at';
 
     /** the column name for the updated_at field */
-    const UPDATED_AT = 'file.updated_at';
-
-    /** The enumerated values for the type field */
-    const TYPE_BINARY = 'binary';
-    const TYPE_MUSIC = 'music';
-
-    /** The enumerated values for the original_ext field */
-    const ORIGINAL_EXT_BIN = 'bin';
-    const ORIGINAL_EXT_MP3 = 'mp3';
-    const ORIGINAL_EXT_OGG = 'ogg';
-    const ORIGINAL_EXT_AAC = 'aac';
-    const ORIGINAL_EXT_FLAC = 'flac';
-    const ORIGINAL_EXT_MPGA = 'mpga';
-    const ORIGINAL_EXT_WAV = 'wav';
-
-    /** The enumerated values for the guess_ext field */
-    const GUESS_EXT_BIN = 'bin';
-    const GUESS_EXT_MP3 = 'mp3';
-    const GUESS_EXT_OGG = 'ogg';
-    const GUESS_EXT_AAC = 'aac';
-    const GUESS_EXT_FLAC = 'flac';
-    const GUESS_EXT_MPGA = 'mpga';
-    const GUESS_EXT_WAV = 'wav';
-
-    /** The enumerated values for the ext field */
-    const EXT_BIN = 'bin';
-    const EXT_MP3 = 'mp3';
-    const EXT_OGG = 'ogg';
-    const EXT_AAC = 'aac';
-    const EXT_FLAC = 'flac';
-    const EXT_MPGA = 'mpga';
-    const EXT_WAV = 'wav';
+    const UPDATED_AT = 'music_file.updated_at';
 
     /** The default string format for model objects of the related table **/
     const DEFAULT_STRING_FORMAT = 'YAML';
 
     /**
-     * An identity map to hold any loaded instances of File objects.
+     * An identity map to hold any loaded instances of MusicFile objects.
      * This must be public so that other peer classes can access this when hydrating from JOIN
      * queries.
-     * @var        array File[]
+     * @var        array MusicFile[]
      */
     public static $instances = array();
 
@@ -112,65 +70,30 @@ abstract class BaseFilePeer
      * holds an array of fieldnames
      *
      * first dimension keys are the type constants
-     * e.g. FilePeer::$fieldNames[FilePeer::TYPE_PHPNAME][0] = 'Id'
+     * e.g. MusicFilePeer::$fieldNames[MusicFilePeer::TYPE_PHPNAME][0] = 'Id'
      */
     protected static $fieldNames = array (
-        BasePeer::TYPE_PHPNAME => array ('Type', 'OriginalPath', 'Path', 'OriginalExt', 'GuessExt', 'Ext', 'Id', 'CreatedAt', 'UpdatedAt', ),
-        BasePeer::TYPE_STUDLYPHPNAME => array ('type', 'originalPath', 'path', 'originalExt', 'guessExt', 'ext', 'id', 'createdAt', 'updatedAt', ),
-        BasePeer::TYPE_COLNAME => array (FilePeer::TYPE, FilePeer::ORIGINAL_PATH, FilePeer::PATH, FilePeer::ORIGINAL_EXT, FilePeer::GUESS_EXT, FilePeer::EXT, FilePeer::ID, FilePeer::CREATED_AT, FilePeer::UPDATED_AT, ),
-        BasePeer::TYPE_RAW_COLNAME => array ('TYPE', 'ORIGINAL_PATH', 'PATH', 'ORIGINAL_EXT', 'GUESS_EXT', 'EXT', 'ID', 'CREATED_AT', 'UPDATED_AT', ),
-        BasePeer::TYPE_FIELDNAME => array ('type', 'original_path', 'path', 'original_ext', 'guess_ext', 'ext', 'id', 'created_at', 'updated_at', ),
-        BasePeer::TYPE_NUM => array (0, 1, 2, 3, 4, 5, 6, 7, 8, )
+        BasePeer::TYPE_PHPNAME => array ('FileId', 'ScanOriginalTag', 'Id', 'CreatedAt', 'UpdatedAt', ),
+        BasePeer::TYPE_STUDLYPHPNAME => array ('fileId', 'scanOriginalTag', 'id', 'createdAt', 'updatedAt', ),
+        BasePeer::TYPE_COLNAME => array (MusicFilePeer::FILE_ID, MusicFilePeer::SCAN_ORIGINAL_TAG, MusicFilePeer::ID, MusicFilePeer::CREATED_AT, MusicFilePeer::UPDATED_AT, ),
+        BasePeer::TYPE_RAW_COLNAME => array ('FILE_ID', 'SCAN_ORIGINAL_TAG', 'ID', 'CREATED_AT', 'UPDATED_AT', ),
+        BasePeer::TYPE_FIELDNAME => array ('file_id', 'scan_original_tag', 'id', 'created_at', 'updated_at', ),
+        BasePeer::TYPE_NUM => array (0, 1, 2, 3, 4, )
     );
 
     /**
      * holds an array of keys for quick access to the fieldnames array
      *
      * first dimension keys are the type constants
-     * e.g. FilePeer::$fieldNames[BasePeer::TYPE_PHPNAME]['Id'] = 0
+     * e.g. MusicFilePeer::$fieldNames[BasePeer::TYPE_PHPNAME]['Id'] = 0
      */
     protected static $fieldKeys = array (
-        BasePeer::TYPE_PHPNAME => array ('Type' => 0, 'OriginalPath' => 1, 'Path' => 2, 'OriginalExt' => 3, 'GuessExt' => 4, 'Ext' => 5, 'Id' => 6, 'CreatedAt' => 7, 'UpdatedAt' => 8, ),
-        BasePeer::TYPE_STUDLYPHPNAME => array ('type' => 0, 'originalPath' => 1, 'path' => 2, 'originalExt' => 3, 'guessExt' => 4, 'ext' => 5, 'id' => 6, 'createdAt' => 7, 'updatedAt' => 8, ),
-        BasePeer::TYPE_COLNAME => array (FilePeer::TYPE => 0, FilePeer::ORIGINAL_PATH => 1, FilePeer::PATH => 2, FilePeer::ORIGINAL_EXT => 3, FilePeer::GUESS_EXT => 4, FilePeer::EXT => 5, FilePeer::ID => 6, FilePeer::CREATED_AT => 7, FilePeer::UPDATED_AT => 8, ),
-        BasePeer::TYPE_RAW_COLNAME => array ('TYPE' => 0, 'ORIGINAL_PATH' => 1, 'PATH' => 2, 'ORIGINAL_EXT' => 3, 'GUESS_EXT' => 4, 'EXT' => 5, 'ID' => 6, 'CREATED_AT' => 7, 'UPDATED_AT' => 8, ),
-        BasePeer::TYPE_FIELDNAME => array ('type' => 0, 'original_path' => 1, 'path' => 2, 'original_ext' => 3, 'guess_ext' => 4, 'ext' => 5, 'id' => 6, 'created_at' => 7, 'updated_at' => 8, ),
-        BasePeer::TYPE_NUM => array (0, 1, 2, 3, 4, 5, 6, 7, 8, )
-    );
-
-    /** The enumerated values for this table */
-    protected static $enumValueSets = array(
-        FilePeer::TYPE => array(
-      FilePeer::TYPE_BINARY,
-      FilePeer::TYPE_MUSIC,
-    ),
-        FilePeer::ORIGINAL_EXT => array(
-      FilePeer::ORIGINAL_EXT_BIN,
-      FilePeer::ORIGINAL_EXT_MP3,
-      FilePeer::ORIGINAL_EXT_OGG,
-      FilePeer::ORIGINAL_EXT_AAC,
-      FilePeer::ORIGINAL_EXT_FLAC,
-      FilePeer::ORIGINAL_EXT_MPGA,
-      FilePeer::ORIGINAL_EXT_WAV,
-    ),
-        FilePeer::GUESS_EXT => array(
-      FilePeer::GUESS_EXT_BIN,
-      FilePeer::GUESS_EXT_MP3,
-      FilePeer::GUESS_EXT_OGG,
-      FilePeer::GUESS_EXT_AAC,
-      FilePeer::GUESS_EXT_FLAC,
-      FilePeer::GUESS_EXT_MPGA,
-      FilePeer::GUESS_EXT_WAV,
-    ),
-        FilePeer::EXT => array(
-      FilePeer::EXT_BIN,
-      FilePeer::EXT_MP3,
-      FilePeer::EXT_OGG,
-      FilePeer::EXT_AAC,
-      FilePeer::EXT_FLAC,
-      FilePeer::EXT_MPGA,
-      FilePeer::EXT_WAV,
-    ),
+        BasePeer::TYPE_PHPNAME => array ('FileId' => 0, 'ScanOriginalTag' => 1, 'Id' => 2, 'CreatedAt' => 3, 'UpdatedAt' => 4, ),
+        BasePeer::TYPE_STUDLYPHPNAME => array ('fileId' => 0, 'scanOriginalTag' => 1, 'id' => 2, 'createdAt' => 3, 'updatedAt' => 4, ),
+        BasePeer::TYPE_COLNAME => array (MusicFilePeer::FILE_ID => 0, MusicFilePeer::SCAN_ORIGINAL_TAG => 1, MusicFilePeer::ID => 2, MusicFilePeer::CREATED_AT => 3, MusicFilePeer::UPDATED_AT => 4, ),
+        BasePeer::TYPE_RAW_COLNAME => array ('FILE_ID' => 0, 'SCAN_ORIGINAL_TAG' => 1, 'ID' => 2, 'CREATED_AT' => 3, 'UPDATED_AT' => 4, ),
+        BasePeer::TYPE_FIELDNAME => array ('file_id' => 0, 'scan_original_tag' => 1, 'id' => 2, 'created_at' => 3, 'updated_at' => 4, ),
+        BasePeer::TYPE_NUM => array (0, 1, 2, 3, 4, )
     );
 
     /**
@@ -185,10 +108,10 @@ abstract class BaseFilePeer
      */
     public static function translateFieldName($name, $fromType, $toType)
     {
-        $toNames = FilePeer::getFieldNames($toType);
-        $key = isset(FilePeer::$fieldKeys[$fromType][$name]) ? FilePeer::$fieldKeys[$fromType][$name] : null;
+        $toNames = MusicFilePeer::getFieldNames($toType);
+        $key = isset(MusicFilePeer::$fieldKeys[$fromType][$name]) ? MusicFilePeer::$fieldKeys[$fromType][$name] : null;
         if ($key === null) {
-            throw new PropelException("'$name' could not be found in the field names of type '$fromType'. These are: " . print_r(FilePeer::$fieldKeys[$fromType], true));
+            throw new PropelException("'$name' could not be found in the field names of type '$fromType'. These are: " . print_r(MusicFilePeer::$fieldKeys[$fromType], true));
         }
 
         return $toNames[$key];
@@ -205,56 +128,11 @@ abstract class BaseFilePeer
      */
     public static function getFieldNames($type = BasePeer::TYPE_PHPNAME)
     {
-        if (!array_key_exists($type, FilePeer::$fieldNames)) {
+        if (!array_key_exists($type, MusicFilePeer::$fieldNames)) {
             throw new PropelException('Method getFieldNames() expects the parameter $type to be one of the class constants BasePeer::TYPE_PHPNAME, BasePeer::TYPE_STUDLYPHPNAME, BasePeer::TYPE_COLNAME, BasePeer::TYPE_FIELDNAME, BasePeer::TYPE_NUM. ' . $type . ' was given.');
         }
 
-        return FilePeer::$fieldNames[$type];
-    }
-
-    /**
-     * Gets the list of values for all ENUM columns
-     * @return array
-     */
-    public static function getValueSets()
-    {
-      return FilePeer::$enumValueSets;
-    }
-
-    /**
-     * Gets the list of values for an ENUM column
-     *
-     * @param string $colname The ENUM column name.
-     *
-     * @return array list of possible values for the column
-     */
-    public static function getValueSet($colname)
-    {
-        $valueSets = FilePeer::getValueSets();
-
-        if (!isset($valueSets[$colname])) {
-            throw new PropelException(sprintf('Column "%s" has no ValueSet.', $colname));
-        }
-
-        return $valueSets[$colname];
-    }
-
-    /**
-     * Gets the SQL value for the ENUM column value
-     *
-     * @param string $colname ENUM column name.
-     * @param string $enumVal ENUM value.
-     *
-     * @return int SQL value
-     */
-    public static function getSqlValueForEnum($colname, $enumVal)
-    {
-        $values = FilePeer::getValueSet($colname);
-        if (!in_array($enumVal, $values)) {
-            throw new PropelException(sprintf('Value "%s" is not accepted in this enumerated column', $colname));
-        }
-
-        return array_search($enumVal, $values);
+        return MusicFilePeer::$fieldNames[$type];
     }
 
     /**
@@ -266,12 +144,12 @@ abstract class BaseFilePeer
      *    $c->addJoin(TablePeer::alias("alias1", TablePeer::PRIMARY_KEY_COLUMN), TablePeer::PRIMARY_KEY_COLUMN);
      * </code>
      * @param      string $alias The alias for the current table.
-     * @param      string $column The column name for current table. (i.e. FilePeer::COLUMN_NAME).
+     * @param      string $column The column name for current table. (i.e. MusicFilePeer::COLUMN_NAME).
      * @return string
      */
     public static function alias($alias, $column)
     {
-        return str_replace(FilePeer::TABLE_NAME.'.', $alias.'.', $column);
+        return str_replace(MusicFilePeer::TABLE_NAME.'.', $alias.'.', $column);
     }
 
     /**
@@ -289,22 +167,14 @@ abstract class BaseFilePeer
     public static function addSelectColumns(Criteria $criteria, $alias = null)
     {
         if (null === $alias) {
-            $criteria->addSelectColumn(FilePeer::TYPE);
-            $criteria->addSelectColumn(FilePeer::ORIGINAL_PATH);
-            $criteria->addSelectColumn(FilePeer::PATH);
-            $criteria->addSelectColumn(FilePeer::ORIGINAL_EXT);
-            $criteria->addSelectColumn(FilePeer::GUESS_EXT);
-            $criteria->addSelectColumn(FilePeer::EXT);
-            $criteria->addSelectColumn(FilePeer::ID);
-            $criteria->addSelectColumn(FilePeer::CREATED_AT);
-            $criteria->addSelectColumn(FilePeer::UPDATED_AT);
+            $criteria->addSelectColumn(MusicFilePeer::FILE_ID);
+            $criteria->addSelectColumn(MusicFilePeer::SCAN_ORIGINAL_TAG);
+            $criteria->addSelectColumn(MusicFilePeer::ID);
+            $criteria->addSelectColumn(MusicFilePeer::CREATED_AT);
+            $criteria->addSelectColumn(MusicFilePeer::UPDATED_AT);
         } else {
-            $criteria->addSelectColumn($alias . '.type');
-            $criteria->addSelectColumn($alias . '.original_path');
-            $criteria->addSelectColumn($alias . '.path');
-            $criteria->addSelectColumn($alias . '.original_ext');
-            $criteria->addSelectColumn($alias . '.guess_ext');
-            $criteria->addSelectColumn($alias . '.ext');
+            $criteria->addSelectColumn($alias . '.file_id');
+            $criteria->addSelectColumn($alias . '.scan_original_tag');
             $criteria->addSelectColumn($alias . '.id');
             $criteria->addSelectColumn($alias . '.created_at');
             $criteria->addSelectColumn($alias . '.updated_at');
@@ -327,21 +197,21 @@ abstract class BaseFilePeer
         // We need to set the primary table name, since in the case that there are no WHERE columns
         // it will be impossible for the BasePeer::createSelectSql() method to determine which
         // tables go into the FROM clause.
-        $criteria->setPrimaryTableName(FilePeer::TABLE_NAME);
+        $criteria->setPrimaryTableName(MusicFilePeer::TABLE_NAME);
 
         if ($distinct && !in_array(Criteria::DISTINCT, $criteria->getSelectModifiers())) {
             $criteria->setDistinct();
         }
 
         if (!$criteria->hasSelectClause()) {
-            FilePeer::addSelectColumns($criteria);
+            MusicFilePeer::addSelectColumns($criteria);
         }
 
         $criteria->clearOrderByColumns(); // ORDER BY won't ever affect the count
-        $criteria->setDbName(FilePeer::DATABASE_NAME); // Set the correct dbName
+        $criteria->setDbName(MusicFilePeer::DATABASE_NAME); // Set the correct dbName
 
         if ($con === null) {
-            $con = Propel::getConnection(FilePeer::DATABASE_NAME, Propel::CONNECTION_READ);
+            $con = Propel::getConnection(MusicFilePeer::DATABASE_NAME, Propel::CONNECTION_READ);
         }
         // BasePeer returns a PDOStatement
         $stmt = BasePeer::doCount($criteria, $con);
@@ -360,7 +230,7 @@ abstract class BaseFilePeer
      *
      * @param      Criteria $criteria object used to create the SELECT statement.
      * @param      PropelPDO $con
-     * @return File
+     * @return MusicFile
      * @throws PropelException Any exceptions caught during processing will be
      *     rethrown wrapped into a PropelException.
      */
@@ -368,7 +238,7 @@ abstract class BaseFilePeer
     {
         $critcopy = clone $criteria;
         $critcopy->setLimit(1);
-        $objects = FilePeer::doSelect($critcopy, $con);
+        $objects = MusicFilePeer::doSelect($critcopy, $con);
         if ($objects) {
             return $objects[0];
         }
@@ -386,7 +256,7 @@ abstract class BaseFilePeer
      */
     public static function doSelect(Criteria $criteria, PropelPDO $con = null)
     {
-        return FilePeer::populateObjects(FilePeer::doSelectStmt($criteria, $con));
+        return MusicFilePeer::populateObjects(MusicFilePeer::doSelectStmt($criteria, $con));
     }
     /**
      * Prepares the Criteria object and uses the parent doSelect() method to execute a PDOStatement.
@@ -404,16 +274,16 @@ abstract class BaseFilePeer
     public static function doSelectStmt(Criteria $criteria, PropelPDO $con = null)
     {
         if ($con === null) {
-            $con = Propel::getConnection(FilePeer::DATABASE_NAME, Propel::CONNECTION_READ);
+            $con = Propel::getConnection(MusicFilePeer::DATABASE_NAME, Propel::CONNECTION_READ);
         }
 
         if (!$criteria->hasSelectClause()) {
             $criteria = clone $criteria;
-            FilePeer::addSelectColumns($criteria);
+            MusicFilePeer::addSelectColumns($criteria);
         }
 
         // Set the correct dbName
-        $criteria->setDbName(FilePeer::DATABASE_NAME);
+        $criteria->setDbName(MusicFilePeer::DATABASE_NAME);
 
         // BasePeer returns a PDOStatement
         return BasePeer::doSelect($criteria, $con);
@@ -427,7 +297,7 @@ abstract class BaseFilePeer
      * to the cache in order to ensure that the same objects are always returned by doSelect*()
      * and retrieveByPK*() calls.
      *
-     * @param File $obj A File object.
+     * @param MusicFile $obj A MusicFile object.
      * @param      string $key (optional) key to use for instance map (for performance boost if key was already calculated externally).
      */
     public static function addInstanceToPool($obj, $key = null)
@@ -436,7 +306,7 @@ abstract class BaseFilePeer
             if ($key === null) {
                 $key = (string) $obj->getId();
             } // if key === null
-            FilePeer::$instances[$key] = $obj;
+            MusicFilePeer::$instances[$key] = $obj;
         }
     }
 
@@ -448,7 +318,7 @@ abstract class BaseFilePeer
      * methods in your stub classes -- you may need to explicitly remove objects
      * from the cache in order to prevent returning objects that no longer exist.
      *
-     * @param      mixed $value A File object or a primary key value.
+     * @param      mixed $value A MusicFile object or a primary key value.
      *
      * @return void
      * @throws PropelException - if the value is invalid.
@@ -456,17 +326,17 @@ abstract class BaseFilePeer
     public static function removeInstanceFromPool($value)
     {
         if (Propel::isInstancePoolingEnabled() && $value !== null) {
-            if (is_object($value) && $value instanceof File) {
+            if (is_object($value) && $value instanceof MusicFile) {
                 $key = (string) $value->getId();
             } elseif (is_scalar($value)) {
                 // assume we've been passed a primary key
                 $key = (string) $value;
             } else {
-                $e = new PropelException("Invalid value passed to removeInstanceFromPool().  Expected primary key or File object; got " . (is_object($value) ? get_class($value) . ' object.' : var_export($value,true)));
+                $e = new PropelException("Invalid value passed to removeInstanceFromPool().  Expected primary key or MusicFile object; got " . (is_object($value) ? get_class($value) . ' object.' : var_export($value,true)));
                 throw $e;
             }
 
-            unset(FilePeer::$instances[$key]);
+            unset(MusicFilePeer::$instances[$key]);
         }
     } // removeInstanceFromPool()
 
@@ -477,14 +347,14 @@ abstract class BaseFilePeer
      * a multi-column primary key, a serialize()d version of the primary key will be returned.
      *
      * @param      string $key The key (@see getPrimaryKeyHash()) for this instance.
-     * @return File Found object or null if 1) no instance exists for specified key or 2) instance pooling has been disabled.
+     * @return MusicFile Found object or null if 1) no instance exists for specified key or 2) instance pooling has been disabled.
      * @see        getPrimaryKeyHash()
      */
     public static function getInstanceFromPool($key)
     {
         if (Propel::isInstancePoolingEnabled()) {
-            if (isset(FilePeer::$instances[$key])) {
-                return FilePeer::$instances[$key];
+            if (isset(MusicFilePeer::$instances[$key])) {
+                return MusicFilePeer::$instances[$key];
             }
         }
 
@@ -499,22 +369,22 @@ abstract class BaseFilePeer
     public static function clearInstancePool($and_clear_all_references = false)
     {
       if ($and_clear_all_references) {
-        foreach (FilePeer::$instances as $instance) {
+        foreach (MusicFilePeer::$instances as $instance) {
           $instance->clearAllReferences(true);
         }
       }
-        FilePeer::$instances = array();
+        MusicFilePeer::$instances = array();
     }
 
     /**
-     * Method to invalidate the instance pool of all tables related to file
+     * Method to invalidate the instance pool of all tables related to music_file
      * by a foreign key with ON DELETE CASCADE
      */
     public static function clearRelatedInstancePool()
     {
-        // Invalidate objects in MusicFilePeer instance pool,
+        // Invalidate objects in MusicOriginalTagPeer instance pool,
         // since one or more of them may be deleted by ON DELETE CASCADE/SETNULL rule.
-        MusicFilePeer::clearInstancePool();
+        MusicOriginalTagPeer::clearInstancePool();
     }
 
     /**
@@ -530,11 +400,11 @@ abstract class BaseFilePeer
     public static function getPrimaryKeyHashFromRow($row, $startcol = 0)
     {
         // If the PK cannot be derived from the row, return null.
-        if ($row[$startcol + 6] === null) {
+        if ($row[$startcol + 2] === null) {
             return null;
         }
 
-        return (string) $row[$startcol + 6];
+        return (string) $row[$startcol + 2];
     }
 
     /**
@@ -549,7 +419,7 @@ abstract class BaseFilePeer
     public static function getPrimaryKeyFromRow($row, $startcol = 0)
     {
 
-        return (int) $row[$startcol + 6];
+        return (int) $row[$startcol + 2];
     }
 
     /**
@@ -564,11 +434,11 @@ abstract class BaseFilePeer
         $results = array();
 
         // set the class once to avoid overhead in the loop
-        $cls = FilePeer::getOMClass();
+        $cls = MusicFilePeer::getOMClass();
         // populate the object(s)
         while ($row = $stmt->fetch(PDO::FETCH_NUM)) {
-            $key = FilePeer::getPrimaryKeyHashFromRow($row, 0);
-            if (null !== ($obj = FilePeer::getInstanceFromPool($key))) {
+            $key = MusicFilePeer::getPrimaryKeyHashFromRow($row, 0);
+            if (null !== ($obj = MusicFilePeer::getInstanceFromPool($key))) {
                 // We no longer rehydrate the object, since this can cause data loss.
                 // See http://www.propelorm.org/ticket/509
                 // $obj->hydrate($row, 0, true); // rehydrate
@@ -577,7 +447,7 @@ abstract class BaseFilePeer
                 $obj = new $cls();
                 $obj->hydrate($row);
                 $results[] = $obj;
-                FilePeer::addInstanceToPool($obj, $key);
+                MusicFilePeer::addInstanceToPool($obj, $key);
             } // if key exists
         }
         $stmt->closeCursor();
@@ -591,68 +461,262 @@ abstract class BaseFilePeer
      * @param      int $startcol The 0-based offset for reading from the resultset row.
      * @throws PropelException Any exceptions caught during processing will be
      *     rethrown wrapped into a PropelException.
-     * @return array (File object, last column rank)
+     * @return array (MusicFile object, last column rank)
      */
     public static function populateObject($row, $startcol = 0)
     {
-        $key = FilePeer::getPrimaryKeyHashFromRow($row, $startcol);
-        if (null !== ($obj = FilePeer::getInstanceFromPool($key))) {
+        $key = MusicFilePeer::getPrimaryKeyHashFromRow($row, $startcol);
+        if (null !== ($obj = MusicFilePeer::getInstanceFromPool($key))) {
             // We no longer rehydrate the object, since this can cause data loss.
             // See http://www.propelorm.org/ticket/509
             // $obj->hydrate($row, $startcol, true); // rehydrate
-            $col = $startcol + FilePeer::NUM_HYDRATE_COLUMNS;
+            $col = $startcol + MusicFilePeer::NUM_HYDRATE_COLUMNS;
         } else {
-            $cls = FilePeer::OM_CLASS;
+            $cls = MusicFilePeer::OM_CLASS;
             $obj = new $cls();
             $col = $obj->hydrate($row, $startcol);
-            FilePeer::addInstanceToPool($obj, $key);
+            MusicFilePeer::addInstanceToPool($obj, $key);
         }
 
         return array($obj, $col);
     }
 
+
     /**
-     * Gets the SQL value for Type ENUM value
+     * Returns the number of rows matching criteria, joining the related File table
      *
-     * @param  string $enumVal ENUM value to get SQL value for
-     * @return int SQL value
+     * @param      Criteria $criteria
+     * @param      boolean $distinct Whether to select only distinct columns; deprecated: use Criteria->setDistinct() instead.
+     * @param      PropelPDO $con
+     * @param      String    $join_behavior the type of joins to use, defaults to Criteria::LEFT_JOIN
+     * @return int Number of matching rows.
      */
-    public static function getTypeSqlValue($enumVal)
+    public static function doCountJoinFile(Criteria $criteria, $distinct = false, PropelPDO $con = null, $join_behavior = Criteria::LEFT_JOIN)
     {
-        return FilePeer::getSqlValueForEnum(FilePeer::TYPE, $enumVal);
+        // we're going to modify criteria, so copy it first
+        $criteria = clone $criteria;
+
+        // We need to set the primary table name, since in the case that there are no WHERE columns
+        // it will be impossible for the BasePeer::createSelectSql() method to determine which
+        // tables go into the FROM clause.
+        $criteria->setPrimaryTableName(MusicFilePeer::TABLE_NAME);
+
+        if ($distinct && !in_array(Criteria::DISTINCT, $criteria->getSelectModifiers())) {
+            $criteria->setDistinct();
+        }
+
+        if (!$criteria->hasSelectClause()) {
+            MusicFilePeer::addSelectColumns($criteria);
+        }
+
+        $criteria->clearOrderByColumns(); // ORDER BY won't ever affect the count
+
+        // Set the correct dbName
+        $criteria->setDbName(MusicFilePeer::DATABASE_NAME);
+
+        if ($con === null) {
+            $con = Propel::getConnection(MusicFilePeer::DATABASE_NAME, Propel::CONNECTION_READ);
+        }
+
+        $criteria->addJoin(MusicFilePeer::FILE_ID, FilePeer::ID, $join_behavior);
+
+        $stmt = BasePeer::doCount($criteria, $con);
+
+        if ($row = $stmt->fetch(PDO::FETCH_NUM)) {
+            $count = (int) $row[0];
+        } else {
+            $count = 0; // no rows returned; we infer that means 0 matches.
+        }
+        $stmt->closeCursor();
+
+        return $count;
+    }
+
+
+    /**
+     * Selects a collection of MusicFile objects pre-filled with their File objects.
+     * @param      Criteria  $criteria
+     * @param      PropelPDO $con
+     * @param      String    $join_behavior the type of joins to use, defaults to Criteria::LEFT_JOIN
+     * @return array           Array of MusicFile objects.
+     * @throws PropelException Any exceptions caught during processing will be
+     *     rethrown wrapped into a PropelException.
+     */
+    public static function doSelectJoinFile(Criteria $criteria, $con = null, $join_behavior = Criteria::LEFT_JOIN)
+    {
+        $criteria = clone $criteria;
+
+        // Set the correct dbName if it has not been overridden
+        if ($criteria->getDbName() == Propel::getDefaultDB()) {
+            $criteria->setDbName(MusicFilePeer::DATABASE_NAME);
+        }
+
+        MusicFilePeer::addSelectColumns($criteria);
+        $startcol = MusicFilePeer::NUM_HYDRATE_COLUMNS;
+        FilePeer::addSelectColumns($criteria);
+
+        $criteria->addJoin(MusicFilePeer::FILE_ID, FilePeer::ID, $join_behavior);
+
+        $stmt = BasePeer::doSelect($criteria, $con);
+        $results = array();
+
+        while ($row = $stmt->fetch(PDO::FETCH_NUM)) {
+            $key1 = MusicFilePeer::getPrimaryKeyHashFromRow($row, 0);
+            if (null !== ($obj1 = MusicFilePeer::getInstanceFromPool($key1))) {
+                // We no longer rehydrate the object, since this can cause data loss.
+                // See http://www.propelorm.org/ticket/509
+                // $obj1->hydrate($row, 0, true); // rehydrate
+            } else {
+
+                $cls = MusicFilePeer::getOMClass();
+
+                $obj1 = new $cls();
+                $obj1->hydrate($row);
+                MusicFilePeer::addInstanceToPool($obj1, $key1);
+            } // if $obj1 already loaded
+
+            $key2 = FilePeer::getPrimaryKeyHashFromRow($row, $startcol);
+            if ($key2 !== null) {
+                $obj2 = FilePeer::getInstanceFromPool($key2);
+                if (!$obj2) {
+
+                    $cls = FilePeer::getOMClass();
+
+                    $obj2 = new $cls();
+                    $obj2->hydrate($row, $startcol);
+                    FilePeer::addInstanceToPool($obj2, $key2);
+                } // if obj2 already loaded
+
+                // Add the $obj1 (MusicFile) to $obj2 (File)
+                $obj2->addMusicFile($obj1);
+
+            } // if joined row was not null
+
+            $results[] = $obj1;
+        }
+        $stmt->closeCursor();
+
+        return $results;
+    }
+
+
+    /**
+     * Returns the number of rows matching criteria, joining all related tables
+     *
+     * @param      Criteria $criteria
+     * @param      boolean $distinct Whether to select only distinct columns; deprecated: use Criteria->setDistinct() instead.
+     * @param      PropelPDO $con
+     * @param      String    $join_behavior the type of joins to use, defaults to Criteria::LEFT_JOIN
+     * @return int Number of matching rows.
+     */
+    public static function doCountJoinAll(Criteria $criteria, $distinct = false, PropelPDO $con = null, $join_behavior = Criteria::LEFT_JOIN)
+    {
+        // we're going to modify criteria, so copy it first
+        $criteria = clone $criteria;
+
+        // We need to set the primary table name, since in the case that there are no WHERE columns
+        // it will be impossible for the BasePeer::createSelectSql() method to determine which
+        // tables go into the FROM clause.
+        $criteria->setPrimaryTableName(MusicFilePeer::TABLE_NAME);
+
+        if ($distinct && !in_array(Criteria::DISTINCT, $criteria->getSelectModifiers())) {
+            $criteria->setDistinct();
+        }
+
+        if (!$criteria->hasSelectClause()) {
+            MusicFilePeer::addSelectColumns($criteria);
+        }
+
+        $criteria->clearOrderByColumns(); // ORDER BY won't ever affect the count
+
+        // Set the correct dbName
+        $criteria->setDbName(MusicFilePeer::DATABASE_NAME);
+
+        if ($con === null) {
+            $con = Propel::getConnection(MusicFilePeer::DATABASE_NAME, Propel::CONNECTION_READ);
+        }
+
+        $criteria->addJoin(MusicFilePeer::FILE_ID, FilePeer::ID, $join_behavior);
+
+        $stmt = BasePeer::doCount($criteria, $con);
+
+        if ($row = $stmt->fetch(PDO::FETCH_NUM)) {
+            $count = (int) $row[0];
+        } else {
+            $count = 0; // no rows returned; we infer that means 0 matches.
+        }
+        $stmt->closeCursor();
+
+        return $count;
     }
 
     /**
-     * Gets the SQL value for OriginalExt ENUM value
+     * Selects a collection of MusicFile objects pre-filled with all related objects.
      *
-     * @param  string $enumVal ENUM value to get SQL value for
-     * @return int SQL value
+     * @param      Criteria  $criteria
+     * @param      PropelPDO $con
+     * @param      String    $join_behavior the type of joins to use, defaults to Criteria::LEFT_JOIN
+     * @return array           Array of MusicFile objects.
+     * @throws PropelException Any exceptions caught during processing will be
+     *     rethrown wrapped into a PropelException.
      */
-    public static function getOriginalExtSqlValue($enumVal)
+    public static function doSelectJoinAll(Criteria $criteria, $con = null, $join_behavior = Criteria::LEFT_JOIN)
     {
-        return FilePeer::getSqlValueForEnum(FilePeer::ORIGINAL_EXT, $enumVal);
-    }
+        $criteria = clone $criteria;
 
-    /**
-     * Gets the SQL value for GuessExt ENUM value
-     *
-     * @param  string $enumVal ENUM value to get SQL value for
-     * @return int SQL value
-     */
-    public static function getGuessExtSqlValue($enumVal)
-    {
-        return FilePeer::getSqlValueForEnum(FilePeer::GUESS_EXT, $enumVal);
-    }
+        // Set the correct dbName if it has not been overridden
+        if ($criteria->getDbName() == Propel::getDefaultDB()) {
+            $criteria->setDbName(MusicFilePeer::DATABASE_NAME);
+        }
 
-    /**
-     * Gets the SQL value for Ext ENUM value
-     *
-     * @param  string $enumVal ENUM value to get SQL value for
-     * @return int SQL value
-     */
-    public static function getExtSqlValue($enumVal)
-    {
-        return FilePeer::getSqlValueForEnum(FilePeer::EXT, $enumVal);
+        MusicFilePeer::addSelectColumns($criteria);
+        $startcol2 = MusicFilePeer::NUM_HYDRATE_COLUMNS;
+
+        FilePeer::addSelectColumns($criteria);
+        $startcol3 = $startcol2 + FilePeer::NUM_HYDRATE_COLUMNS;
+
+        $criteria->addJoin(MusicFilePeer::FILE_ID, FilePeer::ID, $join_behavior);
+
+        $stmt = BasePeer::doSelect($criteria, $con);
+        $results = array();
+
+        while ($row = $stmt->fetch(PDO::FETCH_NUM)) {
+            $key1 = MusicFilePeer::getPrimaryKeyHashFromRow($row, 0);
+            if (null !== ($obj1 = MusicFilePeer::getInstanceFromPool($key1))) {
+                // We no longer rehydrate the object, since this can cause data loss.
+                // See http://www.propelorm.org/ticket/509
+                // $obj1->hydrate($row, 0, true); // rehydrate
+            } else {
+                $cls = MusicFilePeer::getOMClass();
+
+                $obj1 = new $cls();
+                $obj1->hydrate($row);
+                MusicFilePeer::addInstanceToPool($obj1, $key1);
+            } // if obj1 already loaded
+
+            // Add objects for joined File rows
+
+            $key2 = FilePeer::getPrimaryKeyHashFromRow($row, $startcol2);
+            if ($key2 !== null) {
+                $obj2 = FilePeer::getInstanceFromPool($key2);
+                if (!$obj2) {
+
+                    $cls = FilePeer::getOMClass();
+
+                    $obj2 = new $cls();
+                    $obj2->hydrate($row, $startcol2);
+                    FilePeer::addInstanceToPool($obj2, $key2);
+                } // if obj2 loaded
+
+                // Add the $obj1 (MusicFile) to the collection in $obj2 (File)
+                $obj2->addMusicFile($obj1);
+            } // if joined row not null
+
+            $results[] = $obj1;
+        }
+        $stmt->closeCursor();
+
+        return $results;
     }
 
     /**
@@ -664,7 +728,7 @@ abstract class BaseFilePeer
      */
     public static function getTableMap()
     {
-        return Propel::getDatabaseMap(FilePeer::DATABASE_NAME)->getTable(FilePeer::TABLE_NAME);
+        return Propel::getDatabaseMap(MusicFilePeer::DATABASE_NAME)->getTable(MusicFilePeer::TABLE_NAME);
     }
 
     /**
@@ -672,9 +736,9 @@ abstract class BaseFilePeer
      */
     public static function buildTableMap()
     {
-      $dbMap = Propel::getDatabaseMap(BaseFilePeer::DATABASE_NAME);
-      if (!$dbMap->hasTable(BaseFilePeer::TABLE_NAME)) {
-        $dbMap->addTableObject(new \Sbh\StartBundle\Model\map\FileTableMap());
+      $dbMap = Propel::getDatabaseMap(BaseMusicFilePeer::DATABASE_NAME);
+      if (!$dbMap->hasTable(BaseMusicFilePeer::TABLE_NAME)) {
+        $dbMap->addTableObject(new \Sbh\MusicBundle\Model\map\MusicFileTableMap());
       }
     }
 
@@ -686,13 +750,13 @@ abstract class BaseFilePeer
      */
     public static function getOMClass($row = 0, $colnum = 0)
     {
-        return FilePeer::OM_CLASS;
+        return MusicFilePeer::OM_CLASS;
     }
 
     /**
-     * Performs an INSERT on the database, given a File or Criteria object.
+     * Performs an INSERT on the database, given a MusicFile or Criteria object.
      *
-     * @param      mixed $values Criteria or File object containing data that is used to create the INSERT statement.
+     * @param      mixed $values Criteria or MusicFile object containing data that is used to create the INSERT statement.
      * @param      PropelPDO $con the PropelPDO connection to use
      * @return mixed           The new primary key.
      * @throws PropelException Any exceptions caught during processing will be
@@ -701,22 +765,22 @@ abstract class BaseFilePeer
     public static function doInsert($values, PropelPDO $con = null)
     {
         if ($con === null) {
-            $con = Propel::getConnection(FilePeer::DATABASE_NAME, Propel::CONNECTION_WRITE);
+            $con = Propel::getConnection(MusicFilePeer::DATABASE_NAME, Propel::CONNECTION_WRITE);
         }
 
         if ($values instanceof Criteria) {
             $criteria = clone $values; // rename for clarity
         } else {
-            $criteria = $values->buildCriteria(); // build Criteria from File object
+            $criteria = $values->buildCriteria(); // build Criteria from MusicFile object
         }
 
-        if ($criteria->containsKey(FilePeer::ID) && $criteria->keyContainsValue(FilePeer::ID) ) {
-            throw new PropelException('Cannot insert a value for auto-increment primary key ('.FilePeer::ID.')');
+        if ($criteria->containsKey(MusicFilePeer::ID) && $criteria->keyContainsValue(MusicFilePeer::ID) ) {
+            throw new PropelException('Cannot insert a value for auto-increment primary key ('.MusicFilePeer::ID.')');
         }
 
 
         // Set the correct dbName
-        $criteria->setDbName(FilePeer::DATABASE_NAME);
+        $criteria->setDbName(MusicFilePeer::DATABASE_NAME);
 
         try {
             // use transaction because $criteria could contain info
@@ -733,9 +797,9 @@ abstract class BaseFilePeer
     }
 
     /**
-     * Performs an UPDATE on the database, given a File or Criteria object.
+     * Performs an UPDATE on the database, given a MusicFile or Criteria object.
      *
-     * @param      mixed $values Criteria or File object containing data that is used to create the UPDATE statement.
+     * @param      mixed $values Criteria or MusicFile object containing data that is used to create the UPDATE statement.
      * @param      PropelPDO $con The connection to use (specify PropelPDO connection object to exert more control over transactions).
      * @return int             The number of affected rows (if supported by underlying database driver).
      * @throws PropelException Any exceptions caught during processing will be
@@ -744,35 +808,35 @@ abstract class BaseFilePeer
     public static function doUpdate($values, PropelPDO $con = null)
     {
         if ($con === null) {
-            $con = Propel::getConnection(FilePeer::DATABASE_NAME, Propel::CONNECTION_WRITE);
+            $con = Propel::getConnection(MusicFilePeer::DATABASE_NAME, Propel::CONNECTION_WRITE);
         }
 
-        $selectCriteria = new Criteria(FilePeer::DATABASE_NAME);
+        $selectCriteria = new Criteria(MusicFilePeer::DATABASE_NAME);
 
         if ($values instanceof Criteria) {
             $criteria = clone $values; // rename for clarity
 
-            $comparison = $criteria->getComparison(FilePeer::ID);
-            $value = $criteria->remove(FilePeer::ID);
+            $comparison = $criteria->getComparison(MusicFilePeer::ID);
+            $value = $criteria->remove(MusicFilePeer::ID);
             if ($value) {
-                $selectCriteria->add(FilePeer::ID, $value, $comparison);
+                $selectCriteria->add(MusicFilePeer::ID, $value, $comparison);
             } else {
-                $selectCriteria->setPrimaryTableName(FilePeer::TABLE_NAME);
+                $selectCriteria->setPrimaryTableName(MusicFilePeer::TABLE_NAME);
             }
 
-        } else { // $values is File object
+        } else { // $values is MusicFile object
             $criteria = $values->buildCriteria(); // gets full criteria
             $selectCriteria = $values->buildPkeyCriteria(); // gets criteria w/ primary key(s)
         }
 
         // set the correct dbName
-        $criteria->setDbName(FilePeer::DATABASE_NAME);
+        $criteria->setDbName(MusicFilePeer::DATABASE_NAME);
 
         return BasePeer::doUpdate($selectCriteria, $criteria, $con);
     }
 
     /**
-     * Deletes all rows from the file table.
+     * Deletes all rows from the music_file table.
      *
      * @param      PropelPDO $con the connection to use
      * @return int             The number of affected rows (if supported by underlying database driver).
@@ -781,19 +845,19 @@ abstract class BaseFilePeer
     public static function doDeleteAll(PropelPDO $con = null)
     {
         if ($con === null) {
-            $con = Propel::getConnection(FilePeer::DATABASE_NAME, Propel::CONNECTION_WRITE);
+            $con = Propel::getConnection(MusicFilePeer::DATABASE_NAME, Propel::CONNECTION_WRITE);
         }
         $affectedRows = 0; // initialize var to track total num of affected rows
         try {
             // use transaction because $criteria could contain info
             // for more than one table or we could emulating ON DELETE CASCADE, etc.
             $con->beginTransaction();
-            $affectedRows += BasePeer::doDeleteAll(FilePeer::TABLE_NAME, $con, FilePeer::DATABASE_NAME);
+            $affectedRows += BasePeer::doDeleteAll(MusicFilePeer::TABLE_NAME, $con, MusicFilePeer::DATABASE_NAME);
             // Because this db requires some delete cascade/set null emulation, we have to
             // clear the cached instance *after* the emulation has happened (since
             // instances get re-added by the select statement contained therein).
-            FilePeer::clearInstancePool();
-            FilePeer::clearRelatedInstancePool();
+            MusicFilePeer::clearInstancePool();
+            MusicFilePeer::clearRelatedInstancePool();
             $con->commit();
 
             return $affectedRows;
@@ -804,9 +868,9 @@ abstract class BaseFilePeer
     }
 
     /**
-     * Performs a DELETE on the database, given a File or Criteria object OR a primary key value.
+     * Performs a DELETE on the database, given a MusicFile or Criteria object OR a primary key value.
      *
-     * @param      mixed $values Criteria or File object or primary key or array of primary keys
+     * @param      mixed $values Criteria or MusicFile object or primary key or array of primary keys
      *              which is used to create the DELETE statement
      * @param      PropelPDO $con the connection to use
      * @return int The number of affected rows (if supported by underlying database driver).  This includes CASCADE-related rows
@@ -817,32 +881,32 @@ abstract class BaseFilePeer
      public static function doDelete($values, PropelPDO $con = null)
      {
         if ($con === null) {
-            $con = Propel::getConnection(FilePeer::DATABASE_NAME, Propel::CONNECTION_WRITE);
+            $con = Propel::getConnection(MusicFilePeer::DATABASE_NAME, Propel::CONNECTION_WRITE);
         }
 
         if ($values instanceof Criteria) {
             // invalidate the cache for all objects of this type, since we have no
             // way of knowing (without running a query) what objects should be invalidated
             // from the cache based on this Criteria.
-            FilePeer::clearInstancePool();
+            MusicFilePeer::clearInstancePool();
             // rename for clarity
             $criteria = clone $values;
-        } elseif ($values instanceof File) { // it's a model object
+        } elseif ($values instanceof MusicFile) { // it's a model object
             // invalidate the cache for this single object
-            FilePeer::removeInstanceFromPool($values);
+            MusicFilePeer::removeInstanceFromPool($values);
             // create criteria based on pk values
             $criteria = $values->buildPkeyCriteria();
         } else { // it's a primary key, or an array of pks
-            $criteria = new Criteria(FilePeer::DATABASE_NAME);
-            $criteria->add(FilePeer::ID, (array) $values, Criteria::IN);
+            $criteria = new Criteria(MusicFilePeer::DATABASE_NAME);
+            $criteria->add(MusicFilePeer::ID, (array) $values, Criteria::IN);
             // invalidate the cache for this object(s)
             foreach ((array) $values as $singleval) {
-                FilePeer::removeInstanceFromPool($singleval);
+                MusicFilePeer::removeInstanceFromPool($singleval);
             }
         }
 
         // Set the correct dbName
-        $criteria->setDbName(FilePeer::DATABASE_NAME);
+        $criteria->setDbName(MusicFilePeer::DATABASE_NAME);
 
         $affectedRows = 0; // initialize var to track total num of affected rows
 
@@ -852,7 +916,7 @@ abstract class BaseFilePeer
             $con->beginTransaction();
 
             $affectedRows += BasePeer::doDelete($criteria, $con);
-            FilePeer::clearRelatedInstancePool();
+            MusicFilePeer::clearRelatedInstancePool();
             $con->commit();
 
             return $affectedRows;
@@ -863,13 +927,13 @@ abstract class BaseFilePeer
     }
 
     /**
-     * Validates all modified columns of given File object.
+     * Validates all modified columns of given MusicFile object.
      * If parameter $columns is either a single column name or an array of column names
      * than only those columns are validated.
      *
      * NOTICE: This does not apply to primary or foreign keys for now.
      *
-     * @param File $obj The object to validate.
+     * @param MusicFile $obj The object to validate.
      * @param      mixed $cols Column name or array of column names.
      *
      * @return mixed TRUE if all columns are valid or the error message of the first invalid column.
@@ -879,8 +943,8 @@ abstract class BaseFilePeer
         $columns = array();
 
         if ($cols) {
-            $dbMap = Propel::getDatabaseMap(FilePeer::DATABASE_NAME);
-            $tableMap = $dbMap->getTable(FilePeer::TABLE_NAME);
+            $dbMap = Propel::getDatabaseMap(MusicFilePeer::DATABASE_NAME);
+            $tableMap = $dbMap->getTable(MusicFilePeer::TABLE_NAME);
 
             if (! is_array($cols)) {
                 $cols = array($cols);
@@ -896,7 +960,7 @@ abstract class BaseFilePeer
 
         }
 
-        return BasePeer::doValidate(FilePeer::DATABASE_NAME, FilePeer::TABLE_NAME, $columns);
+        return BasePeer::doValidate(MusicFilePeer::DATABASE_NAME, MusicFilePeer::TABLE_NAME, $columns);
     }
 
     /**
@@ -904,23 +968,23 @@ abstract class BaseFilePeer
      *
      * @param int $pk the primary key.
      * @param      PropelPDO $con the connection to use
-     * @return File
+     * @return MusicFile
      */
     public static function retrieveByPK($pk, PropelPDO $con = null)
     {
 
-        if (null !== ($obj = FilePeer::getInstanceFromPool((string) $pk))) {
+        if (null !== ($obj = MusicFilePeer::getInstanceFromPool((string) $pk))) {
             return $obj;
         }
 
         if ($con === null) {
-            $con = Propel::getConnection(FilePeer::DATABASE_NAME, Propel::CONNECTION_READ);
+            $con = Propel::getConnection(MusicFilePeer::DATABASE_NAME, Propel::CONNECTION_READ);
         }
 
-        $criteria = new Criteria(FilePeer::DATABASE_NAME);
-        $criteria->add(FilePeer::ID, $pk);
+        $criteria = new Criteria(MusicFilePeer::DATABASE_NAME);
+        $criteria->add(MusicFilePeer::ID, $pk);
 
-        $v = FilePeer::doSelect($criteria, $con);
+        $v = MusicFilePeer::doSelect($criteria, $con);
 
         return !empty($v) > 0 ? $v[0] : null;
     }
@@ -930,23 +994,23 @@ abstract class BaseFilePeer
      *
      * @param      array $pks List of primary keys
      * @param      PropelPDO $con the connection to use
-     * @return File[]
+     * @return MusicFile[]
      * @throws PropelException Any exceptions caught during processing will be
      *     rethrown wrapped into a PropelException.
      */
     public static function retrieveByPKs($pks, PropelPDO $con = null)
     {
         if ($con === null) {
-            $con = Propel::getConnection(FilePeer::DATABASE_NAME, Propel::CONNECTION_READ);
+            $con = Propel::getConnection(MusicFilePeer::DATABASE_NAME, Propel::CONNECTION_READ);
         }
 
         $objs = null;
         if (empty($pks)) {
             $objs = array();
         } else {
-            $criteria = new Criteria(FilePeer::DATABASE_NAME);
-            $criteria->add(FilePeer::ID, $pks, Criteria::IN);
-            $objs = FilePeer::doSelect($criteria, $con);
+            $criteria = new Criteria(MusicFilePeer::DATABASE_NAME);
+            $criteria->add(MusicFilePeer::ID, $pks, Criteria::IN);
+            $objs = MusicFilePeer::doSelect($criteria, $con);
         }
 
         return $objs;
@@ -956,5 +1020,5 @@ abstract class BaseFilePeer
 
 // This is the static code needed to register the TableMap for this table with the main Propel class.
 //
-BaseFilePeer::buildTableMap();
+BaseMusicFilePeer::buildTableMap();
 
