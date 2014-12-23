@@ -79,6 +79,22 @@ class SecurityController extends Controller
      * 
      * @since 1.0.0 Création -- sebii
      * @access public
+     * @Route("/login/fail", name="login_fail", defaults={"_lang"="fr"})
+     * @Method({"GET"})
+     * @param Symfony\Component\HttpFoundation\Request $request
+     * @return object
+     */
+    public function loginFailAction(Request $request)
+    {
+        $session = $request->getSession();
+        $session->getFlashBag()->add('error', 'security.flash.error.error');
+        return $this->redirect($this->generateUrl('login'));
+    }
+    
+    /**
+     * 
+     * @since 1.0.0 Création -- sebii
+     * @access public
      * @return void
      * @Route("/logout", name="logout", defaults={"_lang"="fr"})
      * @Method({"GET"})
