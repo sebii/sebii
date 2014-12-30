@@ -21,7 +21,8 @@
         "propel/propel-bundle": "1.4.x-dev",
         "nass600/get-id3": "1.0.*@dev",
         "php-ffmpeg/php-ffmpeg": "0.5.*@dev",
-        "php-ffmpeg/extras": "0.3.*@dev"
+        "php-ffmpeg/extras": "0.3.*@dev",
+        "imagine/imagine": "dev-master"
     },
     "require-dev": {
         "sensio/generator-bundle": "~2.3"
