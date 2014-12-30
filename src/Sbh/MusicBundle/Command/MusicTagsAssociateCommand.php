@@ -12,6 +12,8 @@ use Sbh\StartBundle\Model\FilePeer;
 use Sbh\StartBundle\Model\FileQuery;
 use Sbh\MusicBundle\Model\MusicArtist;
 use Sbh\MusicBundle\Model\MusicArtistQuery;
+use Sbh\MusicBundle\Model\MusicAlbum;
+use Sbh\MusicBundle\Model\MusicAlbumQuery;
 
 /**
  * 
@@ -142,6 +144,8 @@ class MusicTagsAssociateCommand extends ContainerAwareCommand
                 }
                 $output->writeln('            - Artiste #' . $artist->getId() . ' trouvé : ' . $artist->getName());
             }
+            
+            $band = null;
             if (strlen($bandName) > 0)
             {
                 $band = MusicArtistQuery::create()
@@ -158,9 +162,29 @@ class MusicTagsAssociateCommand extends ContainerAwareCommand
                 }
                 $output->writeln('            - Artiste général #' . $band->getId() . ' trouvé : ' . $band->getName());
             }
-            else
+            elseif (!is_null($artist))
             {
                 $band = $artist;
+                $output->writeln('            - Artiste général #' . $band->getId() . ' forcé : ' . $band->getName());
+            }
+            
+            $album = null;
+            if (!is_null($band) && strlen($albumName) > 0)
+            {
+                $album = MusicAlbumQuery::create()
+                    ->filterByName($albumName)
+                    ->filterByMusicArtist($band)
+                    ->findOne();
+                if (is_null($album))
+                {
+                    $output->writeln('            - Création de l\'album de ' . $band->getName() . ' : ' . $albumName);
+                    $album = new MusicAlbum();
+                    $album
+                        ->setMusicArtist($band)
+                        ->setName($albumName)
+                        ->save();
+                }
+                $output->writeln('            - Album #' . $band->getId() . ' trouvé : ' . $band->getName());
             }
                 
 //            unset(  $tagsInfos['filesize'],

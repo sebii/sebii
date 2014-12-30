@@ -1,5 +1,6 @@
 sbh_music:
-    resource: "@SbhMusicBundle/Resources/config/routing.yml"
+    resource: "@SbhMusicBundle/Controller"
+    type:     annotation
     prefix:   /
 
 sbh_start:

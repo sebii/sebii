@@ -12,6 +12,8 @@ use \PropelPDO;
 use Sbh\MusicBundle\Model\MusicAlbumPeer;
 use Sbh\MusicBundle\Model\MusicArtist;
 use Sbh\MusicBundle\Model\MusicArtistPeer;
+use Sbh\MusicBundle\Model\MusicDeezerArtistPeer;
+use Sbh\MusicBundle\Model\MusicSpotifyArtistPeer;
 use Sbh\MusicBundle\Model\MusicTrackPeer;
 use Sbh\MusicBundle\Model\map\MusicArtistTableMap;
 
@@ -31,19 +33,28 @@ abstract class BaseMusicArtistPeer
     const TM_CLASS = 'Sbh\\MusicBundle\\Model\\map\\MusicArtistTableMap';
 
     /** The total number of columns. */
-    const NUM_COLUMNS = 6;
+    const NUM_COLUMNS = 9;
 
     /** The number of lazy-loaded columns. */
     const NUM_LAZY_LOAD_COLUMNS = 0;
 
     /** The number of columns to hydrate (NUM_COLUMNS - NUM_LAZY_LOAD_COLUMNS) */
-    const NUM_HYDRATE_COLUMNS = 6;
+    const NUM_HYDRATE_COLUMNS = 9;
 
     /** the column name for the name field */
     const NAME = 'music_artist.name';
 
     /** the column name for the alias field */
     const ALIAS = 'music_artist.alias';
+
+    /** the column name for the image field */
+    const IMAGE = 'music_artist.image';
+
+    /** the column name for the scan_deezer_search field */
+    const SCAN_DEEZER_SEARCH = 'music_artist.scan_deezer_search';
+
+    /** the column name for the scan_spotify_search field */
+    const SCAN_SPOTIFY_SEARCH = 'music_artist.scan_spotify_search';
 
     /** the column name for the slug field */
     const SLUG = 'music_artist.slug';
@@ -76,12 +87,12 @@ abstract class BaseMusicArtistPeer
      * e.g. MusicArtistPeer::$fieldNames[MusicArtistPeer::TYPE_PHPNAME][0] = 'Id'
      */
     protected static $fieldNames = array (
-        BasePeer::TYPE_PHPNAME => array ('Name', 'Alias', 'Slug', 'Id', 'CreatedAt', 'UpdatedAt', ),
-        BasePeer::TYPE_STUDLYPHPNAME => array ('name', 'alias', 'slug', 'id', 'createdAt', 'updatedAt', ),
-        BasePeer::TYPE_COLNAME => array (MusicArtistPeer::NAME, MusicArtistPeer::ALIAS, MusicArtistPeer::SLUG, MusicArtistPeer::ID, MusicArtistPeer::CREATED_AT, MusicArtistPeer::UPDATED_AT, ),
-        BasePeer::TYPE_RAW_COLNAME => array ('NAME', 'ALIAS', 'SLUG', 'ID', 'CREATED_AT', 'UPDATED_AT', ),
-        BasePeer::TYPE_FIELDNAME => array ('name', 'alias', 'slug', 'id', 'created_at', 'updated_at', ),
-        BasePeer::TYPE_NUM => array (0, 1, 2, 3, 4, 5, )
+        BasePeer::TYPE_PHPNAME => array ('Name', 'Alias', 'Image', 'ScanDeezerSearch', 'ScanSpotifySearch', 'Slug', 'Id', 'CreatedAt', 'UpdatedAt', ),
+        BasePeer::TYPE_STUDLYPHPNAME => array ('name', 'alias', 'image', 'scanDeezerSearch', 'scanSpotifySearch', 'slug', 'id', 'createdAt', 'updatedAt', ),
+        BasePeer::TYPE_COLNAME => array (MusicArtistPeer::NAME, MusicArtistPeer::ALIAS, MusicArtistPeer::IMAGE, MusicArtistPeer::SCAN_DEEZER_SEARCH, MusicArtistPeer::SCAN_SPOTIFY_SEARCH, MusicArtistPeer::SLUG, MusicArtistPeer::ID, MusicArtistPeer::CREATED_AT, MusicArtistPeer::UPDATED_AT, ),
+        BasePeer::TYPE_RAW_COLNAME => array ('NAME', 'ALIAS', 'IMAGE', 'SCAN_DEEZER_SEARCH', 'SCAN_SPOTIFY_SEARCH', 'SLUG', 'ID', 'CREATED_AT', 'UPDATED_AT', ),
+        BasePeer::TYPE_FIELDNAME => array ('name', 'alias', 'image', 'scan_deezer_search', 'scan_spotify_search', 'slug', 'id', 'created_at', 'updated_at', ),
+        BasePeer::TYPE_NUM => array (0, 1, 2, 3, 4, 5, 6, 7, 8, )
     );
 
     /**
@@ -91,12 +102,12 @@ abstract class BaseMusicArtistPeer
      * e.g. MusicArtistPeer::$fieldNames[BasePeer::TYPE_PHPNAME]['Id'] = 0
      */
     protected static $fieldKeys = array (
-        BasePeer::TYPE_PHPNAME => array ('Name' => 0, 'Alias' => 1, 'Slug' => 2, 'Id' => 3, 'CreatedAt' => 4, 'UpdatedAt' => 5, ),
-        BasePeer::TYPE_STUDLYPHPNAME => array ('name' => 0, 'alias' => 1, 'slug' => 2, 'id' => 3, 'createdAt' => 4, 'updatedAt' => 5, ),
-        BasePeer::TYPE_COLNAME => array (MusicArtistPeer::NAME => 0, MusicArtistPeer::ALIAS => 1, MusicArtistPeer::SLUG => 2, MusicArtistPeer::ID => 3, MusicArtistPeer::CREATED_AT => 4, MusicArtistPeer::UPDATED_AT => 5, ),
-        BasePeer::TYPE_RAW_COLNAME => array ('NAME' => 0, 'ALIAS' => 1, 'SLUG' => 2, 'ID' => 3, 'CREATED_AT' => 4, 'UPDATED_AT' => 5, ),
-        BasePeer::TYPE_FIELDNAME => array ('name' => 0, 'alias' => 1, 'slug' => 2, 'id' => 3, 'created_at' => 4, 'updated_at' => 5, ),
-        BasePeer::TYPE_NUM => array (0, 1, 2, 3, 4, 5, )
+        BasePeer::TYPE_PHPNAME => array ('Name' => 0, 'Alias' => 1, 'Image' => 2, 'ScanDeezerSearch' => 3, 'ScanSpotifySearch' => 4, 'Slug' => 5, 'Id' => 6, 'CreatedAt' => 7, 'UpdatedAt' => 8, ),
+        BasePeer::TYPE_STUDLYPHPNAME => array ('name' => 0, 'alias' => 1, 'image' => 2, 'scanDeezerSearch' => 3, 'scanSpotifySearch' => 4, 'slug' => 5, 'id' => 6, 'createdAt' => 7, 'updatedAt' => 8, ),
+        BasePeer::TYPE_COLNAME => array (MusicArtistPeer::NAME => 0, MusicArtistPeer::ALIAS => 1, MusicArtistPeer::IMAGE => 2, MusicArtistPeer::SCAN_DEEZER_SEARCH => 3, MusicArtistPeer::SCAN_SPOTIFY_SEARCH => 4, MusicArtistPeer::SLUG => 5, MusicArtistPeer::ID => 6, MusicArtistPeer::CREATED_AT => 7, MusicArtistPeer::UPDATED_AT => 8, ),
+        BasePeer::TYPE_RAW_COLNAME => array ('NAME' => 0, 'ALIAS' => 1, 'IMAGE' => 2, 'SCAN_DEEZER_SEARCH' => 3, 'SCAN_SPOTIFY_SEARCH' => 4, 'SLUG' => 5, 'ID' => 6, 'CREATED_AT' => 7, 'UPDATED_AT' => 8, ),
+        BasePeer::TYPE_FIELDNAME => array ('name' => 0, 'alias' => 1, 'image' => 2, 'scan_deezer_search' => 3, 'scan_spotify_search' => 4, 'slug' => 5, 'id' => 6, 'created_at' => 7, 'updated_at' => 8, ),
+        BasePeer::TYPE_NUM => array (0, 1, 2, 3, 4, 5, 6, 7, 8, )
     );
 
     /**
@@ -172,6 +183,9 @@ abstract class BaseMusicArtistPeer
         if (null === $alias) {
             $criteria->addSelectColumn(MusicArtistPeer::NAME);
             $criteria->addSelectColumn(MusicArtistPeer::ALIAS);
+            $criteria->addSelectColumn(MusicArtistPeer::IMAGE);
+            $criteria->addSelectColumn(MusicArtistPeer::SCAN_DEEZER_SEARCH);
+            $criteria->addSelectColumn(MusicArtistPeer::SCAN_SPOTIFY_SEARCH);
             $criteria->addSelectColumn(MusicArtistPeer::SLUG);
             $criteria->addSelectColumn(MusicArtistPeer::ID);
             $criteria->addSelectColumn(MusicArtistPeer::CREATED_AT);
@@ -179,6 +193,9 @@ abstract class BaseMusicArtistPeer
         } else {
             $criteria->addSelectColumn($alias . '.name');
             $criteria->addSelectColumn($alias . '.alias');
+            $criteria->addSelectColumn($alias . '.image');
+            $criteria->addSelectColumn($alias . '.scan_deezer_search');
+            $criteria->addSelectColumn($alias . '.scan_spotify_search');
             $criteria->addSelectColumn($alias . '.slug');
             $criteria->addSelectColumn($alias . '.id');
             $criteria->addSelectColumn($alias . '.created_at');
@@ -393,6 +410,12 @@ abstract class BaseMusicArtistPeer
         // Invalidate objects in MusicTrackPeer instance pool,
         // since one or more of them may be deleted by ON DELETE CASCADE/SETNULL rule.
         MusicTrackPeer::clearInstancePool();
+        // Invalidate objects in MusicDeezerArtistPeer instance pool,
+        // since one or more of them may be deleted by ON DELETE CASCADE/SETNULL rule.
+        MusicDeezerArtistPeer::clearInstancePool();
+        // Invalidate objects in MusicSpotifyArtistPeer instance pool,
+        // since one or more of them may be deleted by ON DELETE CASCADE/SETNULL rule.
+        MusicSpotifyArtistPeer::clearInstancePool();
     }
 
     /**
@@ -408,11 +431,11 @@ abstract class BaseMusicArtistPeer
     public static function getPrimaryKeyHashFromRow($row, $startcol = 0)
     {
         // If the PK cannot be derived from the row, return null.
-        if ($row[$startcol + 3] === null) {
+        if ($row[$startcol + 6] === null) {
             return null;
         }
 
-        return (string) $row[$startcol + 3];
+        return (string) $row[$startcol + 6];
     }
 
     /**
@@ -427,7 +450,7 @@ abstract class BaseMusicArtistPeer
     public static function getPrimaryKeyFromRow($row, $startcol = 0)
     {
 
-        return (int) $row[$startcol + 3];
+        return (int) $row[$startcol + 6];
     }
 
     /**

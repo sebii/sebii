@@ -2,6 +2,9 @@
     <table name="music_artist">
         <column name="name" type="varchar" primaryString="true" />
         <column name="alias" type="integer" />
+        <column name="image" type="boolean" defaultValue="false" />
+        <column name="scan_deezer_search" type="boolean" defaultValue="true" />
+        <column name="scan_spotify_search" type="boolean" defaultValue="true" />
         
         <behavior name="sluggable" />
         
@@ -65,6 +68,42 @@
         
         <foreign-key foreignTable="music_file" onDelete="setnull" onUpdate="cascade" name="fk_music_original_tag_music_file">
             <reference local="music_file_id" foreign="id" />
+        </foreign-key>
+        
+        <vendor type="mysql">
+            <parameter name="Charset" value="utf8" />
+        </vendor>
+    </table>
+    
+    <table name="music_deezer_artist">
+        <column name="deezer_id" type="integer" />
+        <column name="artist_id" type="integer" />
+        <column name="name" type="varchar" />
+        <column name="image" type="boolean" defaultValue="false" />
+        <column name="nb_albums" type="integer" />
+        <column name="nb_fan" type="integer" />
+        <column name="radio" type="boolean" />
+        
+        <foreign-key foreignTable="music_artist" onDelete="setnull" onUpdate="cascade" name="fk_music_deezer_artist_music_artist">
+            <reference local="artist_id" foreign="id" />
+        </foreign-key>
+        
+        <vendor type="mysql">
+            <parameter name="Charset" value="utf8" />
+        </vendor>
+    </table>
+    
+    <table name="music_spotify_artist">
+        <column name="spotify_id" type="varchar" primaryString="true" />
+        <column name="artist_id" type="integer" />
+        <column name="name" type="varchar" />
+        <column name="image" type="boolean" defaultValue="false" />
+        <column name="image_id" type="varchar" />
+        <column name="popularity" type="integer" />
+        <column name="uri" type="varchar" />
+        
+        <foreign-key foreignTable="music_artist" onDelete="setnull" onUpdate="cascade" name="fk_music_spotify_artist_music_artist">
+            <reference local="artist_id" foreign="id" />
         </foreign-key>
         
         <vendor type="mysql">

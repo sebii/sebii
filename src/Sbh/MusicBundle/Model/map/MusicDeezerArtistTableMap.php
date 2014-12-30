@@ -7,7 +7,7 @@ use \TableMap;
 
 
 /**
- * This class defines the structure of the 'music_artist' table.
+ * This class defines the structure of the 'music_deezer_artist' table.
  *
  *
  *
@@ -18,13 +18,13 @@ use \TableMap;
  *
  * @package    propel.generator.src.Sbh.MusicBundle.Model.map
  */
-class MusicArtistTableMap extends TableMap
+class MusicDeezerArtistTableMap extends TableMap
 {
 
     /**
      * The (dot-path) name of this class
      */
-    const CLASS_NAME = 'src.Sbh.MusicBundle.Model.map.MusicArtistTableMap';
+    const CLASS_NAME = 'src.Sbh.MusicBundle.Model.map.MusicDeezerArtistTableMap';
 
     /**
      * Initialize the table attributes, columns and validators
@@ -36,19 +36,19 @@ class MusicArtistTableMap extends TableMap
     public function initialize()
     {
         // attributes
-        $this->setName('music_artist');
-        $this->setPhpName('MusicArtist');
-        $this->setClassname('Sbh\\MusicBundle\\Model\\MusicArtist');
+        $this->setName('music_deezer_artist');
+        $this->setPhpName('MusicDeezerArtist');
+        $this->setClassname('Sbh\\MusicBundle\\Model\\MusicDeezerArtist');
         $this->setPackage('src.Sbh.MusicBundle.Model');
         $this->setUseIdGenerator(true);
         // columns
+        $this->addColumn('deezer_id', 'DeezerId', 'INTEGER', false, null, null);
+        $this->addForeignKey('artist_id', 'ArtistId', 'INTEGER', 'music_artist', 'id', false, null, null);
         $this->addColumn('name', 'Name', 'VARCHAR', false, 255, null);
-        $this->getColumn('name', false)->setPrimaryString(true);
-        $this->addColumn('alias', 'Alias', 'INTEGER', false, null, null);
         $this->addColumn('image', 'Image', 'BOOLEAN', false, 1, false);
-        $this->addColumn('scan_deezer_search', 'ScanDeezerSearch', 'BOOLEAN', false, 1, true);
-        $this->addColumn('scan_spotify_search', 'ScanSpotifySearch', 'BOOLEAN', false, 1, true);
-        $this->addColumn('slug', 'Slug', 'VARCHAR', false, 255, null);
+        $this->addColumn('nb_albums', 'NbAlbums', 'INTEGER', false, null, null);
+        $this->addColumn('nb_fan', 'NbFan', 'INTEGER', false, null, null);
+        $this->addColumn('radio', 'Radio', 'BOOLEAN', false, 1, null);
         $this->addPrimaryKey('id', 'Id', 'INTEGER', true, null, null);
         $this->addColumn('created_at', 'CreatedAt', 'TIMESTAMP', false, null, null);
         $this->addColumn('updated_at', 'UpdatedAt', 'TIMESTAMP', false, null, null);
@@ -60,10 +60,7 @@ class MusicArtistTableMap extends TableMap
      */
     public function buildRelations()
     {
-        $this->addRelation('MusicAlbum', 'Sbh\\MusicBundle\\Model\\MusicAlbum', RelationMap::ONE_TO_MANY, array('id' => 'artist_id', ), 'SET NULL', 'CASCADE', 'MusicAlbums');
-        $this->addRelation('MusicTrack', 'Sbh\\MusicBundle\\Model\\MusicTrack', RelationMap::ONE_TO_MANY, array('id' => 'artist_id', ), 'SET NULL', 'CASCADE', 'MusicTracks');
-        $this->addRelation('MusicDeezerArtist', 'Sbh\\MusicBundle\\Model\\MusicDeezerArtist', RelationMap::ONE_TO_MANY, array('id' => 'artist_id', ), 'SET NULL', 'CASCADE', 'MusicDeezerArtists');
-        $this->addRelation('MusicSpotifyArtist', 'Sbh\\MusicBundle\\Model\\MusicSpotifyArtist', RelationMap::ONE_TO_MANY, array('id' => 'artist_id', ), 'SET NULL', 'CASCADE', 'MusicSpotifyArtists');
+        $this->addRelation('MusicArtist', 'Sbh\\MusicBundle\\Model\\MusicArtist', RelationMap::MANY_TO_ONE, array('artist_id' => 'id', ), 'SET NULL', 'CASCADE');
     } // buildRelations()
 
     /**
@@ -75,16 +72,6 @@ class MusicArtistTableMap extends TableMap
     public function getBehaviors()
     {
         return array(
-            'sluggable' =>  array (
-  'add_cleanup' => 'true',
-  'slug_column' => 'slug',
-  'slug_pattern' => '',
-  'replace_pattern' => '/\\W+/',
-  'replacement' => '-',
-  'separator' => '-',
-  'permanent' => 'false',
-  'scope_column' => '',
-),
             'auto_add_pk' =>  array (
   'name' => 'id',
   'autoIncrement' => 'true',
