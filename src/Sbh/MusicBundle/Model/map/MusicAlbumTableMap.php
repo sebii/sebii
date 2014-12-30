@@ -7,7 +7,7 @@ use \TableMap;
 
 
 /**
- * This class defines the structure of the 'music_file' table.
+ * This class defines the structure of the 'music_album' table.
  *
  *
  *
@@ -18,13 +18,13 @@ use \TableMap;
  *
  * @package    propel.generator.src.Sbh.MusicBundle.Model.map
  */
-class MusicFileTableMap extends TableMap
+class MusicAlbumTableMap extends TableMap
 {
 
     /**
      * The (dot-path) name of this class
      */
-    const CLASS_NAME = 'src.Sbh.MusicBundle.Model.map.MusicFileTableMap';
+    const CLASS_NAME = 'src.Sbh.MusicBundle.Model.map.MusicAlbumTableMap';
 
     /**
      * Initialize the table attributes, columns and validators
@@ -36,16 +36,15 @@ class MusicFileTableMap extends TableMap
     public function initialize()
     {
         // attributes
-        $this->setName('music_file');
-        $this->setPhpName('MusicFile');
-        $this->setClassname('Sbh\\MusicBundle\\Model\\MusicFile');
+        $this->setName('music_album');
+        $this->setPhpName('MusicAlbum');
+        $this->setClassname('Sbh\\MusicBundle\\Model\\MusicAlbum');
         $this->setPackage('src.Sbh.MusicBundle.Model');
         $this->setUseIdGenerator(true);
         // columns
-        $this->addForeignKey('file_id', 'FileId', 'INTEGER', 'file', 'id', false, null, null);
-        $this->addForeignKey('track_id', 'TrackId', 'INTEGER', 'music_track', 'id', false, null, null);
-        $this->addColumn('scan_original_tag', 'ScanOriginalTag', 'BOOLEAN', false, 1, true);
-        $this->addColumn('associate_tags', 'AssociateTags', 'BOOLEAN', false, 1, true);
+        $this->addColumn('name', 'Name', 'VARCHAR', false, 255, null);
+        $this->addForeignKey('artist_id', 'ArtistId', 'INTEGER', 'music_artist', 'id', false, null, null);
+        $this->addColumn('alias', 'Alias', 'INTEGER', false, null, null);
         $this->addPrimaryKey('id', 'Id', 'INTEGER', true, null, null);
         $this->addColumn('created_at', 'CreatedAt', 'TIMESTAMP', false, null, null);
         $this->addColumn('updated_at', 'UpdatedAt', 'TIMESTAMP', false, null, null);
@@ -57,9 +56,8 @@ class MusicFileTableMap extends TableMap
      */
     public function buildRelations()
     {
-        $this->addRelation('File', 'Sbh\\StartBundle\\Model\\File', RelationMap::MANY_TO_ONE, array('file_id' => 'id', ), 'SET NULL', 'CASCADE');
-        $this->addRelation('MusicTrack', 'Sbh\\MusicBundle\\Model\\MusicTrack', RelationMap::MANY_TO_ONE, array('track_id' => 'id', ), 'SET NULL', 'CASCADE');
-        $this->addRelation('MusicOriginalTag', 'Sbh\\MusicBundle\\Model\\MusicOriginalTag', RelationMap::ONE_TO_MANY, array('id' => 'music_file_id', ), 'SET NULL', 'CASCADE', 'MusicOriginalTags');
+        $this->addRelation('MusicArtist', 'Sbh\\MusicBundle\\Model\\MusicArtist', RelationMap::MANY_TO_ONE, array('artist_id' => 'id', ), 'SET NULL', 'CASCADE');
+        $this->addRelation('MusicTrack', 'Sbh\\MusicBundle\\Model\\MusicTrack', RelationMap::ONE_TO_MANY, array('id' => 'album_id', ), 'SET NULL', 'CASCADE', 'MusicTracks');
     } // buildRelations()
 
     /**

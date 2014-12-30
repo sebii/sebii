@@ -20,6 +20,8 @@ use Sbh\MusicBundle\Model\MusicFilePeer;
 use Sbh\MusicBundle\Model\MusicFileQuery;
 use Sbh\MusicBundle\Model\MusicOriginalTag;
 use Sbh\MusicBundle\Model\MusicOriginalTagQuery;
+use Sbh\MusicBundle\Model\MusicTrack;
+use Sbh\MusicBundle\Model\MusicTrackQuery;
 use Sbh\StartBundle\Model\File;
 use Sbh\StartBundle\Model\FileQuery;
 
@@ -51,11 +53,24 @@ abstract class BaseMusicFile extends BaseObject implements Persistent
     protected $file_id;
 
     /**
+     * The value for the track_id field.
+     * @var        int
+     */
+    protected $track_id;
+
+    /**
      * The value for the scan_original_tag field.
      * Note: this column has a database default value of: true
      * @var        boolean
      */
     protected $scan_original_tag;
+
+    /**
+     * The value for the associate_tags field.
+     * Note: this column has a database default value of: true
+     * @var        boolean
+     */
+    protected $associate_tags;
 
     /**
      * The value for the id field.
@@ -79,6 +94,11 @@ abstract class BaseMusicFile extends BaseObject implements Persistent
      * @var        File
      */
     protected $aFile;
+
+    /**
+     * @var        MusicTrack
+     */
+    protected $aMusicTrack;
 
     /**
      * @var        PropelObjectCollection|MusicOriginalTag[] Collection to store aggregation of MusicOriginalTag objects.
@@ -121,6 +141,7 @@ abstract class BaseMusicFile extends BaseObject implements Persistent
     public function applyDefaultValues()
     {
         $this->scan_original_tag = true;
+        $this->associate_tags = true;
     }
 
     /**
@@ -145,6 +166,17 @@ abstract class BaseMusicFile extends BaseObject implements Persistent
     }
 
     /**
+     * Get the [track_id] column value.
+     *
+     * @return int
+     */
+    public function getTrackId()
+    {
+
+        return $this->track_id;
+    }
+
+    /**
      * Get the [scan_original_tag] column value.
      *
      * @return boolean
@@ -153,6 +185,17 @@ abstract class BaseMusicFile extends BaseObject implements Persistent
     {
 
         return $this->scan_original_tag;
+    }
+
+    /**
+     * Get the [associate_tags] column value.
+     *
+     * @return boolean
+     */
+    public function getAssociateTags()
+    {
+
+        return $this->associate_tags;
     }
 
     /**
@@ -272,6 +315,31 @@ abstract class BaseMusicFile extends BaseObject implements Persistent
     } // setFileId()
 
     /**
+     * Set the value of [track_id] column.
+     *
+     * @param  int $v new value
+     * @return MusicFile The current object (for fluent API support)
+     */
+    public function setTrackId($v)
+    {
+        if ($v !== null && is_numeric($v)) {
+            $v = (int) $v;
+        }
+
+        if ($this->track_id !== $v) {
+            $this->track_id = $v;
+            $this->modifiedColumns[] = MusicFilePeer::TRACK_ID;
+        }
+
+        if ($this->aMusicTrack !== null && $this->aMusicTrack->getId() !== $v) {
+            $this->aMusicTrack = null;
+        }
+
+
+        return $this;
+    } // setTrackId()
+
+    /**
      * Sets the value of the [scan_original_tag] column.
      * Non-boolean arguments are converted using the following rules:
      *   * 1, '1', 'true',  'on',  and 'yes' are converted to boolean true
@@ -299,6 +367,35 @@ abstract class BaseMusicFile extends BaseObject implements Persistent
 
         return $this;
     } // setScanOriginalTag()
+
+    /**
+     * Sets the value of the [associate_tags] column.
+     * Non-boolean arguments are converted using the following rules:
+     *   * 1, '1', 'true',  'on',  and 'yes' are converted to boolean true
+     *   * 0, '0', 'false', 'off', and 'no'  are converted to boolean false
+     * Check on string values is case insensitive (so 'FaLsE' is seen as 'false').
+     *
+     * @param boolean|integer|string $v The new value
+     * @return MusicFile The current object (for fluent API support)
+     */
+    public function setAssociateTags($v)
+    {
+        if ($v !== null) {
+            if (is_string($v)) {
+                $v = in_array(strtolower($v), array('false', 'off', '-', 'no', 'n', '0', '')) ? false : true;
+            } else {
+                $v = (boolean) $v;
+            }
+        }
+
+        if ($this->associate_tags !== $v) {
+            $this->associate_tags = $v;
+            $this->modifiedColumns[] = MusicFilePeer::ASSOCIATE_TAGS;
+        }
+
+
+        return $this;
+    } // setAssociateTags()
 
     /**
      * Set the value of [id] column.
@@ -381,6 +478,10 @@ abstract class BaseMusicFile extends BaseObject implements Persistent
                 return false;
             }
 
+            if ($this->associate_tags !== true) {
+                return false;
+            }
+
         // otherwise, everything was equal, so return true
         return true;
     } // hasOnlyDefaultValues()
@@ -404,10 +505,12 @@ abstract class BaseMusicFile extends BaseObject implements Persistent
         try {
 
             $this->file_id = ($row[$startcol + 0] !== null) ? (int) $row[$startcol + 0] : null;
-            $this->scan_original_tag = ($row[$startcol + 1] !== null) ? (boolean) $row[$startcol + 1] : null;
-            $this->id = ($row[$startcol + 2] !== null) ? (int) $row[$startcol + 2] : null;
-            $this->created_at = ($row[$startcol + 3] !== null) ? (string) $row[$startcol + 3] : null;
-            $this->updated_at = ($row[$startcol + 4] !== null) ? (string) $row[$startcol + 4] : null;
+            $this->track_id = ($row[$startcol + 1] !== null) ? (int) $row[$startcol + 1] : null;
+            $this->scan_original_tag = ($row[$startcol + 2] !== null) ? (boolean) $row[$startcol + 2] : null;
+            $this->associate_tags = ($row[$startcol + 3] !== null) ? (boolean) $row[$startcol + 3] : null;
+            $this->id = ($row[$startcol + 4] !== null) ? (int) $row[$startcol + 4] : null;
+            $this->created_at = ($row[$startcol + 5] !== null) ? (string) $row[$startcol + 5] : null;
+            $this->updated_at = ($row[$startcol + 6] !== null) ? (string) $row[$startcol + 6] : null;
             $this->resetModified();
 
             $this->setNew(false);
@@ -417,7 +520,7 @@ abstract class BaseMusicFile extends BaseObject implements Persistent
             }
             $this->postHydrate($row, $startcol, $rehydrate);
 
-            return $startcol + 5; // 5 = MusicFilePeer::NUM_HYDRATE_COLUMNS.
+            return $startcol + 7; // 7 = MusicFilePeer::NUM_HYDRATE_COLUMNS.
 
         } catch (Exception $e) {
             throw new PropelException("Error populating MusicFile object", $e);
@@ -442,6 +545,9 @@ abstract class BaseMusicFile extends BaseObject implements Persistent
 
         if ($this->aFile !== null && $this->file_id !== $this->aFile->getId()) {
             $this->aFile = null;
+        }
+        if ($this->aMusicTrack !== null && $this->track_id !== $this->aMusicTrack->getId()) {
+            $this->aMusicTrack = null;
         }
     } // ensureConsistency
 
@@ -483,6 +589,7 @@ abstract class BaseMusicFile extends BaseObject implements Persistent
         if ($deep) {  // also de-associate any related objects?
 
             $this->aFile = null;
+            $this->aMusicTrack = null;
             $this->collMusicOriginalTags = null;
 
         } // if (deep)
@@ -624,6 +731,13 @@ abstract class BaseMusicFile extends BaseObject implements Persistent
                 $this->setFile($this->aFile);
             }
 
+            if ($this->aMusicTrack !== null) {
+                if ($this->aMusicTrack->isModified() || $this->aMusicTrack->isNew()) {
+                    $affectedRows += $this->aMusicTrack->save($con);
+                }
+                $this->setMusicTrack($this->aMusicTrack);
+            }
+
             if ($this->isNew() || $this->isModified()) {
                 // persist changes
                 if ($this->isNew()) {
@@ -682,8 +796,14 @@ abstract class BaseMusicFile extends BaseObject implements Persistent
         if ($this->isColumnModified(MusicFilePeer::FILE_ID)) {
             $modifiedColumns[':p' . $index++]  = '`file_id`';
         }
+        if ($this->isColumnModified(MusicFilePeer::TRACK_ID)) {
+            $modifiedColumns[':p' . $index++]  = '`track_id`';
+        }
         if ($this->isColumnModified(MusicFilePeer::SCAN_ORIGINAL_TAG)) {
             $modifiedColumns[':p' . $index++]  = '`scan_original_tag`';
+        }
+        if ($this->isColumnModified(MusicFilePeer::ASSOCIATE_TAGS)) {
+            $modifiedColumns[':p' . $index++]  = '`associate_tags`';
         }
         if ($this->isColumnModified(MusicFilePeer::ID)) {
             $modifiedColumns[':p' . $index++]  = '`id`';
@@ -708,8 +828,14 @@ abstract class BaseMusicFile extends BaseObject implements Persistent
                     case '`file_id`':
             $stmt->bindValue($identifier, $this->file_id, PDO::PARAM_INT);
                         break;
+                    case '`track_id`':
+            $stmt->bindValue($identifier, $this->track_id, PDO::PARAM_INT);
+                        break;
                     case '`scan_original_tag`':
             $stmt->bindValue($identifier, (int) $this->scan_original_tag, PDO::PARAM_INT);
+                        break;
+                    case '`associate_tags`':
+            $stmt->bindValue($identifier, (int) $this->associate_tags, PDO::PARAM_INT);
                         break;
                     case '`id`':
             $stmt->bindValue($identifier, $this->id, PDO::PARAM_INT);
@@ -825,6 +951,12 @@ abstract class BaseMusicFile extends BaseObject implements Persistent
                 }
             }
 
+            if ($this->aMusicTrack !== null) {
+                if (!$this->aMusicTrack->validate($columns)) {
+                    $failureMap = array_merge($failureMap, $this->aMusicTrack->getValidationFailures());
+                }
+            }
+
 
             if (($retval = MusicFilePeer::doValidate($this, $columns)) !== true) {
                 $failureMap = array_merge($failureMap, $retval);
@@ -878,15 +1010,21 @@ abstract class BaseMusicFile extends BaseObject implements Persistent
                 return $this->getFileId();
                 break;
             case 1:
-                return $this->getScanOriginalTag();
+                return $this->getTrackId();
                 break;
             case 2:
-                return $this->getId();
+                return $this->getScanOriginalTag();
                 break;
             case 3:
-                return $this->getCreatedAt();
+                return $this->getAssociateTags();
                 break;
             case 4:
+                return $this->getId();
+                break;
+            case 5:
+                return $this->getCreatedAt();
+                break;
+            case 6:
                 return $this->getUpdatedAt();
                 break;
             default:
@@ -919,10 +1057,12 @@ abstract class BaseMusicFile extends BaseObject implements Persistent
         $keys = MusicFilePeer::getFieldNames($keyType);
         $result = array(
             $keys[0] => $this->getFileId(),
-            $keys[1] => $this->getScanOriginalTag(),
-            $keys[2] => $this->getId(),
-            $keys[3] => $this->getCreatedAt(),
-            $keys[4] => $this->getUpdatedAt(),
+            $keys[1] => $this->getTrackId(),
+            $keys[2] => $this->getScanOriginalTag(),
+            $keys[3] => $this->getAssociateTags(),
+            $keys[4] => $this->getId(),
+            $keys[5] => $this->getCreatedAt(),
+            $keys[6] => $this->getUpdatedAt(),
         );
         $virtualColumns = $this->virtualColumns;
         foreach ($virtualColumns as $key => $virtualColumn) {
@@ -932,6 +1072,9 @@ abstract class BaseMusicFile extends BaseObject implements Persistent
         if ($includeForeignObjects) {
             if (null !== $this->aFile) {
                 $result['File'] = $this->aFile->toArray($keyType, $includeLazyLoadColumns,  $alreadyDumpedObjects, true);
+            }
+            if (null !== $this->aMusicTrack) {
+                $result['MusicTrack'] = $this->aMusicTrack->toArray($keyType, $includeLazyLoadColumns,  $alreadyDumpedObjects, true);
             }
             if (null !== $this->collMusicOriginalTags) {
                 $result['MusicOriginalTags'] = $this->collMusicOriginalTags->toArray(null, true, $keyType, $includeLazyLoadColumns, $alreadyDumpedObjects);
@@ -974,15 +1117,21 @@ abstract class BaseMusicFile extends BaseObject implements Persistent
                 $this->setFileId($value);
                 break;
             case 1:
-                $this->setScanOriginalTag($value);
+                $this->setTrackId($value);
                 break;
             case 2:
-                $this->setId($value);
+                $this->setScanOriginalTag($value);
                 break;
             case 3:
-                $this->setCreatedAt($value);
+                $this->setAssociateTags($value);
                 break;
             case 4:
+                $this->setId($value);
+                break;
+            case 5:
+                $this->setCreatedAt($value);
+                break;
+            case 6:
                 $this->setUpdatedAt($value);
                 break;
         } // switch()
@@ -1010,10 +1159,12 @@ abstract class BaseMusicFile extends BaseObject implements Persistent
         $keys = MusicFilePeer::getFieldNames($keyType);
 
         if (array_key_exists($keys[0], $arr)) $this->setFileId($arr[$keys[0]]);
-        if (array_key_exists($keys[1], $arr)) $this->setScanOriginalTag($arr[$keys[1]]);
-        if (array_key_exists($keys[2], $arr)) $this->setId($arr[$keys[2]]);
-        if (array_key_exists($keys[3], $arr)) $this->setCreatedAt($arr[$keys[3]]);
-        if (array_key_exists($keys[4], $arr)) $this->setUpdatedAt($arr[$keys[4]]);
+        if (array_key_exists($keys[1], $arr)) $this->setTrackId($arr[$keys[1]]);
+        if (array_key_exists($keys[2], $arr)) $this->setScanOriginalTag($arr[$keys[2]]);
+        if (array_key_exists($keys[3], $arr)) $this->setAssociateTags($arr[$keys[3]]);
+        if (array_key_exists($keys[4], $arr)) $this->setId($arr[$keys[4]]);
+        if (array_key_exists($keys[5], $arr)) $this->setCreatedAt($arr[$keys[5]]);
+        if (array_key_exists($keys[6], $arr)) $this->setUpdatedAt($arr[$keys[6]]);
     }
 
     /**
@@ -1026,7 +1177,9 @@ abstract class BaseMusicFile extends BaseObject implements Persistent
         $criteria = new Criteria(MusicFilePeer::DATABASE_NAME);
 
         if ($this->isColumnModified(MusicFilePeer::FILE_ID)) $criteria->add(MusicFilePeer::FILE_ID, $this->file_id);
+        if ($this->isColumnModified(MusicFilePeer::TRACK_ID)) $criteria->add(MusicFilePeer::TRACK_ID, $this->track_id);
         if ($this->isColumnModified(MusicFilePeer::SCAN_ORIGINAL_TAG)) $criteria->add(MusicFilePeer::SCAN_ORIGINAL_TAG, $this->scan_original_tag);
+        if ($this->isColumnModified(MusicFilePeer::ASSOCIATE_TAGS)) $criteria->add(MusicFilePeer::ASSOCIATE_TAGS, $this->associate_tags);
         if ($this->isColumnModified(MusicFilePeer::ID)) $criteria->add(MusicFilePeer::ID, $this->id);
         if ($this->isColumnModified(MusicFilePeer::CREATED_AT)) $criteria->add(MusicFilePeer::CREATED_AT, $this->created_at);
         if ($this->isColumnModified(MusicFilePeer::UPDATED_AT)) $criteria->add(MusicFilePeer::UPDATED_AT, $this->updated_at);
@@ -1094,7 +1247,9 @@ abstract class BaseMusicFile extends BaseObject implements Persistent
     public function copyInto($copyObj, $deepCopy = false, $makeNew = true)
     {
         $copyObj->setFileId($this->getFileId());
+        $copyObj->setTrackId($this->getTrackId());
         $copyObj->setScanOriginalTag($this->getScanOriginalTag());
+        $copyObj->setAssociateTags($this->getAssociateTags());
         $copyObj->setCreatedAt($this->getCreatedAt());
         $copyObj->setUpdatedAt($this->getUpdatedAt());
 
@@ -1211,6 +1366,58 @@ abstract class BaseMusicFile extends BaseObject implements Persistent
         }
 
         return $this->aFile;
+    }
+
+    /**
+     * Declares an association between this object and a MusicTrack object.
+     *
+     * @param                  MusicTrack $v
+     * @return MusicFile The current object (for fluent API support)
+     * @throws PropelException
+     */
+    public function setMusicTrack(MusicTrack $v = null)
+    {
+        if ($v === null) {
+            $this->setTrackId(NULL);
+        } else {
+            $this->setTrackId($v->getId());
+        }
+
+        $this->aMusicTrack = $v;
+
+        // Add binding for other direction of this n:n relationship.
+        // If this object has already been added to the MusicTrack object, it will not be re-added.
+        if ($v !== null) {
+            $v->addMusicFile($this);
+        }
+
+
+        return $this;
+    }
+
+
+    /**
+     * Get the associated MusicTrack object
+     *
+     * @param PropelPDO $con Optional Connection object.
+     * @param $doQuery Executes a query to get the object if required
+     * @return MusicTrack The associated MusicTrack object.
+     * @throws PropelException
+     */
+    public function getMusicTrack(PropelPDO $con = null, $doQuery = true)
+    {
+        if ($this->aMusicTrack === null && ($this->track_id !== null) && $doQuery) {
+            $this->aMusicTrack = MusicTrackQuery::create()->findPk($this->track_id, $con);
+            /* The following can be used additionally to
+                guarantee the related object contains a reference
+                to this object.  This level of coupling may, however, be
+                undesirable since it could result in an only partially populated collection
+                in the referenced object.
+                $this->aMusicTrack->addMusicFiles($this);
+             */
+        }
+
+        return $this->aMusicTrack;
     }
 
 
@@ -1460,7 +1667,9 @@ abstract class BaseMusicFile extends BaseObject implements Persistent
     public function clear()
     {
         $this->file_id = null;
+        $this->track_id = null;
         $this->scan_original_tag = null;
+        $this->associate_tags = null;
         $this->id = null;
         $this->created_at = null;
         $this->updated_at = null;
@@ -1495,6 +1704,9 @@ abstract class BaseMusicFile extends BaseObject implements Persistent
             if ($this->aFile instanceof Persistent) {
               $this->aFile->clearAllReferences($deep);
             }
+            if ($this->aMusicTrack instanceof Persistent) {
+              $this->aMusicTrack->clearAllReferences($deep);
+            }
 
             $this->alreadyInClearAllReferencesDeep = false;
         } // if ($deep)
@@ -1504,6 +1716,7 @@ abstract class BaseMusicFile extends BaseObject implements Persistent
         }
         $this->collMusicOriginalTags = null;
         $this->aFile = null;
+        $this->aMusicTrack = null;
     }
 
     /**

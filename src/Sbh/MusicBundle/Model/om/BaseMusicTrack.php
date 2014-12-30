@@ -1,6 +1,6 @@
 <?php
 
-namespace Sbh\StartBundle\Model\om;
+namespace Sbh\MusicBundle\Model\om;
 
 use \BaseObject;
 use \BasePeer;
@@ -15,24 +15,28 @@ use \PropelDateTime;
 use \PropelException;
 use \PropelObjectCollection;
 use \PropelPDO;
+use Sbh\MusicBundle\Model\MusicAlbum;
+use Sbh\MusicBundle\Model\MusicAlbumQuery;
+use Sbh\MusicBundle\Model\MusicArtist;
+use Sbh\MusicBundle\Model\MusicArtistQuery;
 use Sbh\MusicBundle\Model\MusicFile;
 use Sbh\MusicBundle\Model\MusicFileQuery;
-use Sbh\StartBundle\Model\File;
-use Sbh\StartBundle\Model\FilePeer;
-use Sbh\StartBundle\Model\FileQuery;
+use Sbh\MusicBundle\Model\MusicTrack;
+use Sbh\MusicBundle\Model\MusicTrackPeer;
+use Sbh\MusicBundle\Model\MusicTrackQuery;
 
-abstract class BaseFile extends BaseObject implements Persistent
+abstract class BaseMusicTrack extends BaseObject implements Persistent
 {
     /**
      * Peer class name
      */
-    const PEER = 'Sbh\\StartBundle\\Model\\FilePeer';
+    const PEER = 'Sbh\\MusicBundle\\Model\\MusicTrackPeer';
 
     /**
      * The Peer class.
      * Instance provides a convenient way of calling static methods on a class
      * that calling code may not be able to identify.
-     * @var        FilePeer
+     * @var        MusicTrackPeer
      */
     protected static $peer;
 
@@ -43,44 +47,34 @@ abstract class BaseFile extends BaseObject implements Persistent
     protected $startCopy = false;
 
     /**
-     * The value for the type field.
-     * Note: this column has a database default value of: 0
-     * @var        int
-     */
-    protected $type;
-
-    /**
-     * The value for the original_path field.
+     * The value for the name field.
      * @var        string
      */
-    protected $original_path;
+    protected $name;
 
     /**
-     * The value for the path field.
-     * @var        string
-     */
-    protected $path;
-
-    /**
-     * The value for the original_ext field.
-     * Note: this column has a database default value of: 0
+     * The value for the track field.
      * @var        int
      */
-    protected $original_ext;
+    protected $track;
 
     /**
-     * The value for the guess_ext field.
-     * Note: this column has a database default value of: 0
+     * The value for the disc field.
      * @var        int
      */
-    protected $guess_ext;
+    protected $disc;
 
     /**
-     * The value for the ext field.
-     * Note: this column has a database default value of: 0
+     * The value for the artist_id field.
      * @var        int
      */
-    protected $ext;
+    protected $artist_id;
+
+    /**
+     * The value for the album_id field.
+     * @var        int
+     */
+    protected $album_id;
 
     /**
      * The value for the id field.
@@ -99,6 +93,16 @@ abstract class BaseFile extends BaseObject implements Persistent
      * @var        string
      */
     protected $updated_at;
+
+    /**
+     * @var        MusicArtist
+     */
+    protected $aMusicArtist;
+
+    /**
+     * @var        MusicAlbum
+     */
+    protected $aMusicAlbum;
 
     /**
      * @var        PropelObjectCollection|MusicFile[] Collection to store aggregation of MusicFile objects.
@@ -133,125 +137,58 @@ abstract class BaseFile extends BaseObject implements Persistent
     protected $musicFilesScheduledForDeletion = null;
 
     /**
-     * Applies default values to this object.
-     * This method should be called from the object's constructor (or
-     * equivalent initialization method).
-     * @see        __construct()
-     */
-    public function applyDefaultValues()
-    {
-        $this->type = 0;
-        $this->original_ext = 0;
-        $this->guess_ext = 0;
-        $this->ext = 0;
-    }
-
-    /**
-     * Initializes internal state of BaseFile object.
-     * @see        applyDefaults()
-     */
-    public function __construct()
-    {
-        parent::__construct();
-        $this->applyDefaultValues();
-    }
-
-    /**
-     * Get the [type] column value.
-     *
-     * @return int
-     * @throws PropelException - if the stored enum key is unknown.
-     */
-    public function getType()
-    {
-        if (null === $this->type) {
-            return null;
-        }
-        $valueSet = FilePeer::getValueSet(FilePeer::TYPE);
-        if (!isset($valueSet[$this->type])) {
-            throw new PropelException('Unknown stored enum key: ' . $this->type);
-        }
-
-        return $valueSet[$this->type];
-    }
-
-    /**
-     * Get the [original_path] column value.
+     * Get the [name] column value.
      *
      * @return string
      */
-    public function getOriginalPath()
+    public function getName()
     {
 
-        return $this->original_path;
+        return $this->name;
     }
 
     /**
-     * Get the [path] column value.
-     *
-     * @return string
-     */
-    public function getPath()
-    {
-
-        return $this->path;
-    }
-
-    /**
-     * Get the [original_ext] column value.
+     * Get the [track] column value.
      *
      * @return int
-     * @throws PropelException - if the stored enum key is unknown.
      */
-    public function getOriginalExt()
+    public function getTrack()
     {
-        if (null === $this->original_ext) {
-            return null;
-        }
-        $valueSet = FilePeer::getValueSet(FilePeer::ORIGINAL_EXT);
-        if (!isset($valueSet[$this->original_ext])) {
-            throw new PropelException('Unknown stored enum key: ' . $this->original_ext);
-        }
 
-        return $valueSet[$this->original_ext];
+        return $this->track;
     }
 
     /**
-     * Get the [guess_ext] column value.
+     * Get the [disc] column value.
      *
      * @return int
-     * @throws PropelException - if the stored enum key is unknown.
      */
-    public function getGuessExt()
+    public function getDisc()
     {
-        if (null === $this->guess_ext) {
-            return null;
-        }
-        $valueSet = FilePeer::getValueSet(FilePeer::GUESS_EXT);
-        if (!isset($valueSet[$this->guess_ext])) {
-            throw new PropelException('Unknown stored enum key: ' . $this->guess_ext);
-        }
 
-        return $valueSet[$this->guess_ext];
+        return $this->disc;
     }
 
     /**
-     * Get the [ext] column value.
+     * Get the [artist_id] column value.
      *
      * @return int
-     * @throws PropelException - if the stored enum key is unknown.
      */
-    public function getExt()
+    public function getArtistId()
     {
-        if (null === $this->ext) {
-            return null;
-        }
-        $valueSet = FilePeer::getValueSet(FilePeer::EXT);
-        if (!isset($valueSet[$this->ext])) {
-            throw new PropelException('Unknown stored enum key: ' . $this->ext);
-        }
 
-        return $valueSet[$this->ext];
+        return $this->artist_id;
+    }
+
+    /**
+     * Get the [album_id] column value.
+     *
+     * @return int
+     */
+    public function getAlbumId()
+    {
+
+        return $this->album_id;
     }
 
     /**
@@ -346,156 +283,123 @@ abstract class BaseFile extends BaseObject implements Persistent
     }
 
     /**
-     * Set the value of [type] column.
-     *
-     * @param  int $v new value
-     * @return File The current object (for fluent API support)
-     * @throws PropelException - if the value is not accepted by this enum.
-     */
-    public function setType($v)
-    {
-        if ($v !== null) {
-            $valueSet = FilePeer::getValueSet(FilePeer::TYPE);
-            if (!in_array($v, $valueSet)) {
-                throw new PropelException(sprintf('Value "%s" is not accepted in this enumerated column', $v));
-            }
-            $v = array_search($v, $valueSet);
-        }
-
-        if ($this->type !== $v) {
-            $this->type = $v;
-            $this->modifiedColumns[] = FilePeer::TYPE;
-        }
-
-
-        return $this;
-    } // setType()
-
-    /**
-     * Set the value of [original_path] column.
+     * Set the value of [name] column.
      *
      * @param  string $v new value
-     * @return File The current object (for fluent API support)
+     * @return MusicTrack The current object (for fluent API support)
      */
-    public function setOriginalPath($v)
+    public function setName($v)
     {
         if ($v !== null) {
             $v = (string) $v;
         }
 
-        if ($this->original_path !== $v) {
-            $this->original_path = $v;
-            $this->modifiedColumns[] = FilePeer::ORIGINAL_PATH;
+        if ($this->name !== $v) {
+            $this->name = $v;
+            $this->modifiedColumns[] = MusicTrackPeer::NAME;
         }
 
 
         return $this;
-    } // setOriginalPath()
+    } // setName()
 
     /**
-     * Set the value of [path] column.
-     *
-     * @param  string $v new value
-     * @return File The current object (for fluent API support)
-     */
-    public function setPath($v)
-    {
-        if ($v !== null) {
-            $v = (string) $v;
-        }
-
-        if ($this->path !== $v) {
-            $this->path = $v;
-            $this->modifiedColumns[] = FilePeer::PATH;
-        }
-
-
-        return $this;
-    } // setPath()
-
-    /**
-     * Set the value of [original_ext] column.
+     * Set the value of [track] column.
      *
      * @param  int $v new value
-     * @return File The current object (for fluent API support)
-     * @throws PropelException - if the value is not accepted by this enum.
+     * @return MusicTrack The current object (for fluent API support)
      */
-    public function setOriginalExt($v)
+    public function setTrack($v)
     {
-        if ($v !== null) {
-            $valueSet = FilePeer::getValueSet(FilePeer::ORIGINAL_EXT);
-            if (!in_array($v, $valueSet)) {
-                throw new PropelException(sprintf('Value "%s" is not accepted in this enumerated column', $v));
-            }
-            $v = array_search($v, $valueSet);
+        if ($v !== null && is_numeric($v)) {
+            $v = (int) $v;
         }
 
-        if ($this->original_ext !== $v) {
-            $this->original_ext = $v;
-            $this->modifiedColumns[] = FilePeer::ORIGINAL_EXT;
+        if ($this->track !== $v) {
+            $this->track = $v;
+            $this->modifiedColumns[] = MusicTrackPeer::TRACK;
         }
 
 
         return $this;
-    } // setOriginalExt()
+    } // setTrack()
 
     /**
-     * Set the value of [guess_ext] column.
+     * Set the value of [disc] column.
      *
      * @param  int $v new value
-     * @return File The current object (for fluent API support)
-     * @throws PropelException - if the value is not accepted by this enum.
+     * @return MusicTrack The current object (for fluent API support)
      */
-    public function setGuessExt($v)
+    public function setDisc($v)
     {
-        if ($v !== null) {
-            $valueSet = FilePeer::getValueSet(FilePeer::GUESS_EXT);
-            if (!in_array($v, $valueSet)) {
-                throw new PropelException(sprintf('Value "%s" is not accepted in this enumerated column', $v));
-            }
-            $v = array_search($v, $valueSet);
+        if ($v !== null && is_numeric($v)) {
+            $v = (int) $v;
         }
 
-        if ($this->guess_ext !== $v) {
-            $this->guess_ext = $v;
-            $this->modifiedColumns[] = FilePeer::GUESS_EXT;
+        if ($this->disc !== $v) {
+            $this->disc = $v;
+            $this->modifiedColumns[] = MusicTrackPeer::DISC;
         }
 
 
         return $this;
-    } // setGuessExt()
+    } // setDisc()
 
     /**
-     * Set the value of [ext] column.
+     * Set the value of [artist_id] column.
      *
      * @param  int $v new value
-     * @return File The current object (for fluent API support)
-     * @throws PropelException - if the value is not accepted by this enum.
+     * @return MusicTrack The current object (for fluent API support)
      */
-    public function setExt($v)
+    public function setArtistId($v)
     {
-        if ($v !== null) {
-            $valueSet = FilePeer::getValueSet(FilePeer::EXT);
-            if (!in_array($v, $valueSet)) {
-                throw new PropelException(sprintf('Value "%s" is not accepted in this enumerated column', $v));
-            }
-            $v = array_search($v, $valueSet);
+        if ($v !== null && is_numeric($v)) {
+            $v = (int) $v;
         }
 
-        if ($this->ext !== $v) {
-            $this->ext = $v;
-            $this->modifiedColumns[] = FilePeer::EXT;
+        if ($this->artist_id !== $v) {
+            $this->artist_id = $v;
+            $this->modifiedColumns[] = MusicTrackPeer::ARTIST_ID;
+        }
+
+        if ($this->aMusicArtist !== null && $this->aMusicArtist->getId() !== $v) {
+            $this->aMusicArtist = null;
         }
 
 
         return $this;
-    } // setExt()
+    } // setArtistId()
+
+    /**
+     * Set the value of [album_id] column.
+     *
+     * @param  int $v new value
+     * @return MusicTrack The current object (for fluent API support)
+     */
+    public function setAlbumId($v)
+    {
+        if ($v !== null && is_numeric($v)) {
+            $v = (int) $v;
+        }
+
+        if ($this->album_id !== $v) {
+            $this->album_id = $v;
+            $this->modifiedColumns[] = MusicTrackPeer::ALBUM_ID;
+        }
+
+        if ($this->aMusicAlbum !== null && $this->aMusicAlbum->getId() !== $v) {
+            $this->aMusicAlbum = null;
+        }
+
+
+        return $this;
+    } // setAlbumId()
 
     /**
      * Set the value of [id] column.
      *
      * @param  int $v new value
-     * @return File The current object (for fluent API support)
+     * @return MusicTrack The current object (for fluent API support)
      */
     public function setId($v)
     {
@@ -505,7 +409,7 @@ abstract class BaseFile extends BaseObject implements Persistent
 
         if ($this->id !== $v) {
             $this->id = $v;
-            $this->modifiedColumns[] = FilePeer::ID;
+            $this->modifiedColumns[] = MusicTrackPeer::ID;
         }
 
 
@@ -517,7 +421,7 @@ abstract class BaseFile extends BaseObject implements Persistent
      *
      * @param mixed $v string, integer (timestamp), or DateTime value.
      *               Empty strings are treated as null.
-     * @return File The current object (for fluent API support)
+     * @return MusicTrack The current object (for fluent API support)
      */
     public function setCreatedAt($v)
     {
@@ -527,7 +431,7 @@ abstract class BaseFile extends BaseObject implements Persistent
             $newDateAsString = $dt ? $dt->format('Y-m-d H:i:s') : null;
             if ($currentDateAsString !== $newDateAsString) {
                 $this->created_at = $newDateAsString;
-                $this->modifiedColumns[] = FilePeer::CREATED_AT;
+                $this->modifiedColumns[] = MusicTrackPeer::CREATED_AT;
             }
         } // if either are not null
 
@@ -540,7 +444,7 @@ abstract class BaseFile extends BaseObject implements Persistent
      *
      * @param mixed $v string, integer (timestamp), or DateTime value.
      *               Empty strings are treated as null.
-     * @return File The current object (for fluent API support)
+     * @return MusicTrack The current object (for fluent API support)
      */
     public function setUpdatedAt($v)
     {
@@ -550,7 +454,7 @@ abstract class BaseFile extends BaseObject implements Persistent
             $newDateAsString = $dt ? $dt->format('Y-m-d H:i:s') : null;
             if ($currentDateAsString !== $newDateAsString) {
                 $this->updated_at = $newDateAsString;
-                $this->modifiedColumns[] = FilePeer::UPDATED_AT;
+                $this->modifiedColumns[] = MusicTrackPeer::UPDATED_AT;
             }
         } // if either are not null
 
@@ -568,22 +472,6 @@ abstract class BaseFile extends BaseObject implements Persistent
      */
     public function hasOnlyDefaultValues()
     {
-            if ($this->type !== 0) {
-                return false;
-            }
-
-            if ($this->original_ext !== 0) {
-                return false;
-            }
-
-            if ($this->guess_ext !== 0) {
-                return false;
-            }
-
-            if ($this->ext !== 0) {
-                return false;
-            }
-
         // otherwise, everything was equal, so return true
         return true;
     } // hasOnlyDefaultValues()
@@ -606,15 +494,14 @@ abstract class BaseFile extends BaseObject implements Persistent
     {
         try {
 
-            $this->type = ($row[$startcol + 0] !== null) ? (int) $row[$startcol + 0] : null;
-            $this->original_path = ($row[$startcol + 1] !== null) ? (string) $row[$startcol + 1] : null;
-            $this->path = ($row[$startcol + 2] !== null) ? (string) $row[$startcol + 2] : null;
-            $this->original_ext = ($row[$startcol + 3] !== null) ? (int) $row[$startcol + 3] : null;
-            $this->guess_ext = ($row[$startcol + 4] !== null) ? (int) $row[$startcol + 4] : null;
-            $this->ext = ($row[$startcol + 5] !== null) ? (int) $row[$startcol + 5] : null;
-            $this->id = ($row[$startcol + 6] !== null) ? (int) $row[$startcol + 6] : null;
-            $this->created_at = ($row[$startcol + 7] !== null) ? (string) $row[$startcol + 7] : null;
-            $this->updated_at = ($row[$startcol + 8] !== null) ? (string) $row[$startcol + 8] : null;
+            $this->name = ($row[$startcol + 0] !== null) ? (string) $row[$startcol + 0] : null;
+            $this->track = ($row[$startcol + 1] !== null) ? (int) $row[$startcol + 1] : null;
+            $this->disc = ($row[$startcol + 2] !== null) ? (int) $row[$startcol + 2] : null;
+            $this->artist_id = ($row[$startcol + 3] !== null) ? (int) $row[$startcol + 3] : null;
+            $this->album_id = ($row[$startcol + 4] !== null) ? (int) $row[$startcol + 4] : null;
+            $this->id = ($row[$startcol + 5] !== null) ? (int) $row[$startcol + 5] : null;
+            $this->created_at = ($row[$startcol + 6] !== null) ? (string) $row[$startcol + 6] : null;
+            $this->updated_at = ($row[$startcol + 7] !== null) ? (string) $row[$startcol + 7] : null;
             $this->resetModified();
 
             $this->setNew(false);
@@ -624,10 +511,10 @@ abstract class BaseFile extends BaseObject implements Persistent
             }
             $this->postHydrate($row, $startcol, $rehydrate);
 
-            return $startcol + 9; // 9 = FilePeer::NUM_HYDRATE_COLUMNS.
+            return $startcol + 8; // 8 = MusicTrackPeer::NUM_HYDRATE_COLUMNS.
 
         } catch (Exception $e) {
-            throw new PropelException("Error populating File object", $e);
+            throw new PropelException("Error populating MusicTrack object", $e);
         }
     }
 
@@ -647,6 +534,12 @@ abstract class BaseFile extends BaseObject implements Persistent
     public function ensureConsistency()
     {
 
+        if ($this->aMusicArtist !== null && $this->artist_id !== $this->aMusicArtist->getId()) {
+            $this->aMusicArtist = null;
+        }
+        if ($this->aMusicAlbum !== null && $this->album_id !== $this->aMusicAlbum->getId()) {
+            $this->aMusicAlbum = null;
+        }
     } // ensureConsistency
 
     /**
@@ -670,13 +563,13 @@ abstract class BaseFile extends BaseObject implements Persistent
         }
 
         if ($con === null) {
-            $con = Propel::getConnection(FilePeer::DATABASE_NAME, Propel::CONNECTION_READ);
+            $con = Propel::getConnection(MusicTrackPeer::DATABASE_NAME, Propel::CONNECTION_READ);
         }
 
         // We don't need to alter the object instance pool; we're just modifying this instance
         // already in the pool.
 
-        $stmt = FilePeer::doSelectStmt($this->buildPkeyCriteria(), $con);
+        $stmt = MusicTrackPeer::doSelectStmt($this->buildPkeyCriteria(), $con);
         $row = $stmt->fetch(PDO::FETCH_NUM);
         $stmt->closeCursor();
         if (!$row) {
@@ -686,6 +579,8 @@ abstract class BaseFile extends BaseObject implements Persistent
 
         if ($deep) {  // also de-associate any related objects?
 
+            $this->aMusicArtist = null;
+            $this->aMusicAlbum = null;
             $this->collMusicFiles = null;
 
         } // if (deep)
@@ -708,12 +603,12 @@ abstract class BaseFile extends BaseObject implements Persistent
         }
 
         if ($con === null) {
-            $con = Propel::getConnection(FilePeer::DATABASE_NAME, Propel::CONNECTION_WRITE);
+            $con = Propel::getConnection(MusicTrackPeer::DATABASE_NAME, Propel::CONNECTION_WRITE);
         }
 
         $con->beginTransaction();
         try {
-            $deleteQuery = FileQuery::create()
+            $deleteQuery = MusicTrackQuery::create()
                 ->filterByPrimaryKey($this->getPrimaryKey());
             $ret = $this->preDelete($con);
             if ($ret) {
@@ -751,7 +646,7 @@ abstract class BaseFile extends BaseObject implements Persistent
         }
 
         if ($con === null) {
-            $con = Propel::getConnection(FilePeer::DATABASE_NAME, Propel::CONNECTION_WRITE);
+            $con = Propel::getConnection(MusicTrackPeer::DATABASE_NAME, Propel::CONNECTION_WRITE);
         }
 
         $con->beginTransaction();
@@ -761,18 +656,18 @@ abstract class BaseFile extends BaseObject implements Persistent
             if ($isInsert) {
                 $ret = $ret && $this->preInsert($con);
         // timestampable behavior
-        if (!$this->isColumnModified(FilePeer::CREATED_AT))
+        if (!$this->isColumnModified(MusicTrackPeer::CREATED_AT))
         {
             $this->setCreatedAt(time());
         }
-        if (!$this->isColumnModified(FilePeer::UPDATED_AT))
+        if (!$this->isColumnModified(MusicTrackPeer::UPDATED_AT))
         {
             $this->setUpdatedAt(time());
         }
             } else {
                 $ret = $ret && $this->preUpdate($con);
         // timestampable behavior
-        if ($this->isModified() && !$this->isColumnModified(FilePeer::UPDATED_AT))
+        if ($this->isModified() && !$this->isColumnModified(MusicTrackPeer::UPDATED_AT))
         {
             $this->setUpdatedAt(time());
         }
@@ -785,7 +680,7 @@ abstract class BaseFile extends BaseObject implements Persistent
                     $this->postUpdate($con);
                 }
                 $this->postSave($con);
-                FilePeer::addInstanceToPool($this);
+                MusicTrackPeer::addInstanceToPool($this);
             } else {
                 $affectedRows = 0;
             }
@@ -814,6 +709,25 @@ abstract class BaseFile extends BaseObject implements Persistent
         $affectedRows = 0; // initialize var to track total num of affected rows
         if (!$this->alreadyInSave) {
             $this->alreadyInSave = true;
+
+            // We call the save method on the following object(s) if they
+            // were passed to this object by their corresponding set
+            // method.  This object relates to these object(s) by a
+            // foreign key reference.
+
+            if ($this->aMusicArtist !== null) {
+                if ($this->aMusicArtist->isModified() || $this->aMusicArtist->isNew()) {
+                    $affectedRows += $this->aMusicArtist->save($con);
+                }
+                $this->setMusicArtist($this->aMusicArtist);
+            }
+
+            if ($this->aMusicAlbum !== null) {
+                if ($this->aMusicAlbum->isModified() || $this->aMusicAlbum->isNew()) {
+                    $affectedRows += $this->aMusicAlbum->save($con);
+                }
+                $this->setMusicAlbum($this->aMusicAlbum);
+            }
 
             if ($this->isNew() || $this->isModified()) {
                 // persist changes
@@ -864,42 +778,39 @@ abstract class BaseFile extends BaseObject implements Persistent
         $modifiedColumns = array();
         $index = 0;
 
-        $this->modifiedColumns[] = FilePeer::ID;
+        $this->modifiedColumns[] = MusicTrackPeer::ID;
         if (null !== $this->id) {
-            throw new PropelException('Cannot insert a value for auto-increment primary key (' . FilePeer::ID . ')');
+            throw new PropelException('Cannot insert a value for auto-increment primary key (' . MusicTrackPeer::ID . ')');
         }
 
          // check the columns in natural order for more readable SQL queries
-        if ($this->isColumnModified(FilePeer::TYPE)) {
-            $modifiedColumns[':p' . $index++]  = '`type`';
+        if ($this->isColumnModified(MusicTrackPeer::NAME)) {
+            $modifiedColumns[':p' . $index++]  = '`name`';
         }
-        if ($this->isColumnModified(FilePeer::ORIGINAL_PATH)) {
-            $modifiedColumns[':p' . $index++]  = '`original_path`';
+        if ($this->isColumnModified(MusicTrackPeer::TRACK)) {
+            $modifiedColumns[':p' . $index++]  = '`track`';
         }
-        if ($this->isColumnModified(FilePeer::PATH)) {
-            $modifiedColumns[':p' . $index++]  = '`path`';
+        if ($this->isColumnModified(MusicTrackPeer::DISC)) {
+            $modifiedColumns[':p' . $index++]  = '`disc`';
         }
-        if ($this->isColumnModified(FilePeer::ORIGINAL_EXT)) {
-            $modifiedColumns[':p' . $index++]  = '`original_ext`';
+        if ($this->isColumnModified(MusicTrackPeer::ARTIST_ID)) {
+            $modifiedColumns[':p' . $index++]  = '`artist_id`';
         }
-        if ($this->isColumnModified(FilePeer::GUESS_EXT)) {
-            $modifiedColumns[':p' . $index++]  = '`guess_ext`';
+        if ($this->isColumnModified(MusicTrackPeer::ALBUM_ID)) {
+            $modifiedColumns[':p' . $index++]  = '`album_id`';
         }
-        if ($this->isColumnModified(FilePeer::EXT)) {
-            $modifiedColumns[':p' . $index++]  = '`ext`';
-        }
-        if ($this->isColumnModified(FilePeer::ID)) {
+        if ($this->isColumnModified(MusicTrackPeer::ID)) {
             $modifiedColumns[':p' . $index++]  = '`id`';
         }
-        if ($this->isColumnModified(FilePeer::CREATED_AT)) {
+        if ($this->isColumnModified(MusicTrackPeer::CREATED_AT)) {
             $modifiedColumns[':p' . $index++]  = '`created_at`';
         }
-        if ($this->isColumnModified(FilePeer::UPDATED_AT)) {
+        if ($this->isColumnModified(MusicTrackPeer::UPDATED_AT)) {
             $modifiedColumns[':p' . $index++]  = '`updated_at`';
         }
 
         $sql = sprintf(
-            'INSERT INTO `file` (%s) VALUES (%s)',
+            'INSERT INTO `music_track` (%s) VALUES (%s)',
             implode(', ', $modifiedColumns),
             implode(', ', array_keys($modifiedColumns))
         );
@@ -908,23 +819,20 @@ abstract class BaseFile extends BaseObject implements Persistent
             $stmt = $con->prepare($sql);
             foreach ($modifiedColumns as $identifier => $columnName) {
                 switch ($columnName) {
-                    case '`type`':
-            $stmt->bindValue($identifier, $this->type, PDO::PARAM_INT);
+                    case '`name`':
+            $stmt->bindValue($identifier, $this->name, PDO::PARAM_STR);
                         break;
-                    case '`original_path`':
-            $stmt->bindValue($identifier, $this->original_path, PDO::PARAM_STR);
+                    case '`track`':
+            $stmt->bindValue($identifier, $this->track, PDO::PARAM_INT);
                         break;
-                    case '`path`':
-            $stmt->bindValue($identifier, $this->path, PDO::PARAM_STR);
+                    case '`disc`':
+            $stmt->bindValue($identifier, $this->disc, PDO::PARAM_INT);
                         break;
-                    case '`original_ext`':
-            $stmt->bindValue($identifier, $this->original_ext, PDO::PARAM_INT);
+                    case '`artist_id`':
+            $stmt->bindValue($identifier, $this->artist_id, PDO::PARAM_INT);
                         break;
-                    case '`guess_ext`':
-            $stmt->bindValue($identifier, $this->guess_ext, PDO::PARAM_INT);
-                        break;
-                    case '`ext`':
-            $stmt->bindValue($identifier, $this->ext, PDO::PARAM_INT);
+                    case '`album_id`':
+            $stmt->bindValue($identifier, $this->album_id, PDO::PARAM_INT);
                         break;
                     case '`id`':
             $stmt->bindValue($identifier, $this->id, PDO::PARAM_INT);
@@ -1029,7 +937,25 @@ abstract class BaseFile extends BaseObject implements Persistent
             $failureMap = array();
 
 
-            if (($retval = FilePeer::doValidate($this, $columns)) !== true) {
+            // We call the validate method on the following object(s) if they
+            // were passed to this object by their corresponding set
+            // method.  This object relates to these object(s) by a
+            // foreign key reference.
+
+            if ($this->aMusicArtist !== null) {
+                if (!$this->aMusicArtist->validate($columns)) {
+                    $failureMap = array_merge($failureMap, $this->aMusicArtist->getValidationFailures());
+                }
+            }
+
+            if ($this->aMusicAlbum !== null) {
+                if (!$this->aMusicAlbum->validate($columns)) {
+                    $failureMap = array_merge($failureMap, $this->aMusicAlbum->getValidationFailures());
+                }
+            }
+
+
+            if (($retval = MusicTrackPeer::doValidate($this, $columns)) !== true) {
                 $failureMap = array_merge($failureMap, $retval);
             }
 
@@ -1061,7 +987,7 @@ abstract class BaseFile extends BaseObject implements Persistent
      */
     public function getByName($name, $type = BasePeer::TYPE_PHPNAME)
     {
-        $pos = FilePeer::translateFieldName($name, $type, BasePeer::TYPE_NUM);
+        $pos = MusicTrackPeer::translateFieldName($name, $type, BasePeer::TYPE_NUM);
         $field = $this->getByPosition($pos);
 
         return $field;
@@ -1078,30 +1004,27 @@ abstract class BaseFile extends BaseObject implements Persistent
     {
         switch ($pos) {
             case 0:
-                return $this->getType();
+                return $this->getName();
                 break;
             case 1:
-                return $this->getOriginalPath();
+                return $this->getTrack();
                 break;
             case 2:
-                return $this->getPath();
+                return $this->getDisc();
                 break;
             case 3:
-                return $this->getOriginalExt();
+                return $this->getArtistId();
                 break;
             case 4:
-                return $this->getGuessExt();
+                return $this->getAlbumId();
                 break;
             case 5:
-                return $this->getExt();
-                break;
-            case 6:
                 return $this->getId();
                 break;
-            case 7:
+            case 6:
                 return $this->getCreatedAt();
                 break;
-            case 8:
+            case 7:
                 return $this->getUpdatedAt();
                 break;
             default:
@@ -1127,21 +1050,20 @@ abstract class BaseFile extends BaseObject implements Persistent
      */
     public function toArray($keyType = BasePeer::TYPE_PHPNAME, $includeLazyLoadColumns = true, $alreadyDumpedObjects = array(), $includeForeignObjects = false)
     {
-        if (isset($alreadyDumpedObjects['File'][$this->getPrimaryKey()])) {
+        if (isset($alreadyDumpedObjects['MusicTrack'][$this->getPrimaryKey()])) {
             return '*RECURSION*';
         }
-        $alreadyDumpedObjects['File'][$this->getPrimaryKey()] = true;
-        $keys = FilePeer::getFieldNames($keyType);
+        $alreadyDumpedObjects['MusicTrack'][$this->getPrimaryKey()] = true;
+        $keys = MusicTrackPeer::getFieldNames($keyType);
         $result = array(
-            $keys[0] => $this->getType(),
-            $keys[1] => $this->getOriginalPath(),
-            $keys[2] => $this->getPath(),
-            $keys[3] => $this->getOriginalExt(),
-            $keys[4] => $this->getGuessExt(),
-            $keys[5] => $this->getExt(),
-            $keys[6] => $this->getId(),
-            $keys[7] => $this->getCreatedAt(),
-            $keys[8] => $this->getUpdatedAt(),
+            $keys[0] => $this->getName(),
+            $keys[1] => $this->getTrack(),
+            $keys[2] => $this->getDisc(),
+            $keys[3] => $this->getArtistId(),
+            $keys[4] => $this->getAlbumId(),
+            $keys[5] => $this->getId(),
+            $keys[6] => $this->getCreatedAt(),
+            $keys[7] => $this->getUpdatedAt(),
         );
         $virtualColumns = $this->virtualColumns;
         foreach ($virtualColumns as $key => $virtualColumn) {
@@ -1149,6 +1071,12 @@ abstract class BaseFile extends BaseObject implements Persistent
         }
 
         if ($includeForeignObjects) {
+            if (null !== $this->aMusicArtist) {
+                $result['MusicArtist'] = $this->aMusicArtist->toArray($keyType, $includeLazyLoadColumns,  $alreadyDumpedObjects, true);
+            }
+            if (null !== $this->aMusicAlbum) {
+                $result['MusicAlbum'] = $this->aMusicAlbum->toArray($keyType, $includeLazyLoadColumns,  $alreadyDumpedObjects, true);
+            }
             if (null !== $this->collMusicFiles) {
                 $result['MusicFiles'] = $this->collMusicFiles->toArray(null, true, $keyType, $includeLazyLoadColumns, $alreadyDumpedObjects);
             }
@@ -1170,7 +1098,7 @@ abstract class BaseFile extends BaseObject implements Persistent
      */
     public function setByName($name, $value, $type = BasePeer::TYPE_PHPNAME)
     {
-        $pos = FilePeer::translateFieldName($name, $type, BasePeer::TYPE_NUM);
+        $pos = MusicTrackPeer::translateFieldName($name, $type, BasePeer::TYPE_NUM);
 
         $this->setByPosition($pos, $value);
     }
@@ -1187,46 +1115,27 @@ abstract class BaseFile extends BaseObject implements Persistent
     {
         switch ($pos) {
             case 0:
-                $valueSet = FilePeer::getValueSet(FilePeer::TYPE);
-                if (isset($valueSet[$value])) {
-                    $value = $valueSet[$value];
-                }
-                $this->setType($value);
+                $this->setName($value);
                 break;
             case 1:
-                $this->setOriginalPath($value);
+                $this->setTrack($value);
                 break;
             case 2:
-                $this->setPath($value);
+                $this->setDisc($value);
                 break;
             case 3:
-                $valueSet = FilePeer::getValueSet(FilePeer::ORIGINAL_EXT);
-                if (isset($valueSet[$value])) {
-                    $value = $valueSet[$value];
-                }
-                $this->setOriginalExt($value);
+                $this->setArtistId($value);
                 break;
             case 4:
-                $valueSet = FilePeer::getValueSet(FilePeer::GUESS_EXT);
-                if (isset($valueSet[$value])) {
-                    $value = $valueSet[$value];
-                }
-                $this->setGuessExt($value);
+                $this->setAlbumId($value);
                 break;
             case 5:
-                $valueSet = FilePeer::getValueSet(FilePeer::EXT);
-                if (isset($valueSet[$value])) {
-                    $value = $valueSet[$value];
-                }
-                $this->setExt($value);
-                break;
-            case 6:
                 $this->setId($value);
                 break;
-            case 7:
+            case 6:
                 $this->setCreatedAt($value);
                 break;
-            case 8:
+            case 7:
                 $this->setUpdatedAt($value);
                 break;
         } // switch()
@@ -1251,17 +1160,16 @@ abstract class BaseFile extends BaseObject implements Persistent
      */
     public function fromArray($arr, $keyType = BasePeer::TYPE_PHPNAME)
     {
-        $keys = FilePeer::getFieldNames($keyType);
+        $keys = MusicTrackPeer::getFieldNames($keyType);
 
-        if (array_key_exists($keys[0], $arr)) $this->setType($arr[$keys[0]]);
-        if (array_key_exists($keys[1], $arr)) $this->setOriginalPath($arr[$keys[1]]);
-        if (array_key_exists($keys[2], $arr)) $this->setPath($arr[$keys[2]]);
-        if (array_key_exists($keys[3], $arr)) $this->setOriginalExt($arr[$keys[3]]);
-        if (array_key_exists($keys[4], $arr)) $this->setGuessExt($arr[$keys[4]]);
-        if (array_key_exists($keys[5], $arr)) $this->setExt($arr[$keys[5]]);
-        if (array_key_exists($keys[6], $arr)) $this->setId($arr[$keys[6]]);
-        if (array_key_exists($keys[7], $arr)) $this->setCreatedAt($arr[$keys[7]]);
-        if (array_key_exists($keys[8], $arr)) $this->setUpdatedAt($arr[$keys[8]]);
+        if (array_key_exists($keys[0], $arr)) $this->setName($arr[$keys[0]]);
+        if (array_key_exists($keys[1], $arr)) $this->setTrack($arr[$keys[1]]);
+        if (array_key_exists($keys[2], $arr)) $this->setDisc($arr[$keys[2]]);
+        if (array_key_exists($keys[3], $arr)) $this->setArtistId($arr[$keys[3]]);
+        if (array_key_exists($keys[4], $arr)) $this->setAlbumId($arr[$keys[4]]);
+        if (array_key_exists($keys[5], $arr)) $this->setId($arr[$keys[5]]);
+        if (array_key_exists($keys[6], $arr)) $this->setCreatedAt($arr[$keys[6]]);
+        if (array_key_exists($keys[7], $arr)) $this->setUpdatedAt($arr[$keys[7]]);
     }
 
     /**
@@ -1271,17 +1179,16 @@ abstract class BaseFile extends BaseObject implements Persistent
      */
     public function buildCriteria()
     {
-        $criteria = new Criteria(FilePeer::DATABASE_NAME);
+        $criteria = new Criteria(MusicTrackPeer::DATABASE_NAME);
 
-        if ($this->isColumnModified(FilePeer::TYPE)) $criteria->add(FilePeer::TYPE, $this->type);
-        if ($this->isColumnModified(FilePeer::ORIGINAL_PATH)) $criteria->add(FilePeer::ORIGINAL_PATH, $this->original_path);
-        if ($this->isColumnModified(FilePeer::PATH)) $criteria->add(FilePeer::PATH, $this->path);
-        if ($this->isColumnModified(FilePeer::ORIGINAL_EXT)) $criteria->add(FilePeer::ORIGINAL_EXT, $this->original_ext);
-        if ($this->isColumnModified(FilePeer::GUESS_EXT)) $criteria->add(FilePeer::GUESS_EXT, $this->guess_ext);
-        if ($this->isColumnModified(FilePeer::EXT)) $criteria->add(FilePeer::EXT, $this->ext);
-        if ($this->isColumnModified(FilePeer::ID)) $criteria->add(FilePeer::ID, $this->id);
-        if ($this->isColumnModified(FilePeer::CREATED_AT)) $criteria->add(FilePeer::CREATED_AT, $this->created_at);
-        if ($this->isColumnModified(FilePeer::UPDATED_AT)) $criteria->add(FilePeer::UPDATED_AT, $this->updated_at);
+        if ($this->isColumnModified(MusicTrackPeer::NAME)) $criteria->add(MusicTrackPeer::NAME, $this->name);
+        if ($this->isColumnModified(MusicTrackPeer::TRACK)) $criteria->add(MusicTrackPeer::TRACK, $this->track);
+        if ($this->isColumnModified(MusicTrackPeer::DISC)) $criteria->add(MusicTrackPeer::DISC, $this->disc);
+        if ($this->isColumnModified(MusicTrackPeer::ARTIST_ID)) $criteria->add(MusicTrackPeer::ARTIST_ID, $this->artist_id);
+        if ($this->isColumnModified(MusicTrackPeer::ALBUM_ID)) $criteria->add(MusicTrackPeer::ALBUM_ID, $this->album_id);
+        if ($this->isColumnModified(MusicTrackPeer::ID)) $criteria->add(MusicTrackPeer::ID, $this->id);
+        if ($this->isColumnModified(MusicTrackPeer::CREATED_AT)) $criteria->add(MusicTrackPeer::CREATED_AT, $this->created_at);
+        if ($this->isColumnModified(MusicTrackPeer::UPDATED_AT)) $criteria->add(MusicTrackPeer::UPDATED_AT, $this->updated_at);
 
         return $criteria;
     }
@@ -1296,8 +1203,8 @@ abstract class BaseFile extends BaseObject implements Persistent
      */
     public function buildPkeyCriteria()
     {
-        $criteria = new Criteria(FilePeer::DATABASE_NAME);
-        $criteria->add(FilePeer::ID, $this->id);
+        $criteria = new Criteria(MusicTrackPeer::DATABASE_NAME);
+        $criteria->add(MusicTrackPeer::ID, $this->id);
 
         return $criteria;
     }
@@ -1338,19 +1245,18 @@ abstract class BaseFile extends BaseObject implements Persistent
      * If desired, this method can also make copies of all associated (fkey referrers)
      * objects.
      *
-     * @param object $copyObj An object of File (or compatible) type.
+     * @param object $copyObj An object of MusicTrack (or compatible) type.
      * @param boolean $deepCopy Whether to also copy all rows that refer (by fkey) to the current row.
      * @param boolean $makeNew Whether to reset autoincrement PKs and make the object new.
      * @throws PropelException
      */
     public function copyInto($copyObj, $deepCopy = false, $makeNew = true)
     {
-        $copyObj->setType($this->getType());
-        $copyObj->setOriginalPath($this->getOriginalPath());
-        $copyObj->setPath($this->getPath());
-        $copyObj->setOriginalExt($this->getOriginalExt());
-        $copyObj->setGuessExt($this->getGuessExt());
-        $copyObj->setExt($this->getExt());
+        $copyObj->setName($this->getName());
+        $copyObj->setTrack($this->getTrack());
+        $copyObj->setDisc($this->getDisc());
+        $copyObj->setArtistId($this->getArtistId());
+        $copyObj->setAlbumId($this->getAlbumId());
         $copyObj->setCreatedAt($this->getCreatedAt());
         $copyObj->setUpdatedAt($this->getUpdatedAt());
 
@@ -1386,7 +1292,7 @@ abstract class BaseFile extends BaseObject implements Persistent
      * objects.
      *
      * @param boolean $deepCopy Whether to also copy all rows that refer (by fkey) to the current row.
-     * @return File Clone of current object.
+     * @return MusicTrack Clone of current object.
      * @throws PropelException
      */
     public function copy($deepCopy = false)
@@ -1406,15 +1312,119 @@ abstract class BaseFile extends BaseObject implements Persistent
      * same instance for all member of this class. The method could therefore
      * be static, but this would prevent one from overriding the behavior.
      *
-     * @return FilePeer
+     * @return MusicTrackPeer
      */
     public function getPeer()
     {
         if (self::$peer === null) {
-            self::$peer = new FilePeer();
+            self::$peer = new MusicTrackPeer();
         }
 
         return self::$peer;
+    }
+
+    /**
+     * Declares an association between this object and a MusicArtist object.
+     *
+     * @param                  MusicArtist $v
+     * @return MusicTrack The current object (for fluent API support)
+     * @throws PropelException
+     */
+    public function setMusicArtist(MusicArtist $v = null)
+    {
+        if ($v === null) {
+            $this->setArtistId(NULL);
+        } else {
+            $this->setArtistId($v->getId());
+        }
+
+        $this->aMusicArtist = $v;
+
+        // Add binding for other direction of this n:n relationship.
+        // If this object has already been added to the MusicArtist object, it will not be re-added.
+        if ($v !== null) {
+            $v->addMusicTrack($this);
+        }
+
+
+        return $this;
+    }
+
+
+    /**
+     * Get the associated MusicArtist object
+     *
+     * @param PropelPDO $con Optional Connection object.
+     * @param $doQuery Executes a query to get the object if required
+     * @return MusicArtist The associated MusicArtist object.
+     * @throws PropelException
+     */
+    public function getMusicArtist(PropelPDO $con = null, $doQuery = true)
+    {
+        if ($this->aMusicArtist === null && ($this->artist_id !== null) && $doQuery) {
+            $this->aMusicArtist = MusicArtistQuery::create()->findPk($this->artist_id, $con);
+            /* The following can be used additionally to
+                guarantee the related object contains a reference
+                to this object.  This level of coupling may, however, be
+                undesirable since it could result in an only partially populated collection
+                in the referenced object.
+                $this->aMusicArtist->addMusicTracks($this);
+             */
+        }
+
+        return $this->aMusicArtist;
+    }
+
+    /**
+     * Declares an association between this object and a MusicAlbum object.
+     *
+     * @param                  MusicAlbum $v
+     * @return MusicTrack The current object (for fluent API support)
+     * @throws PropelException
+     */
+    public function setMusicAlbum(MusicAlbum $v = null)
+    {
+        if ($v === null) {
+            $this->setAlbumId(NULL);
+        } else {
+            $this->setAlbumId($v->getId());
+        }
+
+        $this->aMusicAlbum = $v;
+
+        // Add binding for other direction of this n:n relationship.
+        // If this object has already been added to the MusicAlbum object, it will not be re-added.
+        if ($v !== null) {
+            $v->addMusicTrack($this);
+        }
+
+
+        return $this;
+    }
+
+
+    /**
+     * Get the associated MusicAlbum object
+     *
+     * @param PropelPDO $con Optional Connection object.
+     * @param $doQuery Executes a query to get the object if required
+     * @return MusicAlbum The associated MusicAlbum object.
+     * @throws PropelException
+     */
+    public function getMusicAlbum(PropelPDO $con = null, $doQuery = true)
+    {
+        if ($this->aMusicAlbum === null && ($this->album_id !== null) && $doQuery) {
+            $this->aMusicAlbum = MusicAlbumQuery::create()->findPk($this->album_id, $con);
+            /* The following can be used additionally to
+                guarantee the related object contains a reference
+                to this object.  This level of coupling may, however, be
+                undesirable since it could result in an only partially populated collection
+                in the referenced object.
+                $this->aMusicAlbum->addMusicTracks($this);
+             */
+        }
+
+        return $this->aMusicAlbum;
     }
 
 
@@ -1439,7 +1449,7 @@ abstract class BaseFile extends BaseObject implements Persistent
      * This does not modify the database; however, it will remove any associated objects, causing
      * them to be refetched by subsequent calls to accessor method.
      *
-     * @return File The current object (for fluent API support)
+     * @return MusicTrack The current object (for fluent API support)
      * @see        addMusicFiles()
      */
     public function clearMusicFiles()
@@ -1487,7 +1497,7 @@ abstract class BaseFile extends BaseObject implements Persistent
      * If the $criteria is not null, it is used to always fetch the results from the database.
      * Otherwise the results are fetched from the database the first time, then cached.
      * Next time the same method is called without $criteria, the cached collection is returned.
-     * If this File is new, it will return
+     * If this MusicTrack is new, it will return
      * an empty collection or the current collection; the criteria is ignored on a new object.
      *
      * @param Criteria $criteria optional Criteria object to narrow the query
@@ -1504,7 +1514,7 @@ abstract class BaseFile extends BaseObject implements Persistent
                 $this->initMusicFiles();
             } else {
                 $collMusicFiles = MusicFileQuery::create(null, $criteria)
-                    ->filterByFile($this)
+                    ->filterByMusicTrack($this)
                     ->find($con);
                 if (null !== $criteria) {
                     if (false !== $this->collMusicFilesPartial && count($collMusicFiles)) {
@@ -1548,7 +1558,7 @@ abstract class BaseFile extends BaseObject implements Persistent
      *
      * @param PropelCollection $musicFiles A Propel collection.
      * @param PropelPDO $con Optional connection object
-     * @return File The current object (for fluent API support)
+     * @return MusicTrack The current object (for fluent API support)
      */
     public function setMusicFiles(PropelCollection $musicFiles, PropelPDO $con = null)
     {
@@ -1558,7 +1568,7 @@ abstract class BaseFile extends BaseObject implements Persistent
         $this->musicFilesScheduledForDeletion = $musicFilesToDelete;
 
         foreach ($musicFilesToDelete as $musicFileRemoved) {
-            $musicFileRemoved->setFile(null);
+            $musicFileRemoved->setMusicTrack(null);
         }
 
         $this->collMusicFiles = null;
@@ -1598,7 +1608,7 @@ abstract class BaseFile extends BaseObject implements Persistent
             }
 
             return $query
-                ->filterByFile($this)
+                ->filterByMusicTrack($this)
                 ->count($con);
         }
 
@@ -1610,7 +1620,7 @@ abstract class BaseFile extends BaseObject implements Persistent
      * through the MusicFile foreign key attribute.
      *
      * @param    MusicFile $l MusicFile
-     * @return File The current object (for fluent API support)
+     * @return MusicTrack The current object (for fluent API support)
      */
     public function addMusicFile(MusicFile $l)
     {
@@ -1636,12 +1646,12 @@ abstract class BaseFile extends BaseObject implements Persistent
     protected function doAddMusicFile($musicFile)
     {
         $this->collMusicFiles[]= $musicFile;
-        $musicFile->setFile($this);
+        $musicFile->setMusicTrack($this);
     }
 
     /**
      * @param  MusicFile $musicFile The musicFile object to remove.
-     * @return File The current object (for fluent API support)
+     * @return MusicTrack The current object (for fluent API support)
      */
     public function removeMusicFile($musicFile)
     {
@@ -1652,7 +1662,7 @@ abstract class BaseFile extends BaseObject implements Persistent
                 $this->musicFilesScheduledForDeletion->clear();
             }
             $this->musicFilesScheduledForDeletion[]= $musicFile;
-            $musicFile->setFile(null);
+            $musicFile->setMusicTrack(null);
         }
 
         return $this;
@@ -1662,23 +1672,23 @@ abstract class BaseFile extends BaseObject implements Persistent
     /**
      * If this collection has already been initialized with
      * an identical criteria, it returns the collection.
-     * Otherwise if this File is new, it will return
-     * an empty collection; or if this File has previously
+     * Otherwise if this MusicTrack is new, it will return
+     * an empty collection; or if this MusicTrack has previously
      * been saved, it will retrieve related MusicFiles from storage.
      *
      * This method is protected by default in order to keep the public
      * api reasonable.  You can provide public methods for those you
-     * actually need in File.
+     * actually need in MusicTrack.
      *
      * @param Criteria $criteria optional Criteria object to narrow the query
      * @param PropelPDO $con optional connection object
      * @param string $join_behavior optional join type to use (defaults to Criteria::LEFT_JOIN)
      * @return PropelObjectCollection|MusicFile[] List of MusicFile objects
      */
-    public function getMusicFilesJoinMusicTrack($criteria = null, $con = null, $join_behavior = Criteria::LEFT_JOIN)
+    public function getMusicFilesJoinFile($criteria = null, $con = null, $join_behavior = Criteria::LEFT_JOIN)
     {
         $query = MusicFileQuery::create(null, $criteria);
-        $query->joinWith('MusicTrack', $join_behavior);
+        $query->joinWith('File', $join_behavior);
 
         return $this->getMusicFiles($query, $con);
     }
@@ -1688,12 +1698,11 @@ abstract class BaseFile extends BaseObject implements Persistent
      */
     public function clear()
     {
-        $this->type = null;
-        $this->original_path = null;
-        $this->path = null;
-        $this->original_ext = null;
-        $this->guess_ext = null;
-        $this->ext = null;
+        $this->name = null;
+        $this->track = null;
+        $this->disc = null;
+        $this->artist_id = null;
+        $this->album_id = null;
         $this->id = null;
         $this->created_at = null;
         $this->updated_at = null;
@@ -1701,7 +1710,6 @@ abstract class BaseFile extends BaseObject implements Persistent
         $this->alreadyInValidation = false;
         $this->alreadyInClearAllReferencesDeep = false;
         $this->clearAllReferences();
-        $this->applyDefaultValues();
         $this->resetModified();
         $this->setNew(true);
         $this->setDeleted(false);
@@ -1725,6 +1733,12 @@ abstract class BaseFile extends BaseObject implements Persistent
                     $o->clearAllReferences($deep);
                 }
             }
+            if ($this->aMusicArtist instanceof Persistent) {
+              $this->aMusicArtist->clearAllReferences($deep);
+            }
+            if ($this->aMusicAlbum instanceof Persistent) {
+              $this->aMusicAlbum->clearAllReferences($deep);
+            }
 
             $this->alreadyInClearAllReferencesDeep = false;
         } // if ($deep)
@@ -1733,6 +1747,8 @@ abstract class BaseFile extends BaseObject implements Persistent
             $this->collMusicFiles->clearIterator();
         }
         $this->collMusicFiles = null;
+        $this->aMusicArtist = null;
+        $this->aMusicAlbum = null;
     }
 
     /**
@@ -1742,7 +1758,7 @@ abstract class BaseFile extends BaseObject implements Persistent
      */
     public function __toString()
     {
-        return (string) $this->exportTo(FilePeer::DEFAULT_STRING_FORMAT);
+        return (string) $this->exportTo(MusicTrackPeer::DEFAULT_STRING_FORMAT);
     }
 
     /**
@@ -1760,11 +1776,11 @@ abstract class BaseFile extends BaseObject implements Persistent
   /**
    * Mark the current object so that the update date doesn't get updated during next save
    *
-   * @return     File The current object (for fluent API support)
+   * @return     MusicTrack The current object (for fluent API support)
    */
   public function keepUpdateDateUnchanged()
   {
-      $this->modifiedColumns[] = FilePeer::UPDATED_AT;
+      $this->modifiedColumns[] = MusicTrackPeer::UPDATED_AT;
 
       return $this;
   }

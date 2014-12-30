@@ -142,6 +142,26 @@ class MusicTagsScanCommand extends ContainerAwareCommand
         }
     }
     
+    protected function addOriginalTag($musicFileId, $tagType, $tagName, $tagContent)
+    {
+        $originalTag = MusicOriginalTagQuery::create()
+            ->filterByMusicFileId($musicFileId)
+            ->filterByType($tagType)
+            ->filterByName($tagName)
+            ->filterByValue($tagContent)
+            ->findOne();
+        if (is_null($originalTag))
+        {
+            $originalTag = new MusicOriginalTag();
+            $originalTag
+                ->setMusicFileId($musicFileId)
+                ->setType($tagType)
+                ->setName($tagName)
+                ->setValue($tagContent)
+                ->save();
+        }
+    }
+    
     /**
      * Execution
      * 
@@ -163,29 +183,129 @@ class MusicTagsScanCommand extends ContainerAwareCommand
         $musicFiles = MusicFileQuery::create()
             ->filterByScanOriginalTag(true)
             ->orderByUpdatedAt(Criteria::ASC)
-            ->limit(5)
+//            ->limit(1000)
             ->find();
         $output->writeln('    - ' . $musicFiles->count() . ' entrées trouvées');
         foreach ($musicFiles as $musicFile)
         {
-            $musicPath = $musicPath . DIRECTORY_SEPARATOR . $musicFile->getFile()->getPath();
-            $getId3    = new getID3();
+            $musicFullPath = $musicPath . DIRECTORY_SEPARATOR . $musicFile->getFile()->getPath();
+            $getId3        = new getID3();
             $output->writeln('    > fichier #' . $musicFile->getId() . '/' . $musicFile->getFileId());
-            $output->writeln('        - open file ' . $musicPath);
-            $getId3->analyze($musicPath);
-            $id3Infos  = $getId3->info;
+            $output->writeln('        - open file ' . $musicFullPath);
+            $getId3->analyze($musicFullPath);
+            $id3Infos      = $getId3->info;
             foreach ($id3Infos as $infoKey => $infoValue)
             {
                 switch ($infoKey)
                 {
+                    case 'audio':
+                        $output->writeln('        - scan de la clé info : ' . $infoKey);
+                        foreach ($infoValue as $audioKey => $audioValue)
+                        {
+                            switch ($audioKey)
+                            {
+                                case 'bitrate':
+                                case 'channels':
+                                case 'codec':
+                                case 'encoder':
+                                case 'lossless':
+                                    $output->writeln('            - clé audio ajoutée : ' . $audioKey . ' [' . $audioValue . ']');
+                                    $this->addOriginalTag($musicFile->getId(), 'audio', $audioKey, $audioValue);
+                                    break;
+                                case 'bitrate_mode':
+                                    $output->writeln('            - clé audio ajoutée : bitrateMode [' . $audioValue . ']');
+                                    $this->addOriginalTag($musicFile->getId(), 'audio', 'bitrateMode', $audioValue);
+                                    break;
+                                case 'channelmode':
+                                    $output->writeln('            - clé audio ajoutée : channelMode [' . $audioValue . ']');
+                                    $this->addOriginalTag($musicFile->getId(), 'audio', 'channelMode', $audioValue);
+                                    break;
+                                case 'compression_ratio':
+                                    $output->writeln('            - clé audio ajoutée : compressionRatio [' . $audioValue . ']');
+                                    $this->addOriginalTag($musicFile->getId(), 'audio', 'compressionRatio', $audioValue);
+                                    break;
+                                case 'encoder_options':
+                                    $output->writeln('            - clé audio ajoutée : encoderOptions [' . $audioValue . ']');
+                                    $this->addOriginalTag($musicFile->getId(), 'audio', 'encoderOptions', $audioValue);
+                                    break;
+                                case 'sample_rate':
+                                    $output->writeln('            - clé audio ajoutée : sampleRate [' . $audioValue . ']');
+                                    $this->addOriginalTag($musicFile->getId(), 'audio', 'sampleRate', $audioValue);
+                                    break;
+                                case 'bits_per_sample':
+                                case 'dataformat':
+                                case 'streams':
+                                    $output->writeln('            - clé audio ignorée : ' . $audioKey);
+                                    break;
+                                default:
+                                    $output->writeln('            - clé audio inconnue : ' . $audioKey . ' - type valeur : ' . gettype($audioValue) . ' - valeur : ' . ((gettype($audioValue) == 'array') ? implode(', ', array_keys($audioValue)) : $audioValue));
+                                    exit();
+                            }
+                        }
+                        break;
+                    case 'tags':
+                        $output->writeln('        - scan de la clé info : ' . $infoKey);
+                        foreach ($infoValue as $tagGroupKey => $tagGroupValue)
+                        {
+                            switch ($tagGroupKey)
+                            {
+                                case 'id3v1':
+                                case 'id3v2':
+                                case 'lyrics3':
+                                case 'vorbiscomment':
+                                    $output->writeln('            - scan de la clé tag group : ' . $tagGroupKey);
+                                    foreach ($tagGroupValue as $tagKey => $tagValue)
+                                    {
+                                        $output->writeln('                - clé tag ' . $tagGroupKey . ' ajoutée : ' . $tagKey . ' - valeur : ' . $tagValue[0] . ' - encodage : ' . mb_detect_encoding($tagValue[0]));
+                                        $this->addOriginalTag($musicFile->getId(), $tagGroupKey, $tagKey, $tagValue[0]);
+                                    }                                    
+                                    break;
+                                default:
+                                    $output->writeln('            - clé tag group inconnue : ' . $tagGroupKey . ' - type valeur : ' . gettype($tagGroupValue) . ' - valeur : ' . ((gettype($tagGroupValue) == 'array') ? implode(', ', array_keys($tagGroupValue)) : $tagGroupValue));
+                                    exit();
+                            }
+                        }
+                        break;
+                    case 'fileformat':
+                    case 'filesize':
+                    case 'encoding':
+                    case 'mime_type':
+                    case 'playtime_seconds':
+                        $output->writeln('        - clé info ajoutée : ' . $infoKey . ' [' . $infoValue . ']');
+                        $this->addOriginalTag($musicFile->getId(), 'info', $infoKey, $infoValue);
+                        break;
+                    case 'ape':
+                    case 'avdataend':
+                    case 'avdataoffset':
+                    case 'bitrate':
+                    case 'comments': /* Contient les couvertures, à retravailler plus tard */
+                    case 'error':
+                    case 'filename':
+                    case 'filenamepath':
+                    case 'filepath':
+                    case 'flac':
                     case 'GETID3_VERSION':
+                    case 'id3v1':
+                    case 'id3v2':
+                    case 'lyrics3':
+                    case 'md5_data_source':
+                    case 'mpeg':
+                    case 'ogg':
+                    case 'playtime_string':
+                    case 'replay_gain':
+                    case 'tags_html':
+                    case 'vorbiscomment':
+                    case 'warning':
                         $output->writeln('        - clé info ignorée : ' . $infoKey);
                         break;
                     default:
-                        $output->writeln('        - clé info inconnue : ' . $infoKey . ' - type valeur : ' . gettype($infoValue) . ' - valeur : ' . ((gettype($infoValue) == 'array') ? 'array' : $infoValue));
+                        $output->writeln('        - clé info inconnue : ' . $infoKey . ' - type valeur : ' . gettype($infoValue) . ' - valeur : ' . ((gettype($infoValue) == 'array') ? implode(', ', array_keys($infoValue)) : $infoValue));
                         exit();
                 }
             }
+            $musicFile
+                ->setScanOriginalTag(false)
+                ->save();
         }
     }
 }

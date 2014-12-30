@@ -16,17 +16,22 @@ use Sbh\MusicBundle\Model\MusicFile;
 use Sbh\MusicBundle\Model\MusicFilePeer;
 use Sbh\MusicBundle\Model\MusicFileQuery;
 use Sbh\MusicBundle\Model\MusicOriginalTag;
+use Sbh\MusicBundle\Model\MusicTrack;
 use Sbh\StartBundle\Model\File;
 
 /**
  * @method MusicFileQuery orderByFileId($order = Criteria::ASC) Order by the file_id column
+ * @method MusicFileQuery orderByTrackId($order = Criteria::ASC) Order by the track_id column
  * @method MusicFileQuery orderByScanOriginalTag($order = Criteria::ASC) Order by the scan_original_tag column
+ * @method MusicFileQuery orderByAssociateTags($order = Criteria::ASC) Order by the associate_tags column
  * @method MusicFileQuery orderById($order = Criteria::ASC) Order by the id column
  * @method MusicFileQuery orderByCreatedAt($order = Criteria::ASC) Order by the created_at column
  * @method MusicFileQuery orderByUpdatedAt($order = Criteria::ASC) Order by the updated_at column
  *
  * @method MusicFileQuery groupByFileId() Group by the file_id column
+ * @method MusicFileQuery groupByTrackId() Group by the track_id column
  * @method MusicFileQuery groupByScanOriginalTag() Group by the scan_original_tag column
+ * @method MusicFileQuery groupByAssociateTags() Group by the associate_tags column
  * @method MusicFileQuery groupById() Group by the id column
  * @method MusicFileQuery groupByCreatedAt() Group by the created_at column
  * @method MusicFileQuery groupByUpdatedAt() Group by the updated_at column
@@ -39,6 +44,10 @@ use Sbh\StartBundle\Model\File;
  * @method MusicFileQuery rightJoinFile($relationAlias = null) Adds a RIGHT JOIN clause to the query using the File relation
  * @method MusicFileQuery innerJoinFile($relationAlias = null) Adds a INNER JOIN clause to the query using the File relation
  *
+ * @method MusicFileQuery leftJoinMusicTrack($relationAlias = null) Adds a LEFT JOIN clause to the query using the MusicTrack relation
+ * @method MusicFileQuery rightJoinMusicTrack($relationAlias = null) Adds a RIGHT JOIN clause to the query using the MusicTrack relation
+ * @method MusicFileQuery innerJoinMusicTrack($relationAlias = null) Adds a INNER JOIN clause to the query using the MusicTrack relation
+ *
  * @method MusicFileQuery leftJoinMusicOriginalTag($relationAlias = null) Adds a LEFT JOIN clause to the query using the MusicOriginalTag relation
  * @method MusicFileQuery rightJoinMusicOriginalTag($relationAlias = null) Adds a RIGHT JOIN clause to the query using the MusicOriginalTag relation
  * @method MusicFileQuery innerJoinMusicOriginalTag($relationAlias = null) Adds a INNER JOIN clause to the query using the MusicOriginalTag relation
@@ -47,12 +56,16 @@ use Sbh\StartBundle\Model\File;
  * @method MusicFile findOneOrCreate(PropelPDO $con = null) Return the first MusicFile matching the query, or a new MusicFile object populated from the query conditions when no match is found
  *
  * @method MusicFile findOneByFileId(int $file_id) Return the first MusicFile filtered by the file_id column
+ * @method MusicFile findOneByTrackId(int $track_id) Return the first MusicFile filtered by the track_id column
  * @method MusicFile findOneByScanOriginalTag(boolean $scan_original_tag) Return the first MusicFile filtered by the scan_original_tag column
+ * @method MusicFile findOneByAssociateTags(boolean $associate_tags) Return the first MusicFile filtered by the associate_tags column
  * @method MusicFile findOneByCreatedAt(string $created_at) Return the first MusicFile filtered by the created_at column
  * @method MusicFile findOneByUpdatedAt(string $updated_at) Return the first MusicFile filtered by the updated_at column
  *
  * @method array findByFileId(int $file_id) Return MusicFile objects filtered by the file_id column
+ * @method array findByTrackId(int $track_id) Return MusicFile objects filtered by the track_id column
  * @method array findByScanOriginalTag(boolean $scan_original_tag) Return MusicFile objects filtered by the scan_original_tag column
+ * @method array findByAssociateTags(boolean $associate_tags) Return MusicFile objects filtered by the associate_tags column
  * @method array findById(int $id) Return MusicFile objects filtered by the id column
  * @method array findByCreatedAt(string $created_at) Return MusicFile objects filtered by the created_at column
  * @method array findByUpdatedAt(string $updated_at) Return MusicFile objects filtered by the updated_at column
@@ -161,7 +174,7 @@ abstract class BaseMusicFileQuery extends ModelCriteria
      */
     protected function findPkSimple($key, $con)
     {
-        $sql = 'SELECT `file_id`, `scan_original_tag`, `id`, `created_at`, `updated_at` FROM `music_file` WHERE `id` = :p0';
+        $sql = 'SELECT `file_id`, `track_id`, `scan_original_tag`, `associate_tags`, `id`, `created_at`, `updated_at` FROM `music_file` WHERE `id` = :p0';
         try {
             $stmt = $con->prepare($sql);
       $stmt->bindValue(':p0', $key, PDO::PARAM_INT);
@@ -295,6 +308,50 @@ abstract class BaseMusicFileQuery extends ModelCriteria
     }
 
     /**
+     * Filter the query on the track_id column
+     *
+     * Example usage:
+     * <code>
+     * $query->filterByTrackId(1234); // WHERE track_id = 1234
+     * $query->filterByTrackId(array(12, 34)); // WHERE track_id IN (12, 34)
+     * $query->filterByTrackId(array('min' => 12)); // WHERE track_id >= 12
+     * $query->filterByTrackId(array('max' => 12)); // WHERE track_id <= 12
+     * </code>
+     *
+     * @see       filterByMusicTrack()
+     *
+     * @param     mixed $trackId The value to use as filter.
+     *              Use scalar values for equality.
+     *              Use array values for in_array() equivalent.
+     *              Use associative array('min' => $minValue, 'max' => $maxValue) for intervals.
+     * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @return MusicFileQuery The current query, for fluid interface
+     */
+    public function filterByTrackId($trackId = null, $comparison = null)
+    {
+        if (is_array($trackId)) {
+            $useMinMax = false;
+            if (isset($trackId['min'])) {
+                $this->addUsingAlias(MusicFilePeer::TRACK_ID, $trackId['min'], Criteria::GREATER_EQUAL);
+                $useMinMax = true;
+            }
+            if (isset($trackId['max'])) {
+                $this->addUsingAlias(MusicFilePeer::TRACK_ID, $trackId['max'], Criteria::LESS_EQUAL);
+                $useMinMax = true;
+            }
+            if ($useMinMax) {
+                return $this;
+            }
+            if (null === $comparison) {
+                $comparison = Criteria::IN;
+            }
+        }
+
+        return $this->addUsingAlias(MusicFilePeer::TRACK_ID, $trackId, $comparison);
+    }
+
+    /**
      * Filter the query on the scan_original_tag column
      *
      * Example usage:
@@ -319,6 +376,33 @@ abstract class BaseMusicFileQuery extends ModelCriteria
         }
 
         return $this->addUsingAlias(MusicFilePeer::SCAN_ORIGINAL_TAG, $scanOriginalTag, $comparison);
+    }
+
+    /**
+     * Filter the query on the associate_tags column
+     *
+     * Example usage:
+     * <code>
+     * $query->filterByAssociateTags(true); // WHERE associate_tags = true
+     * $query->filterByAssociateTags('yes'); // WHERE associate_tags = true
+     * </code>
+     *
+     * @param     boolean|string $associateTags The value to use as filter.
+     *              Non-boolean arguments are converted using the following rules:
+     *                * 1, '1', 'true',  'on',  and 'yes' are converted to boolean true
+     *                * 0, '0', 'false', 'off', and 'no'  are converted to boolean false
+     *              Check on string values is case insensitive (so 'FaLsE' is seen as 'false').
+     * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @return MusicFileQuery The current query, for fluid interface
+     */
+    public function filterByAssociateTags($associateTags = null, $comparison = null)
+    {
+        if (is_string($associateTags)) {
+            $associateTags = in_array(strtolower($associateTags), array('false', 'off', '-', 'no', 'n', '0', '')) ? false : true;
+        }
+
+        return $this->addUsingAlias(MusicFilePeer::ASSOCIATE_TAGS, $associateTags, $comparison);
     }
 
     /**
@@ -523,6 +607,82 @@ abstract class BaseMusicFileQuery extends ModelCriteria
         return $this
             ->joinFile($relationAlias, $joinType)
             ->useQuery($relationAlias ? $relationAlias : 'File', '\Sbh\StartBundle\Model\FileQuery');
+    }
+
+    /**
+     * Filter the query by a related MusicTrack object
+     *
+     * @param   MusicTrack|PropelObjectCollection $musicTrack The related object(s) to use as filter
+     * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @return                 MusicFileQuery The current query, for fluid interface
+     * @throws PropelException - if the provided filter is invalid.
+     */
+    public function filterByMusicTrack($musicTrack, $comparison = null)
+    {
+        if ($musicTrack instanceof MusicTrack) {
+            return $this
+                ->addUsingAlias(MusicFilePeer::TRACK_ID, $musicTrack->getId(), $comparison);
+        } elseif ($musicTrack instanceof PropelObjectCollection) {
+            if (null === $comparison) {
+                $comparison = Criteria::IN;
+            }
+
+            return $this
+                ->addUsingAlias(MusicFilePeer::TRACK_ID, $musicTrack->toKeyValue('PrimaryKey', 'Id'), $comparison);
+        } else {
+            throw new PropelException('filterByMusicTrack() only accepts arguments of type MusicTrack or PropelCollection');
+        }
+    }
+
+    /**
+     * Adds a JOIN clause to the query using the MusicTrack relation
+     *
+     * @param     string $relationAlias optional alias for the relation
+     * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
+     *
+     * @return MusicFileQuery The current query, for fluid interface
+     */
+    public function joinMusicTrack($relationAlias = null, $joinType = Criteria::LEFT_JOIN)
+    {
+        $tableMap = $this->getTableMap();
+        $relationMap = $tableMap->getRelation('MusicTrack');
+
+        // create a ModelJoin object for this join
+        $join = new ModelJoin();
+        $join->setJoinType($joinType);
+        $join->setRelationMap($relationMap, $this->useAliasInSQL ? $this->getModelAlias() : null, $relationAlias);
+        if ($previousJoin = $this->getPreviousJoin()) {
+            $join->setPreviousJoin($previousJoin);
+        }
+
+        // add the ModelJoin to the current object
+        if ($relationAlias) {
+            $this->addAlias($relationAlias, $relationMap->getRightTable()->getName());
+            $this->addJoinObject($join, $relationAlias);
+        } else {
+            $this->addJoinObject($join, 'MusicTrack');
+        }
+
+        return $this;
+    }
+
+    /**
+     * Use the MusicTrack relation MusicTrack object
+     *
+     * @see       useQuery()
+     *
+     * @param     string $relationAlias optional alias for the relation,
+     *                                   to be used as main alias in the secondary query
+     * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
+     *
+     * @return   \Sbh\MusicBundle\Model\MusicTrackQuery A secondary query class using the current class as primary query
+     */
+    public function useMusicTrackQuery($relationAlias = null, $joinType = Criteria::LEFT_JOIN)
+    {
+        return $this
+            ->joinMusicTrack($relationAlias, $joinType)
+            ->useQuery($relationAlias ? $relationAlias : 'MusicTrack', '\Sbh\MusicBundle\Model\MusicTrackQuery');
     }
 
     /**

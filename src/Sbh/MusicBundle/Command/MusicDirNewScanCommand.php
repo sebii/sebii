@@ -32,7 +32,8 @@ class MusicDirNewScanCommand extends ContainerAwareCommand
     {
         $this
             ->setName('sbh:music:scan:dir')
-            ->setDescription('Scan new musics in web/ii/scan_music');
+            ->setDescription('Scan new musics in web/ii/scan_music')
+            ->addArgument('limit', InputArgument::OPTIONAL, 0);
     }
     
     /**
@@ -107,6 +108,7 @@ class MusicDirNewScanCommand extends ContainerAwareCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $limit = intval($input->getArgument('limit'));
         $scanPath  = $this->getScanPath();
         $musicPath = $this->getMusicPath();
         
@@ -125,6 +127,10 @@ class MusicDirNewScanCommand extends ContainerAwareCommand
         foreach ($finder as $finderFile)
         {
             $count++;
+            if ($limit != 0 && ($limit + 1 - $count) == 0)
+            {
+                break;
+            }
             $output->writeln('    > Fichier #' . $count . ' [' . $finderFile->getRelativePathname() . ']');
             $originalRealPath     = $finderFile->getRealpath();
             $explodeExtension     = explode('.', $originalRealPath);
@@ -134,7 +140,7 @@ class MusicDirNewScanCommand extends ContainerAwareCommand
             $guessExtension       = strtolower($sFile->guessExtension());
             $type                 = FilePeer::TYPE_MUSIC;
             $file                 = new File();
-            if (!in_array($guessExtension, array(FilePeer::EXT_MP3, FilePeer::EXT_OGG, FilePeer::EXT_AAC, FilePeer::EXT_FLAC, FilePeer::EXT_MPGA, FilePeer::EXT_WAV)))
+            if (!in_array($guessExtension, array(FilePeer::EXT_BIN, FilePeer::EXT_MP3, FilePeer::EXT_OGG, FilePeer::EXT_AAC, FilePeer::EXT_FLAC, FilePeer::EXT_MPGA, FilePeer::EXT_WAV)))
             {
                 $output->writeln('    - Extension devinée inconue : ' . $guessExtension);
                 exit();

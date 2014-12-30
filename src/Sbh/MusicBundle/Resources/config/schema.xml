@@ -1,11 +1,61 @@
 <database name="default" namespace="Sbh\MusicBundle\Model" defaultIdMethod="native">
+    <table name="music_artist">
+        <column name="name" type="varchar" primaryString="true" />
+        <column name="alias" type="integer" />
+        
+        <behavior name="sluggable" />
+        
+        <vendor type="mysql">
+            <parameter name="Charset" value="utf8" />
+        </vendor>
+    </table>
+    <table name="music_album">
+        <column name="name" type="varchar" />
+        <column name="artist_id" type="integer" />
+        <column name="alias" type="integer" />
+        
+        <foreign-key foreignTable="music_artist" onDelete="setnull" onUpdate="cascade" name="fk_music_album_music_artist">
+            <reference local="artist_id" foreign="id" />
+        </foreign-key>
+        
+        <vendor type="mysql">
+            <parameter name="Charset" value="utf8" />
+        </vendor>
+    </table>
+    <table name="music_track">
+        <column name="name" type="varchar" />
+        <column name="track" type="integer" />
+        <column name="disc" type="integer" />
+        <column name="artist_id" type="integer" />
+        <column name="album_id" type="integer" />
+        
+        <foreign-key foreignTable="music_artist" onDelete="setnull" onUpdate="cascade" name="fk_music_track_music_artist">
+            <reference local="artist_id" foreign="id" />
+        </foreign-key>
+        <foreign-key foreignTable="music_album" onDelete="setnull" onUpdate="cascade" name="fk_music_track_music_album">
+            <reference local="album_id" foreign="id" />
+        </foreign-key>
+        
+        <vendor type="mysql">
+            <parameter name="Charset" value="utf8" />
+        </vendor>
+    </table>
     <table name="music_file">
         <column name="file_id" type="integer" />
+        <column name="track_id" type="integer" />
         <column name="scan_original_tag" type="boolean" defaultValue="true" />
+        <column name="associate_tags" type="boolean" defaultValue="true" />
         
         <foreign-key foreignTable="file" onDelete="setnull" onUpdate="cascade" name="fk_music_file_file">
             <reference local="file_id" foreign="id" />
         </foreign-key>
+        <foreign-key foreignTable="music_track" onDelete="setnull" onUpdate="cascade" name="fk_music_file_music_track">
+            <reference local="track_id" foreign="id" />
+        </foreign-key>
+        
+        <vendor type="mysql">
+            <parameter name="Charset" value="utf8" />
+        </vendor>
     </table>
     <table name="music_original_tag">
         <column name="music_file_id" type="integer" />
@@ -16,5 +66,9 @@
         <foreign-key foreignTable="music_file" onDelete="setnull" onUpdate="cascade" name="fk_music_original_tag_music_file">
             <reference local="music_file_id" foreign="id" />
         </foreign-key>
+        
+        <vendor type="mysql">
+            <parameter name="Charset" value="utf8" />
+        </vendor>
     </table>
 </database>
