@@ -53,9 +53,10 @@
             <div class="row">
                 <aside class="col-sm-4 hidden-xs pull-right"></aside>
                 <div class="col-xs-12 col-sm-8" id="content">
-                    <h2></h2>
+                    <h2>{% block pagetitle %}{% endblock pagetitle %}</h2>
                     <ol class="breadcrumb">
                         <li><a href="/">Home</a></li>
+                        {% block breadcrumb %}{% endblock breadcrumb %}
                     </ol>
                     {% block content %}{% endblock content %}
                 </div>

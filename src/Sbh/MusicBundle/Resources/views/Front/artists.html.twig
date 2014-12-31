@@ -3,9 +3,11 @@
 {% block content %}
 <div class="row">
 {% for artist in artists %}
-    <div class="col-sm-3 music-artist">
-        <img src="{% if artist.image %}{{ asset("ii/music/_img/artist_" ~ artist.id ~ "_thumb.jpg") }}{% else %}{{ asset("bundles/sbhmusic/images/artist_0.jpg") }}{% endif %}" class="img-responsive music-artist-image" />
-        <span class="music-artist-name">{{ artist.name }}</span>
+    <div class="col-sm-4 col-lg-3 music-artist">
+        <a href="{{ path("sbh_music_front_artist", {"artistId": artist.id}) }}">
+            <img src="{% if artist.image %}{{ asset("ii/music/_img/artist_" ~ artist.id ~ "_thumb.jpg") }}{% else %}{{ asset("bundles/sbhmusic/images/artist_0.jpg") }}{% endif %}" class="img-responsive music-artist-image" />
+            <span class="music-artist-name">{{ artist.name }}</span>
+        </a>
         <span class="music-artist-stream">
             {% if artist.musicDeezerArtists | length > 0 %}<a href="http://www.deezer.com/artist/{{ artist.musicDeezerArtists.first.deezerId }}" target="extSbh"><img src="{{ asset("bundles/sbhmusic/images/deezer-flat-circle-icon.png") }}" alt="(Deezer)" /></a>{% endif %}
             {% if artist.musicSpotifyArtists | length > 0 %}<a href="https://open.spotify.com/artist/{{ artist.musicSpotifyArtists.first.spotifyId }}" target="extSbh"><img src="{{ asset("bundles/sbhmusic/images/spotify-flat-circle-icon.png") }}" alt="(Spotify)" /></a>{% endif %}

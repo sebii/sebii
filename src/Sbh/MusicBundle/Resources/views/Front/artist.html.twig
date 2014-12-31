@@ -1,0 +1,33 @@
+{% extends "::base.html.twig" %}
+
+{% block breadcrumb %}
+    <li><a href="/">Musique</a></li>
+    <li><a href="{{ path("sbh_music_front_artist", {artistId: artist.id}) }}">{{ artist.name }}</a></li>
+{% endblock breadcrumb %}
+
+{% block pagetitle %}{{ artist.name }}{% endblock pagetitle %}
+
+{% block content %}
+<div class="row">
+{% for album in albums %}
+    <div class="col-sm-4 col-lg-3 music-artist">
+        <a href="#">
+            <img src="{{ asset("bundles/sbhmusic/images/album_0.jpg") }}" class="img-responsive music-artist-image" />
+            <span class="music-artist-name">{{ album.name }}</span>
+        </a>
+    </div>
+{% endfor %}
+</div>
+<style>
+    .music-album {
+        height: 260px;
+    }
+    .music-album-stream {
+        display: block;
+        height: 32px;
+    }
+    .music-album-stream img {
+        height: 32px;
+    }
+</style>
+{% endblock %}

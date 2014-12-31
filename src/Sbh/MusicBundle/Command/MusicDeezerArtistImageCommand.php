@@ -158,10 +158,9 @@ class MusicDeezerArtistImageCommand extends ContainerAwareCommand
             $fs->chmod($imgPath . DIRECTORY_SEPARATOR . $deezerImgName, 0777);
             $fs->chmod($imgPath . DIRECTORY_SEPARATOR . $deezerThmName, 0777);
             $output->writeln('        > Sauvegarde de l\'image Deezer ' . $deezerImgName);
-//            $musicArtist->getMusicDeezerArtists()->getFirst()->setImage(true);
-//            $musicArtist->save();
-//            if ($musicArtist->getImage() == false)
-//            {
+            $musicArtist->getMusicDeezerArtists()->getFirst()->setImage(true)->save();
+            if ($musicArtist->getImage() == false)
+            {
                 $output->writeln('        > Image de l\'artiste ' . $musicArtist->getName() . ' inexistante ');
                 $artistImgName = 'artist_' . $musicArtist->getId() . '.jpg';
                 $artistThmName = 'artist_' . $musicArtist->getId() . '_thumb.jpg';
@@ -179,7 +178,7 @@ class MusicDeezerArtistImageCommand extends ContainerAwareCommand
                 $musicArtist
                     ->setImage(true)
                     ->save();
-//            }
+            }
             exit();
             
         }
