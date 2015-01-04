@@ -47,6 +47,7 @@ class MusicArtistTableMap extends TableMap
         $this->addColumn('alias', 'Alias', 'INTEGER', false, null, null);
         $this->addColumn('image', 'Image', 'BOOLEAN', false, 1, false);
         $this->addColumn('scan_deezer_search', 'ScanDeezerSearch', 'BOOLEAN', false, 1, true);
+        $this->addColumn('scan_deezer_albums', 'ScanDeezerAlbums', 'BOOLEAN', false, 1, true);
         $this->addColumn('scan_spotify_search', 'ScanSpotifySearch', 'BOOLEAN', false, 1, true);
         $this->addColumn('slug', 'Slug', 'VARCHAR', false, 255, null);
         $this->addPrimaryKey('id', 'Id', 'INTEGER', true, null, null);

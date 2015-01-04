@@ -16,12 +16,15 @@ use Sbh\MusicBundle\Model\MusicAlbum;
 use Sbh\MusicBundle\Model\MusicAlbumPeer;
 use Sbh\MusicBundle\Model\MusicAlbumQuery;
 use Sbh\MusicBundle\Model\MusicArtist;
+use Sbh\MusicBundle\Model\MusicDeezerAlbum;
 use Sbh\MusicBundle\Model\MusicTrack;
 
 /**
  * @method MusicAlbumQuery orderByName($order = Criteria::ASC) Order by the name column
  * @method MusicAlbumQuery orderByArtistId($order = Criteria::ASC) Order by the artist_id column
  * @method MusicAlbumQuery orderByAlias($order = Criteria::ASC) Order by the alias column
+ * @method MusicAlbumQuery orderByImage($order = Criteria::ASC) Order by the image column
+ * @method MusicAlbumQuery orderByScanDeezerAlbum($order = Criteria::ASC) Order by the scan_deezer_album column
  * @method MusicAlbumQuery orderById($order = Criteria::ASC) Order by the id column
  * @method MusicAlbumQuery orderByCreatedAt($order = Criteria::ASC) Order by the created_at column
  * @method MusicAlbumQuery orderByUpdatedAt($order = Criteria::ASC) Order by the updated_at column
@@ -29,6 +32,8 @@ use Sbh\MusicBundle\Model\MusicTrack;
  * @method MusicAlbumQuery groupByName() Group by the name column
  * @method MusicAlbumQuery groupByArtistId() Group by the artist_id column
  * @method MusicAlbumQuery groupByAlias() Group by the alias column
+ * @method MusicAlbumQuery groupByImage() Group by the image column
+ * @method MusicAlbumQuery groupByScanDeezerAlbum() Group by the scan_deezer_album column
  * @method MusicAlbumQuery groupById() Group by the id column
  * @method MusicAlbumQuery groupByCreatedAt() Group by the created_at column
  * @method MusicAlbumQuery groupByUpdatedAt() Group by the updated_at column
@@ -45,18 +50,26 @@ use Sbh\MusicBundle\Model\MusicTrack;
  * @method MusicAlbumQuery rightJoinMusicTrack($relationAlias = null) Adds a RIGHT JOIN clause to the query using the MusicTrack relation
  * @method MusicAlbumQuery innerJoinMusicTrack($relationAlias = null) Adds a INNER JOIN clause to the query using the MusicTrack relation
  *
+ * @method MusicAlbumQuery leftJoinMusicDeezerAlbum($relationAlias = null) Adds a LEFT JOIN clause to the query using the MusicDeezerAlbum relation
+ * @method MusicAlbumQuery rightJoinMusicDeezerAlbum($relationAlias = null) Adds a RIGHT JOIN clause to the query using the MusicDeezerAlbum relation
+ * @method MusicAlbumQuery innerJoinMusicDeezerAlbum($relationAlias = null) Adds a INNER JOIN clause to the query using the MusicDeezerAlbum relation
+ *
  * @method MusicAlbum findOne(PropelPDO $con = null) Return the first MusicAlbum matching the query
  * @method MusicAlbum findOneOrCreate(PropelPDO $con = null) Return the first MusicAlbum matching the query, or a new MusicAlbum object populated from the query conditions when no match is found
  *
  * @method MusicAlbum findOneByName(string $name) Return the first MusicAlbum filtered by the name column
  * @method MusicAlbum findOneByArtistId(int $artist_id) Return the first MusicAlbum filtered by the artist_id column
  * @method MusicAlbum findOneByAlias(int $alias) Return the first MusicAlbum filtered by the alias column
+ * @method MusicAlbum findOneByImage(boolean $image) Return the first MusicAlbum filtered by the image column
+ * @method MusicAlbum findOneByScanDeezerAlbum(boolean $scan_deezer_album) Return the first MusicAlbum filtered by the scan_deezer_album column
  * @method MusicAlbum findOneByCreatedAt(string $created_at) Return the first MusicAlbum filtered by the created_at column
  * @method MusicAlbum findOneByUpdatedAt(string $updated_at) Return the first MusicAlbum filtered by the updated_at column
  *
  * @method array findByName(string $name) Return MusicAlbum objects filtered by the name column
  * @method array findByArtistId(int $artist_id) Return MusicAlbum objects filtered by the artist_id column
  * @method array findByAlias(int $alias) Return MusicAlbum objects filtered by the alias column
+ * @method array findByImage(boolean $image) Return MusicAlbum objects filtered by the image column
+ * @method array findByScanDeezerAlbum(boolean $scan_deezer_album) Return MusicAlbum objects filtered by the scan_deezer_album column
  * @method array findById(int $id) Return MusicAlbum objects filtered by the id column
  * @method array findByCreatedAt(string $created_at) Return MusicAlbum objects filtered by the created_at column
  * @method array findByUpdatedAt(string $updated_at) Return MusicAlbum objects filtered by the updated_at column
@@ -165,7 +178,7 @@ abstract class BaseMusicAlbumQuery extends ModelCriteria
      */
     protected function findPkSimple($key, $con)
     {
-        $sql = 'SELECT `name`, `artist_id`, `alias`, `id`, `created_at`, `updated_at` FROM `music_album` WHERE `id` = :p0';
+        $sql = 'SELECT `name`, `artist_id`, `alias`, `image`, `scan_deezer_album`, `id`, `created_at`, `updated_at` FROM `music_album` WHERE `id` = :p0';
         try {
             $stmt = $con->prepare($sql);
       $stmt->bindValue(':p0', $key, PDO::PARAM_INT);
@@ -367,6 +380,60 @@ abstract class BaseMusicAlbumQuery extends ModelCriteria
         }
 
         return $this->addUsingAlias(MusicAlbumPeer::ALIAS, $alias, $comparison);
+    }
+
+    /**
+     * Filter the query on the image column
+     *
+     * Example usage:
+     * <code>
+     * $query->filterByImage(true); // WHERE image = true
+     * $query->filterByImage('yes'); // WHERE image = true
+     * </code>
+     *
+     * @param     boolean|string $image The value to use as filter.
+     *              Non-boolean arguments are converted using the following rules:
+     *                * 1, '1', 'true',  'on',  and 'yes' are converted to boolean true
+     *                * 0, '0', 'false', 'off', and 'no'  are converted to boolean false
+     *              Check on string values is case insensitive (so 'FaLsE' is seen as 'false').
+     * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @return MusicAlbumQuery The current query, for fluid interface
+     */
+    public function filterByImage($image = null, $comparison = null)
+    {
+        if (is_string($image)) {
+            $image = in_array(strtolower($image), array('false', 'off', '-', 'no', 'n', '0', '')) ? false : true;
+        }
+
+        return $this->addUsingAlias(MusicAlbumPeer::IMAGE, $image, $comparison);
+    }
+
+    /**
+     * Filter the query on the scan_deezer_album column
+     *
+     * Example usage:
+     * <code>
+     * $query->filterByScanDeezerAlbum(true); // WHERE scan_deezer_album = true
+     * $query->filterByScanDeezerAlbum('yes'); // WHERE scan_deezer_album = true
+     * </code>
+     *
+     * @param     boolean|string $scanDeezerAlbum The value to use as filter.
+     *              Non-boolean arguments are converted using the following rules:
+     *                * 1, '1', 'true',  'on',  and 'yes' are converted to boolean true
+     *                * 0, '0', 'false', 'off', and 'no'  are converted to boolean false
+     *              Check on string values is case insensitive (so 'FaLsE' is seen as 'false').
+     * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @return MusicAlbumQuery The current query, for fluid interface
+     */
+    public function filterByScanDeezerAlbum($scanDeezerAlbum = null, $comparison = null)
+    {
+        if (is_string($scanDeezerAlbum)) {
+            $scanDeezerAlbum = in_array(strtolower($scanDeezerAlbum), array('false', 'off', '-', 'no', 'n', '0', '')) ? false : true;
+        }
+
+        return $this->addUsingAlias(MusicAlbumPeer::SCAN_DEEZER_ALBUM, $scanDeezerAlbum, $comparison);
     }
 
     /**
@@ -645,6 +712,80 @@ abstract class BaseMusicAlbumQuery extends ModelCriteria
         return $this
             ->joinMusicTrack($relationAlias, $joinType)
             ->useQuery($relationAlias ? $relationAlias : 'MusicTrack', '\Sbh\MusicBundle\Model\MusicTrackQuery');
+    }
+
+    /**
+     * Filter the query by a related MusicDeezerAlbum object
+     *
+     * @param   MusicDeezerAlbum|PropelObjectCollection $musicDeezerAlbum  the related object to use as filter
+     * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @return                 MusicAlbumQuery The current query, for fluid interface
+     * @throws PropelException - if the provided filter is invalid.
+     */
+    public function filterByMusicDeezerAlbum($musicDeezerAlbum, $comparison = null)
+    {
+        if ($musicDeezerAlbum instanceof MusicDeezerAlbum) {
+            return $this
+                ->addUsingAlias(MusicAlbumPeer::ID, $musicDeezerAlbum->getAlbumId(), $comparison);
+        } elseif ($musicDeezerAlbum instanceof PropelObjectCollection) {
+            return $this
+                ->useMusicDeezerAlbumQuery()
+                ->filterByPrimaryKeys($musicDeezerAlbum->getPrimaryKeys())
+                ->endUse();
+        } else {
+            throw new PropelException('filterByMusicDeezerAlbum() only accepts arguments of type MusicDeezerAlbum or PropelCollection');
+        }
+    }
+
+    /**
+     * Adds a JOIN clause to the query using the MusicDeezerAlbum relation
+     *
+     * @param     string $relationAlias optional alias for the relation
+     * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
+     *
+     * @return MusicAlbumQuery The current query, for fluid interface
+     */
+    public function joinMusicDeezerAlbum($relationAlias = null, $joinType = Criteria::LEFT_JOIN)
+    {
+        $tableMap = $this->getTableMap();
+        $relationMap = $tableMap->getRelation('MusicDeezerAlbum');
+
+        // create a ModelJoin object for this join
+        $join = new ModelJoin();
+        $join->setJoinType($joinType);
+        $join->setRelationMap($relationMap, $this->useAliasInSQL ? $this->getModelAlias() : null, $relationAlias);
+        if ($previousJoin = $this->getPreviousJoin()) {
+            $join->setPreviousJoin($previousJoin);
+        }
+
+        // add the ModelJoin to the current object
+        if ($relationAlias) {
+            $this->addAlias($relationAlias, $relationMap->getRightTable()->getName());
+            $this->addJoinObject($join, $relationAlias);
+        } else {
+            $this->addJoinObject($join, 'MusicDeezerAlbum');
+        }
+
+        return $this;
+    }
+
+    /**
+     * Use the MusicDeezerAlbum relation MusicDeezerAlbum object
+     *
+     * @see       useQuery()
+     *
+     * @param     string $relationAlias optional alias for the relation,
+     *                                   to be used as main alias in the secondary query
+     * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
+     *
+     * @return   \Sbh\MusicBundle\Model\MusicDeezerAlbumQuery A secondary query class using the current class as primary query
+     */
+    public function useMusicDeezerAlbumQuery($relationAlias = null, $joinType = Criteria::LEFT_JOIN)
+    {
+        return $this
+            ->joinMusicDeezerAlbum($relationAlias, $joinType)
+            ->useQuery($relationAlias ? $relationAlias : 'MusicDeezerAlbum', '\Sbh\MusicBundle\Model\MusicDeezerAlbumQuery');
     }
 
     /**

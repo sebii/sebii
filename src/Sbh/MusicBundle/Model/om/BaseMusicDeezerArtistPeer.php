@@ -10,8 +10,10 @@ use \Propel;
 use \PropelException;
 use \PropelPDO;
 use Sbh\MusicBundle\Model\MusicArtistPeer;
+use Sbh\MusicBundle\Model\MusicDeezerAlbumPeer;
 use Sbh\MusicBundle\Model\MusicDeezerArtist;
 use Sbh\MusicBundle\Model\MusicDeezerArtistPeer;
+use Sbh\MusicBundle\Model\MusicDeezerTrackPeer;
 use Sbh\MusicBundle\Model\map\MusicDeezerArtistTableMap;
 
 abstract class BaseMusicDeezerArtistPeer
@@ -406,6 +408,12 @@ abstract class BaseMusicDeezerArtistPeer
      */
     public static function clearRelatedInstancePool()
     {
+        // Invalidate objects in MusicDeezerAlbumPeer instance pool,
+        // since one or more of them may be deleted by ON DELETE CASCADE/SETNULL rule.
+        MusicDeezerAlbumPeer::clearInstancePool();
+        // Invalidate objects in MusicDeezerTrackPeer instance pool,
+        // since one or more of them may be deleted by ON DELETE CASCADE/SETNULL rule.
+        MusicDeezerTrackPeer::clearInstancePool();
     }
 
     /**

@@ -20,6 +20,8 @@ use Sbh\MusicBundle\Model\MusicAlbumPeer;
 use Sbh\MusicBundle\Model\MusicAlbumQuery;
 use Sbh\MusicBundle\Model\MusicArtist;
 use Sbh\MusicBundle\Model\MusicArtistQuery;
+use Sbh\MusicBundle\Model\MusicDeezerAlbum;
+use Sbh\MusicBundle\Model\MusicDeezerAlbumQuery;
 use Sbh\MusicBundle\Model\MusicTrack;
 use Sbh\MusicBundle\Model\MusicTrackQuery;
 
@@ -63,6 +65,20 @@ abstract class BaseMusicAlbum extends BaseObject implements Persistent
     protected $alias;
 
     /**
+     * The value for the image field.
+     * Note: this column has a database default value of: false
+     * @var        boolean
+     */
+    protected $image;
+
+    /**
+     * The value for the scan_deezer_album field.
+     * Note: this column has a database default value of: true
+     * @var        boolean
+     */
+    protected $scan_deezer_album;
+
+    /**
      * The value for the id field.
      * @var        int
      */
@@ -92,6 +108,12 @@ abstract class BaseMusicAlbum extends BaseObject implements Persistent
     protected $collMusicTracksPartial;
 
     /**
+     * @var        PropelObjectCollection|MusicDeezerAlbum[] Collection to store aggregation of MusicDeezerAlbum objects.
+     */
+    protected $collMusicDeezerAlbums;
+    protected $collMusicDeezerAlbumsPartial;
+
+    /**
      * Flag to prevent endless save loop, if this object is referenced
      * by another object which falls in this transaction.
      * @var        boolean
@@ -116,6 +138,34 @@ abstract class BaseMusicAlbum extends BaseObject implements Persistent
      * @var    PropelObjectCollection
      */
     protected $musicTracksScheduledForDeletion = null;
+
+    /**
+     * An array of objects scheduled for deletion.
+     * @var    PropelObjectCollection
+     */
+    protected $musicDeezerAlbumsScheduledForDeletion = null;
+
+    /**
+     * Applies default values to this object.
+     * This method should be called from the object's constructor (or
+     * equivalent initialization method).
+     * @see        __construct()
+     */
+    public function applyDefaultValues()
+    {
+        $this->image = false;
+        $this->scan_deezer_album = true;
+    }
+
+    /**
+     * Initializes internal state of BaseMusicAlbum object.
+     * @see        applyDefaults()
+     */
+    public function __construct()
+    {
+        parent::__construct();
+        $this->applyDefaultValues();
+    }
 
     /**
      * Get the [name] column value.
@@ -148,6 +198,28 @@ abstract class BaseMusicAlbum extends BaseObject implements Persistent
     {
 
         return $this->alias;
+    }
+
+    /**
+     * Get the [image] column value.
+     *
+     * @return boolean
+     */
+    public function getImage()
+    {
+
+        return $this->image;
+    }
+
+    /**
+     * Get the [scan_deezer_album] column value.
+     *
+     * @return boolean
+     */
+    public function getScanDeezerAlbum()
+    {
+
+        return $this->scan_deezer_album;
     }
 
     /**
@@ -309,6 +381,64 @@ abstract class BaseMusicAlbum extends BaseObject implements Persistent
     } // setAlias()
 
     /**
+     * Sets the value of the [image] column.
+     * Non-boolean arguments are converted using the following rules:
+     *   * 1, '1', 'true',  'on',  and 'yes' are converted to boolean true
+     *   * 0, '0', 'false', 'off', and 'no'  are converted to boolean false
+     * Check on string values is case insensitive (so 'FaLsE' is seen as 'false').
+     *
+     * @param boolean|integer|string $v The new value
+     * @return MusicAlbum The current object (for fluent API support)
+     */
+    public function setImage($v)
+    {
+        if ($v !== null) {
+            if (is_string($v)) {
+                $v = in_array(strtolower($v), array('false', 'off', '-', 'no', 'n', '0', '')) ? false : true;
+            } else {
+                $v = (boolean) $v;
+            }
+        }
+
+        if ($this->image !== $v) {
+            $this->image = $v;
+            $this->modifiedColumns[] = MusicAlbumPeer::IMAGE;
+        }
+
+
+        return $this;
+    } // setImage()
+
+    /**
+     * Sets the value of the [scan_deezer_album] column.
+     * Non-boolean arguments are converted using the following rules:
+     *   * 1, '1', 'true',  'on',  and 'yes' are converted to boolean true
+     *   * 0, '0', 'false', 'off', and 'no'  are converted to boolean false
+     * Check on string values is case insensitive (so 'FaLsE' is seen as 'false').
+     *
+     * @param boolean|integer|string $v The new value
+     * @return MusicAlbum The current object (for fluent API support)
+     */
+    public function setScanDeezerAlbum($v)
+    {
+        if ($v !== null) {
+            if (is_string($v)) {
+                $v = in_array(strtolower($v), array('false', 'off', '-', 'no', 'n', '0', '')) ? false : true;
+            } else {
+                $v = (boolean) $v;
+            }
+        }
+
+        if ($this->scan_deezer_album !== $v) {
+            $this->scan_deezer_album = $v;
+            $this->modifiedColumns[] = MusicAlbumPeer::SCAN_DEEZER_ALBUM;
+        }
+
+
+        return $this;
+    } // setScanDeezerAlbum()
+
+    /**
      * Set the value of [id] column.
      *
      * @param  int $v new value
@@ -385,6 +515,14 @@ abstract class BaseMusicAlbum extends BaseObject implements Persistent
      */
     public function hasOnlyDefaultValues()
     {
+            if ($this->image !== false) {
+                return false;
+            }
+
+            if ($this->scan_deezer_album !== true) {
+                return false;
+            }
+
         // otherwise, everything was equal, so return true
         return true;
     } // hasOnlyDefaultValues()
@@ -410,9 +548,11 @@ abstract class BaseMusicAlbum extends BaseObject implements Persistent
             $this->name = ($row[$startcol + 0] !== null) ? (string) $row[$startcol + 0] : null;
             $this->artist_id = ($row[$startcol + 1] !== null) ? (int) $row[$startcol + 1] : null;
             $this->alias = ($row[$startcol + 2] !== null) ? (int) $row[$startcol + 2] : null;
-            $this->id = ($row[$startcol + 3] !== null) ? (int) $row[$startcol + 3] : null;
-            $this->created_at = ($row[$startcol + 4] !== null) ? (string) $row[$startcol + 4] : null;
-            $this->updated_at = ($row[$startcol + 5] !== null) ? (string) $row[$startcol + 5] : null;
+            $this->image = ($row[$startcol + 3] !== null) ? (boolean) $row[$startcol + 3] : null;
+            $this->scan_deezer_album = ($row[$startcol + 4] !== null) ? (boolean) $row[$startcol + 4] : null;
+            $this->id = ($row[$startcol + 5] !== null) ? (int) $row[$startcol + 5] : null;
+            $this->created_at = ($row[$startcol + 6] !== null) ? (string) $row[$startcol + 6] : null;
+            $this->updated_at = ($row[$startcol + 7] !== null) ? (string) $row[$startcol + 7] : null;
             $this->resetModified();
 
             $this->setNew(false);
@@ -422,7 +562,7 @@ abstract class BaseMusicAlbum extends BaseObject implements Persistent
             }
             $this->postHydrate($row, $startcol, $rehydrate);
 
-            return $startcol + 6; // 6 = MusicAlbumPeer::NUM_HYDRATE_COLUMNS.
+            return $startcol + 8; // 8 = MusicAlbumPeer::NUM_HYDRATE_COLUMNS.
 
         } catch (Exception $e) {
             throw new PropelException("Error populating MusicAlbum object", $e);
@@ -489,6 +629,8 @@ abstract class BaseMusicAlbum extends BaseObject implements Persistent
 
             $this->aMusicArtist = null;
             $this->collMusicTracks = null;
+
+            $this->collMusicDeezerAlbums = null;
 
         } // if (deep)
     }
@@ -658,6 +800,24 @@ abstract class BaseMusicAlbum extends BaseObject implements Persistent
                 }
             }
 
+            if ($this->musicDeezerAlbumsScheduledForDeletion !== null) {
+                if (!$this->musicDeezerAlbumsScheduledForDeletion->isEmpty()) {
+                    foreach ($this->musicDeezerAlbumsScheduledForDeletion as $musicDeezerAlbum) {
+                        // need to save related object because we set the relation to null
+                        $musicDeezerAlbum->save($con);
+                    }
+                    $this->musicDeezerAlbumsScheduledForDeletion = null;
+                }
+            }
+
+            if ($this->collMusicDeezerAlbums !== null) {
+                foreach ($this->collMusicDeezerAlbums as $referrerFK) {
+                    if (!$referrerFK->isDeleted() && ($referrerFK->isNew() || $referrerFK->isModified())) {
+                        $affectedRows += $referrerFK->save($con);
+                    }
+                }
+            }
+
             $this->alreadyInSave = false;
 
         }
@@ -693,6 +853,12 @@ abstract class BaseMusicAlbum extends BaseObject implements Persistent
         if ($this->isColumnModified(MusicAlbumPeer::ALIAS)) {
             $modifiedColumns[':p' . $index++]  = '`alias`';
         }
+        if ($this->isColumnModified(MusicAlbumPeer::IMAGE)) {
+            $modifiedColumns[':p' . $index++]  = '`image`';
+        }
+        if ($this->isColumnModified(MusicAlbumPeer::SCAN_DEEZER_ALBUM)) {
+            $modifiedColumns[':p' . $index++]  = '`scan_deezer_album`';
+        }
         if ($this->isColumnModified(MusicAlbumPeer::ID)) {
             $modifiedColumns[':p' . $index++]  = '`id`';
         }
@@ -721,6 +887,12 @@ abstract class BaseMusicAlbum extends BaseObject implements Persistent
                         break;
                     case '`alias`':
             $stmt->bindValue($identifier, $this->alias, PDO::PARAM_INT);
+                        break;
+                    case '`image`':
+            $stmt->bindValue($identifier, (int) $this->image, PDO::PARAM_INT);
+                        break;
+                    case '`scan_deezer_album`':
+            $stmt->bindValue($identifier, (int) $this->scan_deezer_album, PDO::PARAM_INT);
                         break;
                     case '`id`':
             $stmt->bindValue($identifier, $this->id, PDO::PARAM_INT);
@@ -850,6 +1022,14 @@ abstract class BaseMusicAlbum extends BaseObject implements Persistent
                     }
                 }
 
+                if ($this->collMusicDeezerAlbums !== null) {
+                    foreach ($this->collMusicDeezerAlbums as $referrerFK) {
+                        if (!$referrerFK->validate($columns)) {
+                            $failureMap = array_merge($failureMap, $referrerFK->getValidationFailures());
+                        }
+                    }
+                }
+
 
             $this->alreadyInValidation = false;
         }
@@ -895,12 +1075,18 @@ abstract class BaseMusicAlbum extends BaseObject implements Persistent
                 return $this->getAlias();
                 break;
             case 3:
-                return $this->getId();
+                return $this->getImage();
                 break;
             case 4:
-                return $this->getCreatedAt();
+                return $this->getScanDeezerAlbum();
                 break;
             case 5:
+                return $this->getId();
+                break;
+            case 6:
+                return $this->getCreatedAt();
+                break;
+            case 7:
                 return $this->getUpdatedAt();
                 break;
             default:
@@ -935,9 +1121,11 @@ abstract class BaseMusicAlbum extends BaseObject implements Persistent
             $keys[0] => $this->getName(),
             $keys[1] => $this->getArtistId(),
             $keys[2] => $this->getAlias(),
-            $keys[3] => $this->getId(),
-            $keys[4] => $this->getCreatedAt(),
-            $keys[5] => $this->getUpdatedAt(),
+            $keys[3] => $this->getImage(),
+            $keys[4] => $this->getScanDeezerAlbum(),
+            $keys[5] => $this->getId(),
+            $keys[6] => $this->getCreatedAt(),
+            $keys[7] => $this->getUpdatedAt(),
         );
         $virtualColumns = $this->virtualColumns;
         foreach ($virtualColumns as $key => $virtualColumn) {
@@ -950,6 +1138,9 @@ abstract class BaseMusicAlbum extends BaseObject implements Persistent
             }
             if (null !== $this->collMusicTracks) {
                 $result['MusicTracks'] = $this->collMusicTracks->toArray(null, true, $keyType, $includeLazyLoadColumns, $alreadyDumpedObjects);
+            }
+            if (null !== $this->collMusicDeezerAlbums) {
+                $result['MusicDeezerAlbums'] = $this->collMusicDeezerAlbums->toArray(null, true, $keyType, $includeLazyLoadColumns, $alreadyDumpedObjects);
             }
         }
 
@@ -995,12 +1186,18 @@ abstract class BaseMusicAlbum extends BaseObject implements Persistent
                 $this->setAlias($value);
                 break;
             case 3:
-                $this->setId($value);
+                $this->setImage($value);
                 break;
             case 4:
-                $this->setCreatedAt($value);
+                $this->setScanDeezerAlbum($value);
                 break;
             case 5:
+                $this->setId($value);
+                break;
+            case 6:
+                $this->setCreatedAt($value);
+                break;
+            case 7:
                 $this->setUpdatedAt($value);
                 break;
         } // switch()
@@ -1030,9 +1227,11 @@ abstract class BaseMusicAlbum extends BaseObject implements Persistent
         if (array_key_exists($keys[0], $arr)) $this->setName($arr[$keys[0]]);
         if (array_key_exists($keys[1], $arr)) $this->setArtistId($arr[$keys[1]]);
         if (array_key_exists($keys[2], $arr)) $this->setAlias($arr[$keys[2]]);
-        if (array_key_exists($keys[3], $arr)) $this->setId($arr[$keys[3]]);
-        if (array_key_exists($keys[4], $arr)) $this->setCreatedAt($arr[$keys[4]]);
-        if (array_key_exists($keys[5], $arr)) $this->setUpdatedAt($arr[$keys[5]]);
+        if (array_key_exists($keys[3], $arr)) $this->setImage($arr[$keys[3]]);
+        if (array_key_exists($keys[4], $arr)) $this->setScanDeezerAlbum($arr[$keys[4]]);
+        if (array_key_exists($keys[5], $arr)) $this->setId($arr[$keys[5]]);
+        if (array_key_exists($keys[6], $arr)) $this->setCreatedAt($arr[$keys[6]]);
+        if (array_key_exists($keys[7], $arr)) $this->setUpdatedAt($arr[$keys[7]]);
     }
 
     /**
@@ -1047,6 +1246,8 @@ abstract class BaseMusicAlbum extends BaseObject implements Persistent
         if ($this->isColumnModified(MusicAlbumPeer::NAME)) $criteria->add(MusicAlbumPeer::NAME, $this->name);
         if ($this->isColumnModified(MusicAlbumPeer::ARTIST_ID)) $criteria->add(MusicAlbumPeer::ARTIST_ID, $this->artist_id);
         if ($this->isColumnModified(MusicAlbumPeer::ALIAS)) $criteria->add(MusicAlbumPeer::ALIAS, $this->alias);
+        if ($this->isColumnModified(MusicAlbumPeer::IMAGE)) $criteria->add(MusicAlbumPeer::IMAGE, $this->image);
+        if ($this->isColumnModified(MusicAlbumPeer::SCAN_DEEZER_ALBUM)) $criteria->add(MusicAlbumPeer::SCAN_DEEZER_ALBUM, $this->scan_deezer_album);
         if ($this->isColumnModified(MusicAlbumPeer::ID)) $criteria->add(MusicAlbumPeer::ID, $this->id);
         if ($this->isColumnModified(MusicAlbumPeer::CREATED_AT)) $criteria->add(MusicAlbumPeer::CREATED_AT, $this->created_at);
         if ($this->isColumnModified(MusicAlbumPeer::UPDATED_AT)) $criteria->add(MusicAlbumPeer::UPDATED_AT, $this->updated_at);
@@ -1116,6 +1317,8 @@ abstract class BaseMusicAlbum extends BaseObject implements Persistent
         $copyObj->setName($this->getName());
         $copyObj->setArtistId($this->getArtistId());
         $copyObj->setAlias($this->getAlias());
+        $copyObj->setImage($this->getImage());
+        $copyObj->setScanDeezerAlbum($this->getScanDeezerAlbum());
         $copyObj->setCreatedAt($this->getCreatedAt());
         $copyObj->setUpdatedAt($this->getUpdatedAt());
 
@@ -1129,6 +1332,12 @@ abstract class BaseMusicAlbum extends BaseObject implements Persistent
             foreach ($this->getMusicTracks() as $relObj) {
                 if ($relObj !== $this) {  // ensure that we don't try to copy a reference to ourselves
                     $copyObj->addMusicTrack($relObj->copy($deepCopy));
+                }
+            }
+
+            foreach ($this->getMusicDeezerAlbums() as $relObj) {
+                if ($relObj !== $this) {  // ensure that we don't try to copy a reference to ourselves
+                    $copyObj->addMusicDeezerAlbum($relObj->copy($deepCopy));
                 }
             }
 
@@ -1247,6 +1456,9 @@ abstract class BaseMusicAlbum extends BaseObject implements Persistent
     {
         if ('MusicTrack' == $relationName) {
             $this->initMusicTracks();
+        }
+        if ('MusicDeezerAlbum' == $relationName) {
+            $this->initMusicDeezerAlbums();
         }
     }
 
@@ -1501,6 +1713,256 @@ abstract class BaseMusicAlbum extends BaseObject implements Persistent
     }
 
     /**
+     * Clears out the collMusicDeezerAlbums collection
+     *
+     * This does not modify the database; however, it will remove any associated objects, causing
+     * them to be refetched by subsequent calls to accessor method.
+     *
+     * @return MusicAlbum The current object (for fluent API support)
+     * @see        addMusicDeezerAlbums()
+     */
+    public function clearMusicDeezerAlbums()
+    {
+        $this->collMusicDeezerAlbums = null; // important to set this to null since that means it is uninitialized
+        $this->collMusicDeezerAlbumsPartial = null;
+
+        return $this;
+    }
+
+    /**
+     * reset is the collMusicDeezerAlbums collection loaded partially
+     *
+     * @return void
+     */
+    public function resetPartialMusicDeezerAlbums($v = true)
+    {
+        $this->collMusicDeezerAlbumsPartial = $v;
+    }
+
+    /**
+     * Initializes the collMusicDeezerAlbums collection.
+     *
+     * By default this just sets the collMusicDeezerAlbums collection to an empty array (like clearcollMusicDeezerAlbums());
+     * however, you may wish to override this method in your stub class to provide setting appropriate
+     * to your application -- for example, setting the initial array to the values stored in database.
+     *
+     * @param boolean $overrideExisting If set to true, the method call initializes
+     *                                        the collection even if it is not empty
+     *
+     * @return void
+     */
+    public function initMusicDeezerAlbums($overrideExisting = true)
+    {
+        if (null !== $this->collMusicDeezerAlbums && !$overrideExisting) {
+            return;
+        }
+        $this->collMusicDeezerAlbums = new PropelObjectCollection();
+        $this->collMusicDeezerAlbums->setModel('MusicDeezerAlbum');
+    }
+
+    /**
+     * Gets an array of MusicDeezerAlbum objects which contain a foreign key that references this object.
+     *
+     * If the $criteria is not null, it is used to always fetch the results from the database.
+     * Otherwise the results are fetched from the database the first time, then cached.
+     * Next time the same method is called without $criteria, the cached collection is returned.
+     * If this MusicAlbum is new, it will return
+     * an empty collection or the current collection; the criteria is ignored on a new object.
+     *
+     * @param Criteria $criteria optional Criteria object to narrow the query
+     * @param PropelPDO $con optional connection object
+     * @return PropelObjectCollection|MusicDeezerAlbum[] List of MusicDeezerAlbum objects
+     * @throws PropelException
+     */
+    public function getMusicDeezerAlbums($criteria = null, PropelPDO $con = null)
+    {
+        $partial = $this->collMusicDeezerAlbumsPartial && !$this->isNew();
+        if (null === $this->collMusicDeezerAlbums || null !== $criteria  || $partial) {
+            if ($this->isNew() && null === $this->collMusicDeezerAlbums) {
+                // return empty collection
+                $this->initMusicDeezerAlbums();
+            } else {
+                $collMusicDeezerAlbums = MusicDeezerAlbumQuery::create(null, $criteria)
+                    ->filterByMusicAlbum($this)
+                    ->find($con);
+                if (null !== $criteria) {
+                    if (false !== $this->collMusicDeezerAlbumsPartial && count($collMusicDeezerAlbums)) {
+                      $this->initMusicDeezerAlbums(false);
+
+                      foreach ($collMusicDeezerAlbums as $obj) {
+                        if (false == $this->collMusicDeezerAlbums->contains($obj)) {
+                          $this->collMusicDeezerAlbums->append($obj);
+                        }
+                      }
+
+                      $this->collMusicDeezerAlbumsPartial = true;
+                    }
+
+                    $collMusicDeezerAlbums->getInternalIterator()->rewind();
+
+                    return $collMusicDeezerAlbums;
+                }
+
+                if ($partial && $this->collMusicDeezerAlbums) {
+                    foreach ($this->collMusicDeezerAlbums as $obj) {
+                        if ($obj->isNew()) {
+                            $collMusicDeezerAlbums[] = $obj;
+                        }
+                    }
+                }
+
+                $this->collMusicDeezerAlbums = $collMusicDeezerAlbums;
+                $this->collMusicDeezerAlbumsPartial = false;
+            }
+        }
+
+        return $this->collMusicDeezerAlbums;
+    }
+
+    /**
+     * Sets a collection of MusicDeezerAlbum objects related by a one-to-many relationship
+     * to the current object.
+     * It will also schedule objects for deletion based on a diff between old objects (aka persisted)
+     * and new objects from the given Propel collection.
+     *
+     * @param PropelCollection $musicDeezerAlbums A Propel collection.
+     * @param PropelPDO $con Optional connection object
+     * @return MusicAlbum The current object (for fluent API support)
+     */
+    public function setMusicDeezerAlbums(PropelCollection $musicDeezerAlbums, PropelPDO $con = null)
+    {
+        $musicDeezerAlbumsToDelete = $this->getMusicDeezerAlbums(new Criteria(), $con)->diff($musicDeezerAlbums);
+
+
+        $this->musicDeezerAlbumsScheduledForDeletion = $musicDeezerAlbumsToDelete;
+
+        foreach ($musicDeezerAlbumsToDelete as $musicDeezerAlbumRemoved) {
+            $musicDeezerAlbumRemoved->setMusicAlbum(null);
+        }
+
+        $this->collMusicDeezerAlbums = null;
+        foreach ($musicDeezerAlbums as $musicDeezerAlbum) {
+            $this->addMusicDeezerAlbum($musicDeezerAlbum);
+        }
+
+        $this->collMusicDeezerAlbums = $musicDeezerAlbums;
+        $this->collMusicDeezerAlbumsPartial = false;
+
+        return $this;
+    }
+
+    /**
+     * Returns the number of related MusicDeezerAlbum objects.
+     *
+     * @param Criteria $criteria
+     * @param boolean $distinct
+     * @param PropelPDO $con
+     * @return int             Count of related MusicDeezerAlbum objects.
+     * @throws PropelException
+     */
+    public function countMusicDeezerAlbums(Criteria $criteria = null, $distinct = false, PropelPDO $con = null)
+    {
+        $partial = $this->collMusicDeezerAlbumsPartial && !$this->isNew();
+        if (null === $this->collMusicDeezerAlbums || null !== $criteria || $partial) {
+            if ($this->isNew() && null === $this->collMusicDeezerAlbums) {
+                return 0;
+            }
+
+            if ($partial && !$criteria) {
+                return count($this->getMusicDeezerAlbums());
+            }
+            $query = MusicDeezerAlbumQuery::create(null, $criteria);
+            if ($distinct) {
+                $query->distinct();
+            }
+
+            return $query
+                ->filterByMusicAlbum($this)
+                ->count($con);
+        }
+
+        return count($this->collMusicDeezerAlbums);
+    }
+
+    /**
+     * Method called to associate a MusicDeezerAlbum object to this object
+     * through the MusicDeezerAlbum foreign key attribute.
+     *
+     * @param    MusicDeezerAlbum $l MusicDeezerAlbum
+     * @return MusicAlbum The current object (for fluent API support)
+     */
+    public function addMusicDeezerAlbum(MusicDeezerAlbum $l)
+    {
+        if ($this->collMusicDeezerAlbums === null) {
+            $this->initMusicDeezerAlbums();
+            $this->collMusicDeezerAlbumsPartial = true;
+        }
+
+        if (!in_array($l, $this->collMusicDeezerAlbums->getArrayCopy(), true)) { // only add it if the **same** object is not already associated
+            $this->doAddMusicDeezerAlbum($l);
+
+            if ($this->musicDeezerAlbumsScheduledForDeletion and $this->musicDeezerAlbumsScheduledForDeletion->contains($l)) {
+                $this->musicDeezerAlbumsScheduledForDeletion->remove($this->musicDeezerAlbumsScheduledForDeletion->search($l));
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param  MusicDeezerAlbum $musicDeezerAlbum The musicDeezerAlbum object to add.
+     */
+    protected function doAddMusicDeezerAlbum($musicDeezerAlbum)
+    {
+        $this->collMusicDeezerAlbums[]= $musicDeezerAlbum;
+        $musicDeezerAlbum->setMusicAlbum($this);
+    }
+
+    /**
+     * @param  MusicDeezerAlbum $musicDeezerAlbum The musicDeezerAlbum object to remove.
+     * @return MusicAlbum The current object (for fluent API support)
+     */
+    public function removeMusicDeezerAlbum($musicDeezerAlbum)
+    {
+        if ($this->getMusicDeezerAlbums()->contains($musicDeezerAlbum)) {
+            $this->collMusicDeezerAlbums->remove($this->collMusicDeezerAlbums->search($musicDeezerAlbum));
+            if (null === $this->musicDeezerAlbumsScheduledForDeletion) {
+                $this->musicDeezerAlbumsScheduledForDeletion = clone $this->collMusicDeezerAlbums;
+                $this->musicDeezerAlbumsScheduledForDeletion->clear();
+            }
+            $this->musicDeezerAlbumsScheduledForDeletion[]= $musicDeezerAlbum;
+            $musicDeezerAlbum->setMusicAlbum(null);
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * If this collection has already been initialized with
+     * an identical criteria, it returns the collection.
+     * Otherwise if this MusicAlbum is new, it will return
+     * an empty collection; or if this MusicAlbum has previously
+     * been saved, it will retrieve related MusicDeezerAlbums from storage.
+     *
+     * This method is protected by default in order to keep the public
+     * api reasonable.  You can provide public methods for those you
+     * actually need in MusicAlbum.
+     *
+     * @param Criteria $criteria optional Criteria object to narrow the query
+     * @param PropelPDO $con optional connection object
+     * @param string $join_behavior optional join type to use (defaults to Criteria::LEFT_JOIN)
+     * @return PropelObjectCollection|MusicDeezerAlbum[] List of MusicDeezerAlbum objects
+     */
+    public function getMusicDeezerAlbumsJoinMusicDeezerArtist($criteria = null, $con = null, $join_behavior = Criteria::LEFT_JOIN)
+    {
+        $query = MusicDeezerAlbumQuery::create(null, $criteria);
+        $query->joinWith('MusicDeezerArtist', $join_behavior);
+
+        return $this->getMusicDeezerAlbums($query, $con);
+    }
+
+    /**
      * Clears the current object and sets all attributes to their default values
      */
     public function clear()
@@ -1508,6 +1970,8 @@ abstract class BaseMusicAlbum extends BaseObject implements Persistent
         $this->name = null;
         $this->artist_id = null;
         $this->alias = null;
+        $this->image = null;
+        $this->scan_deezer_album = null;
         $this->id = null;
         $this->created_at = null;
         $this->updated_at = null;
@@ -1515,6 +1979,7 @@ abstract class BaseMusicAlbum extends BaseObject implements Persistent
         $this->alreadyInValidation = false;
         $this->alreadyInClearAllReferencesDeep = false;
         $this->clearAllReferences();
+        $this->applyDefaultValues();
         $this->resetModified();
         $this->setNew(true);
         $this->setDeleted(false);
@@ -1538,6 +2003,11 @@ abstract class BaseMusicAlbum extends BaseObject implements Persistent
                     $o->clearAllReferences($deep);
                 }
             }
+            if ($this->collMusicDeezerAlbums) {
+                foreach ($this->collMusicDeezerAlbums as $o) {
+                    $o->clearAllReferences($deep);
+                }
+            }
             if ($this->aMusicArtist instanceof Persistent) {
               $this->aMusicArtist->clearAllReferences($deep);
             }
@@ -1549,6 +2019,10 @@ abstract class BaseMusicAlbum extends BaseObject implements Persistent
             $this->collMusicTracks->clearIterator();
         }
         $this->collMusicTracks = null;
+        if ($this->collMusicDeezerAlbums instanceof PropelCollection) {
+            $this->collMusicDeezerAlbums->clearIterator();
+        }
+        $this->collMusicDeezerAlbums = null;
         $this->aMusicArtist = null;
     }
 

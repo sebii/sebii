@@ -61,6 +61,8 @@ class MusicDeezerArtistTableMap extends TableMap
     public function buildRelations()
     {
         $this->addRelation('MusicArtist', 'Sbh\\MusicBundle\\Model\\MusicArtist', RelationMap::MANY_TO_ONE, array('artist_id' => 'id', ), 'SET NULL', 'CASCADE');
+        $this->addRelation('MusicDeezerAlbum', 'Sbh\\MusicBundle\\Model\\MusicDeezerAlbum', RelationMap::ONE_TO_MANY, array('deezer_id' => 'artist_deezer_id', ), 'SET NULL', 'CASCADE', 'MusicDeezerAlbums');
+        $this->addRelation('MusicDeezerTrack', 'Sbh\\MusicBundle\\Model\\MusicDeezerTrack', RelationMap::ONE_TO_MANY, array('deezer_id' => 'artist_deezer_id', ), 'SET NULL', 'CASCADE', 'MusicDeezerTracks');
     } // buildRelations()
 
     /**

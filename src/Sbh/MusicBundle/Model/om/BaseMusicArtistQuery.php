@@ -25,6 +25,7 @@ use Sbh\MusicBundle\Model\MusicTrack;
  * @method MusicArtistQuery orderByAlias($order = Criteria::ASC) Order by the alias column
  * @method MusicArtistQuery orderByImage($order = Criteria::ASC) Order by the image column
  * @method MusicArtistQuery orderByScanDeezerSearch($order = Criteria::ASC) Order by the scan_deezer_search column
+ * @method MusicArtistQuery orderByScanDeezerAlbums($order = Criteria::ASC) Order by the scan_deezer_albums column
  * @method MusicArtistQuery orderByScanSpotifySearch($order = Criteria::ASC) Order by the scan_spotify_search column
  * @method MusicArtistQuery orderBySlug($order = Criteria::ASC) Order by the slug column
  * @method MusicArtistQuery orderById($order = Criteria::ASC) Order by the id column
@@ -35,6 +36,7 @@ use Sbh\MusicBundle\Model\MusicTrack;
  * @method MusicArtistQuery groupByAlias() Group by the alias column
  * @method MusicArtistQuery groupByImage() Group by the image column
  * @method MusicArtistQuery groupByScanDeezerSearch() Group by the scan_deezer_search column
+ * @method MusicArtistQuery groupByScanDeezerAlbums() Group by the scan_deezer_albums column
  * @method MusicArtistQuery groupByScanSpotifySearch() Group by the scan_spotify_search column
  * @method MusicArtistQuery groupBySlug() Group by the slug column
  * @method MusicArtistQuery groupById() Group by the id column
@@ -68,6 +70,7 @@ use Sbh\MusicBundle\Model\MusicTrack;
  * @method MusicArtist findOneByAlias(int $alias) Return the first MusicArtist filtered by the alias column
  * @method MusicArtist findOneByImage(boolean $image) Return the first MusicArtist filtered by the image column
  * @method MusicArtist findOneByScanDeezerSearch(boolean $scan_deezer_search) Return the first MusicArtist filtered by the scan_deezer_search column
+ * @method MusicArtist findOneByScanDeezerAlbums(boolean $scan_deezer_albums) Return the first MusicArtist filtered by the scan_deezer_albums column
  * @method MusicArtist findOneByScanSpotifySearch(boolean $scan_spotify_search) Return the first MusicArtist filtered by the scan_spotify_search column
  * @method MusicArtist findOneBySlug(string $slug) Return the first MusicArtist filtered by the slug column
  * @method MusicArtist findOneByCreatedAt(string $created_at) Return the first MusicArtist filtered by the created_at column
@@ -77,6 +80,7 @@ use Sbh\MusicBundle\Model\MusicTrack;
  * @method array findByAlias(int $alias) Return MusicArtist objects filtered by the alias column
  * @method array findByImage(boolean $image) Return MusicArtist objects filtered by the image column
  * @method array findByScanDeezerSearch(boolean $scan_deezer_search) Return MusicArtist objects filtered by the scan_deezer_search column
+ * @method array findByScanDeezerAlbums(boolean $scan_deezer_albums) Return MusicArtist objects filtered by the scan_deezer_albums column
  * @method array findByScanSpotifySearch(boolean $scan_spotify_search) Return MusicArtist objects filtered by the scan_spotify_search column
  * @method array findBySlug(string $slug) Return MusicArtist objects filtered by the slug column
  * @method array findById(int $id) Return MusicArtist objects filtered by the id column
@@ -187,7 +191,7 @@ abstract class BaseMusicArtistQuery extends ModelCriteria
      */
     protected function findPkSimple($key, $con)
     {
-        $sql = 'SELECT `name`, `alias`, `image`, `scan_deezer_search`, `scan_spotify_search`, `slug`, `id`, `created_at`, `updated_at` FROM `music_artist` WHERE `id` = :p0';
+        $sql = 'SELECT `name`, `alias`, `image`, `scan_deezer_search`, `scan_deezer_albums`, `scan_spotify_search`, `slug`, `id`, `created_at`, `updated_at` FROM `music_artist` WHERE `id` = :p0';
         try {
             $stmt = $con->prepare($sql);
       $stmt->bindValue(':p0', $key, PDO::PARAM_INT);
@@ -399,6 +403,33 @@ abstract class BaseMusicArtistQuery extends ModelCriteria
         }
 
         return $this->addUsingAlias(MusicArtistPeer::SCAN_DEEZER_SEARCH, $scanDeezerSearch, $comparison);
+    }
+
+    /**
+     * Filter the query on the scan_deezer_albums column
+     *
+     * Example usage:
+     * <code>
+     * $query->filterByScanDeezerAlbums(true); // WHERE scan_deezer_albums = true
+     * $query->filterByScanDeezerAlbums('yes'); // WHERE scan_deezer_albums = true
+     * </code>
+     *
+     * @param     boolean|string $scanDeezerAlbums The value to use as filter.
+     *              Non-boolean arguments are converted using the following rules:
+     *                * 1, '1', 'true',  'on',  and 'yes' are converted to boolean true
+     *                * 0, '0', 'false', 'off', and 'no'  are converted to boolean false
+     *              Check on string values is case insensitive (so 'FaLsE' is seen as 'false').
+     * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @return MusicArtistQuery The current query, for fluid interface
+     */
+    public function filterByScanDeezerAlbums($scanDeezerAlbums = null, $comparison = null)
+    {
+        if (is_string($scanDeezerAlbums)) {
+            $scanDeezerAlbums = in_array(strtolower($scanDeezerAlbums), array('false', 'off', '-', 'no', 'n', '0', '')) ? false : true;
+        }
+
+        return $this->addUsingAlias(MusicArtistPeer::SCAN_DEEZER_ALBUMS, $scanDeezerAlbums, $comparison);
     }
 
     /**

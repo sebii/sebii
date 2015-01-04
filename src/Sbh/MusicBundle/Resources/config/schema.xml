@@ -4,6 +4,7 @@
         <column name="alias" type="integer" />
         <column name="image" type="boolean" defaultValue="false" />
         <column name="scan_deezer_search" type="boolean" defaultValue="true" />
+        <column name="scan_deezer_albums" type="boolean" defaultValue="true" />
         <column name="scan_spotify_search" type="boolean" defaultValue="true" />
         
         <behavior name="sluggable" />
@@ -16,6 +17,8 @@
         <column name="name" type="varchar" />
         <column name="artist_id" type="integer" />
         <column name="alias" type="integer" />
+        <column name="image" type="boolean" defaultValue="false" />
+        <column name="scan_deezer_album" type="boolean" defaultValue="true" />
         
         <foreign-key foreignTable="music_artist" onDelete="setnull" onUpdate="cascade" name="fk_music_album_music_artist">
             <reference local="artist_id" foreign="id" />
@@ -86,6 +89,65 @@
         
         <foreign-key foreignTable="music_artist" onDelete="setnull" onUpdate="cascade" name="fk_music_deezer_artist_music_artist">
             <reference local="artist_id" foreign="id" />
+        </foreign-key>
+        
+        <vendor type="mysql">
+            <parameter name="Charset" value="utf8" />
+        </vendor>
+    </table>
+    <table name="music_deezer_genre">
+        <column name="deezer_id" type="integer" />
+        <column name="name" type="varchar" />
+        
+        <vendor type="mysql">
+            <parameter name="Charset" value="utf8" />
+        </vendor>
+    </table>
+    <table name="music_deezer_album">
+        <column name="deezer_id" type="integer" />
+        <column name="album_id" type="integer" />
+        <column name="name" type="varchar" />
+        <column name="artist_deezer_id" type="integer" />
+        <column name="main_genre_deezer_id" type="integer" />
+        <column name="genre_deezer_ids" type="array" />
+        <column name="record_type" type="enum" valueSet="album,ep,single,bundle" />
+        <column name="upc" type="varchar" />
+        <column name="label" type="varchar" />
+        <column name="nb_tracks" type="integer" />
+        <column name="duration" type="integer" />
+        <column name="nb_fans" type="integer" />
+        <column name="rating" type="integer" />
+        <column name="release_date" type="timestamp" />
+        <column name="available" type="boolean" />
+        <column name="explicit_lyrics" type="boolean" />
+        
+        <foreign-key foreignTable="music_album" onDelete="setnull" onUpdate="cascade" name="fk_music_deezer_album_music_album">
+            <reference local="album_id" foreign="id" />
+        </foreign-key>
+        <foreign-key foreignTable="music_deezer_artist" onDelete="setnull" onUpdate="cascade" name="fk_music_deezer_album_music_deezer_artist">
+            <reference local="artist_deezer_id" foreign="deezer_id" />
+        </foreign-key>
+        
+        <vendor type="mysql">
+            <parameter name="Charset" value="utf8" />
+        </vendor>
+    </table>
+    <table name="music_deezer_track">
+        <column name="deezer_id" type="integer" />
+        <column name="album_deezer_id" type="integer" />
+        <column name="artist_deezer_id" type="integer" />
+        <column name="name" type="varchar" />
+        <column name="readable" type="boolean" />
+        <column name="duration" type="integer" />
+        <column name="rank" type="boolean" />
+        <column name="explicit_lyrics" type="boolean" />
+        <column name="preview_link" type="varchar" />
+        
+        <foreign-key foreignTable="music_deezer_album" onDelete="setnull" onUpdate="cascade" name="fk_music_deezer_track_music_deezer_album">
+            <reference local="album_deezer_id" foreign="deezer_id" />
+        </foreign-key>
+        <foreign-key foreignTable="music_deezer_artist" onDelete="setnull" onUpdate="cascade" name="fk_music_deezer_track_music_deezer_artist">
+            <reference local="artist_deezer_id" foreign="deezer_id" />
         </foreign-key>
         
         <vendor type="mysql">

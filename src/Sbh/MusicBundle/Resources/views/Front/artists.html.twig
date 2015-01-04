@@ -1,6 +1,11 @@
 {% extends "::base.html.twig" %}
 
 {% block content %}
+<ul class="nav nav-tabs">
+  <li><a href="{{ path("sbh_music_front_artists") }}">Artistes</a></li>
+  <li><a href="#">Albums</a></li>
+</ul>
+<br />
 <div class="row">
 {% for artist in artists %}
     <div class="col-sm-4 col-lg-3 music-artist">

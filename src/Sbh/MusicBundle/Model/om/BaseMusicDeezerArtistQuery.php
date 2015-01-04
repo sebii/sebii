@@ -13,9 +13,11 @@ use \PropelException;
 use \PropelObjectCollection;
 use \PropelPDO;
 use Sbh\MusicBundle\Model\MusicArtist;
+use Sbh\MusicBundle\Model\MusicDeezerAlbum;
 use Sbh\MusicBundle\Model\MusicDeezerArtist;
 use Sbh\MusicBundle\Model\MusicDeezerArtistPeer;
 use Sbh\MusicBundle\Model\MusicDeezerArtistQuery;
+use Sbh\MusicBundle\Model\MusicDeezerTrack;
 
 /**
  * @method MusicDeezerArtistQuery orderByDeezerId($order = Criteria::ASC) Order by the deezer_id column
@@ -47,6 +49,14 @@ use Sbh\MusicBundle\Model\MusicDeezerArtistQuery;
  * @method MusicDeezerArtistQuery leftJoinMusicArtist($relationAlias = null) Adds a LEFT JOIN clause to the query using the MusicArtist relation
  * @method MusicDeezerArtistQuery rightJoinMusicArtist($relationAlias = null) Adds a RIGHT JOIN clause to the query using the MusicArtist relation
  * @method MusicDeezerArtistQuery innerJoinMusicArtist($relationAlias = null) Adds a INNER JOIN clause to the query using the MusicArtist relation
+ *
+ * @method MusicDeezerArtistQuery leftJoinMusicDeezerAlbum($relationAlias = null) Adds a LEFT JOIN clause to the query using the MusicDeezerAlbum relation
+ * @method MusicDeezerArtistQuery rightJoinMusicDeezerAlbum($relationAlias = null) Adds a RIGHT JOIN clause to the query using the MusicDeezerAlbum relation
+ * @method MusicDeezerArtistQuery innerJoinMusicDeezerAlbum($relationAlias = null) Adds a INNER JOIN clause to the query using the MusicDeezerAlbum relation
+ *
+ * @method MusicDeezerArtistQuery leftJoinMusicDeezerTrack($relationAlias = null) Adds a LEFT JOIN clause to the query using the MusicDeezerTrack relation
+ * @method MusicDeezerArtistQuery rightJoinMusicDeezerTrack($relationAlias = null) Adds a RIGHT JOIN clause to the query using the MusicDeezerTrack relation
+ * @method MusicDeezerArtistQuery innerJoinMusicDeezerTrack($relationAlias = null) Adds a INNER JOIN clause to the query using the MusicDeezerTrack relation
  *
  * @method MusicDeezerArtist findOne(PropelPDO $con = null) Return the first MusicDeezerArtist matching the query
  * @method MusicDeezerArtist findOneOrCreate(PropelPDO $con = null) Return the first MusicDeezerArtist matching the query, or a new MusicDeezerArtist object populated from the query conditions when no match is found
@@ -720,6 +730,154 @@ abstract class BaseMusicDeezerArtistQuery extends ModelCriteria
         return $this
             ->joinMusicArtist($relationAlias, $joinType)
             ->useQuery($relationAlias ? $relationAlias : 'MusicArtist', '\Sbh\MusicBundle\Model\MusicArtistQuery');
+    }
+
+    /**
+     * Filter the query by a related MusicDeezerAlbum object
+     *
+     * @param   MusicDeezerAlbum|PropelObjectCollection $musicDeezerAlbum  the related object to use as filter
+     * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @return                 MusicDeezerArtistQuery The current query, for fluid interface
+     * @throws PropelException - if the provided filter is invalid.
+     */
+    public function filterByMusicDeezerAlbum($musicDeezerAlbum, $comparison = null)
+    {
+        if ($musicDeezerAlbum instanceof MusicDeezerAlbum) {
+            return $this
+                ->addUsingAlias(MusicDeezerArtistPeer::DEEZER_ID, $musicDeezerAlbum->getArtistDeezerId(), $comparison);
+        } elseif ($musicDeezerAlbum instanceof PropelObjectCollection) {
+            return $this
+                ->useMusicDeezerAlbumQuery()
+                ->filterByPrimaryKeys($musicDeezerAlbum->getPrimaryKeys())
+                ->endUse();
+        } else {
+            throw new PropelException('filterByMusicDeezerAlbum() only accepts arguments of type MusicDeezerAlbum or PropelCollection');
+        }
+    }
+
+    /**
+     * Adds a JOIN clause to the query using the MusicDeezerAlbum relation
+     *
+     * @param     string $relationAlias optional alias for the relation
+     * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
+     *
+     * @return MusicDeezerArtistQuery The current query, for fluid interface
+     */
+    public function joinMusicDeezerAlbum($relationAlias = null, $joinType = Criteria::LEFT_JOIN)
+    {
+        $tableMap = $this->getTableMap();
+        $relationMap = $tableMap->getRelation('MusicDeezerAlbum');
+
+        // create a ModelJoin object for this join
+        $join = new ModelJoin();
+        $join->setJoinType($joinType);
+        $join->setRelationMap($relationMap, $this->useAliasInSQL ? $this->getModelAlias() : null, $relationAlias);
+        if ($previousJoin = $this->getPreviousJoin()) {
+            $join->setPreviousJoin($previousJoin);
+        }
+
+        // add the ModelJoin to the current object
+        if ($relationAlias) {
+            $this->addAlias($relationAlias, $relationMap->getRightTable()->getName());
+            $this->addJoinObject($join, $relationAlias);
+        } else {
+            $this->addJoinObject($join, 'MusicDeezerAlbum');
+        }
+
+        return $this;
+    }
+
+    /**
+     * Use the MusicDeezerAlbum relation MusicDeezerAlbum object
+     *
+     * @see       useQuery()
+     *
+     * @param     string $relationAlias optional alias for the relation,
+     *                                   to be used as main alias in the secondary query
+     * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
+     *
+     * @return   \Sbh\MusicBundle\Model\MusicDeezerAlbumQuery A secondary query class using the current class as primary query
+     */
+    public function useMusicDeezerAlbumQuery($relationAlias = null, $joinType = Criteria::LEFT_JOIN)
+    {
+        return $this
+            ->joinMusicDeezerAlbum($relationAlias, $joinType)
+            ->useQuery($relationAlias ? $relationAlias : 'MusicDeezerAlbum', '\Sbh\MusicBundle\Model\MusicDeezerAlbumQuery');
+    }
+
+    /**
+     * Filter the query by a related MusicDeezerTrack object
+     *
+     * @param   MusicDeezerTrack|PropelObjectCollection $musicDeezerTrack  the related object to use as filter
+     * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @return                 MusicDeezerArtistQuery The current query, for fluid interface
+     * @throws PropelException - if the provided filter is invalid.
+     */
+    public function filterByMusicDeezerTrack($musicDeezerTrack, $comparison = null)
+    {
+        if ($musicDeezerTrack instanceof MusicDeezerTrack) {
+            return $this
+                ->addUsingAlias(MusicDeezerArtistPeer::DEEZER_ID, $musicDeezerTrack->getArtistDeezerId(), $comparison);
+        } elseif ($musicDeezerTrack instanceof PropelObjectCollection) {
+            return $this
+                ->useMusicDeezerTrackQuery()
+                ->filterByPrimaryKeys($musicDeezerTrack->getPrimaryKeys())
+                ->endUse();
+        } else {
+            throw new PropelException('filterByMusicDeezerTrack() only accepts arguments of type MusicDeezerTrack or PropelCollection');
+        }
+    }
+
+    /**
+     * Adds a JOIN clause to the query using the MusicDeezerTrack relation
+     *
+     * @param     string $relationAlias optional alias for the relation
+     * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
+     *
+     * @return MusicDeezerArtistQuery The current query, for fluid interface
+     */
+    public function joinMusicDeezerTrack($relationAlias = null, $joinType = Criteria::LEFT_JOIN)
+    {
+        $tableMap = $this->getTableMap();
+        $relationMap = $tableMap->getRelation('MusicDeezerTrack');
+
+        // create a ModelJoin object for this join
+        $join = new ModelJoin();
+        $join->setJoinType($joinType);
+        $join->setRelationMap($relationMap, $this->useAliasInSQL ? $this->getModelAlias() : null, $relationAlias);
+        if ($previousJoin = $this->getPreviousJoin()) {
+            $join->setPreviousJoin($previousJoin);
+        }
+
+        // add the ModelJoin to the current object
+        if ($relationAlias) {
+            $this->addAlias($relationAlias, $relationMap->getRightTable()->getName());
+            $this->addJoinObject($join, $relationAlias);
+        } else {
+            $this->addJoinObject($join, 'MusicDeezerTrack');
+        }
+
+        return $this;
+    }
+
+    /**
+     * Use the MusicDeezerTrack relation MusicDeezerTrack object
+     *
+     * @see       useQuery()
+     *
+     * @param     string $relationAlias optional alias for the relation,
+     *                                   to be used as main alias in the secondary query
+     * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
+     *
+     * @return   \Sbh\MusicBundle\Model\MusicDeezerTrackQuery A secondary query class using the current class as primary query
+     */
+    public function useMusicDeezerTrackQuery($relationAlias = null, $joinType = Criteria::LEFT_JOIN)
+    {
+        return $this
+            ->joinMusicDeezerTrack($relationAlias, $joinType)
+            ->useQuery($relationAlias ? $relationAlias : 'MusicDeezerTrack', '\Sbh\MusicBundle\Model\MusicDeezerTrackQuery');
     }
 
     /**

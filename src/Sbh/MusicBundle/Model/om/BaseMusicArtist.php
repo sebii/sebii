@@ -75,6 +75,13 @@ abstract class BaseMusicArtist extends BaseObject implements Persistent
     protected $scan_deezer_search;
 
     /**
+     * The value for the scan_deezer_albums field.
+     * Note: this column has a database default value of: true
+     * @var        boolean
+     */
+    protected $scan_deezer_albums;
+
+    /**
      * The value for the scan_spotify_search field.
      * Note: this column has a database default value of: true
      * @var        boolean
@@ -183,6 +190,7 @@ abstract class BaseMusicArtist extends BaseObject implements Persistent
     {
         $this->image = false;
         $this->scan_deezer_search = true;
+        $this->scan_deezer_albums = true;
         $this->scan_spotify_search = true;
     }
 
@@ -238,6 +246,17 @@ abstract class BaseMusicArtist extends BaseObject implements Persistent
     {
 
         return $this->scan_deezer_search;
+    }
+
+    /**
+     * Get the [scan_deezer_albums] column value.
+     *
+     * @return boolean
+     */
+    public function getScanDeezerAlbums()
+    {
+
+        return $this->scan_deezer_albums;
     }
 
     /**
@@ -454,6 +473,35 @@ abstract class BaseMusicArtist extends BaseObject implements Persistent
     } // setScanDeezerSearch()
 
     /**
+     * Sets the value of the [scan_deezer_albums] column.
+     * Non-boolean arguments are converted using the following rules:
+     *   * 1, '1', 'true',  'on',  and 'yes' are converted to boolean true
+     *   * 0, '0', 'false', 'off', and 'no'  are converted to boolean false
+     * Check on string values is case insensitive (so 'FaLsE' is seen as 'false').
+     *
+     * @param boolean|integer|string $v The new value
+     * @return MusicArtist The current object (for fluent API support)
+     */
+    public function setScanDeezerAlbums($v)
+    {
+        if ($v !== null) {
+            if (is_string($v)) {
+                $v = in_array(strtolower($v), array('false', 'off', '-', 'no', 'n', '0', '')) ? false : true;
+            } else {
+                $v = (boolean) $v;
+            }
+        }
+
+        if ($this->scan_deezer_albums !== $v) {
+            $this->scan_deezer_albums = $v;
+            $this->modifiedColumns[] = MusicArtistPeer::SCAN_DEEZER_ALBUMS;
+        }
+
+
+        return $this;
+    } // setScanDeezerAlbums()
+
+    /**
      * Sets the value of the [scan_spotify_search] column.
      * Non-boolean arguments are converted using the following rules:
      *   * 1, '1', 'true',  'on',  and 'yes' are converted to boolean true
@@ -588,6 +636,10 @@ abstract class BaseMusicArtist extends BaseObject implements Persistent
                 return false;
             }
 
+            if ($this->scan_deezer_albums !== true) {
+                return false;
+            }
+
             if ($this->scan_spotify_search !== true) {
                 return false;
             }
@@ -618,11 +670,12 @@ abstract class BaseMusicArtist extends BaseObject implements Persistent
             $this->alias = ($row[$startcol + 1] !== null) ? (int) $row[$startcol + 1] : null;
             $this->image = ($row[$startcol + 2] !== null) ? (boolean) $row[$startcol + 2] : null;
             $this->scan_deezer_search = ($row[$startcol + 3] !== null) ? (boolean) $row[$startcol + 3] : null;
-            $this->scan_spotify_search = ($row[$startcol + 4] !== null) ? (boolean) $row[$startcol + 4] : null;
-            $this->slug = ($row[$startcol + 5] !== null) ? (string) $row[$startcol + 5] : null;
-            $this->id = ($row[$startcol + 6] !== null) ? (int) $row[$startcol + 6] : null;
-            $this->created_at = ($row[$startcol + 7] !== null) ? (string) $row[$startcol + 7] : null;
-            $this->updated_at = ($row[$startcol + 8] !== null) ? (string) $row[$startcol + 8] : null;
+            $this->scan_deezer_albums = ($row[$startcol + 4] !== null) ? (boolean) $row[$startcol + 4] : null;
+            $this->scan_spotify_search = ($row[$startcol + 5] !== null) ? (boolean) $row[$startcol + 5] : null;
+            $this->slug = ($row[$startcol + 6] !== null) ? (string) $row[$startcol + 6] : null;
+            $this->id = ($row[$startcol + 7] !== null) ? (int) $row[$startcol + 7] : null;
+            $this->created_at = ($row[$startcol + 8] !== null) ? (string) $row[$startcol + 8] : null;
+            $this->updated_at = ($row[$startcol + 9] !== null) ? (string) $row[$startcol + 9] : null;
             $this->resetModified();
 
             $this->setNew(false);
@@ -632,7 +685,7 @@ abstract class BaseMusicArtist extends BaseObject implements Persistent
             }
             $this->postHydrate($row, $startcol, $rehydrate);
 
-            return $startcol + 9; // 9 = MusicArtistPeer::NUM_HYDRATE_COLUMNS.
+            return $startcol + 10; // 10 = MusicArtistPeer::NUM_HYDRATE_COLUMNS.
 
         } catch (Exception $e) {
             throw new PropelException("Error populating MusicArtist object", $e);
@@ -960,6 +1013,9 @@ abstract class BaseMusicArtist extends BaseObject implements Persistent
         if ($this->isColumnModified(MusicArtistPeer::SCAN_DEEZER_SEARCH)) {
             $modifiedColumns[':p' . $index++]  = '`scan_deezer_search`';
         }
+        if ($this->isColumnModified(MusicArtistPeer::SCAN_DEEZER_ALBUMS)) {
+            $modifiedColumns[':p' . $index++]  = '`scan_deezer_albums`';
+        }
         if ($this->isColumnModified(MusicArtistPeer::SCAN_SPOTIFY_SEARCH)) {
             $modifiedColumns[':p' . $index++]  = '`scan_spotify_search`';
         }
@@ -997,6 +1053,9 @@ abstract class BaseMusicArtist extends BaseObject implements Persistent
                         break;
                     case '`scan_deezer_search`':
             $stmt->bindValue($identifier, (int) $this->scan_deezer_search, PDO::PARAM_INT);
+                        break;
+                    case '`scan_deezer_albums`':
+            $stmt->bindValue($identifier, (int) $this->scan_deezer_albums, PDO::PARAM_INT);
                         break;
                     case '`scan_spotify_search`':
             $stmt->bindValue($identifier, (int) $this->scan_spotify_search, PDO::PARAM_INT);
@@ -1192,18 +1251,21 @@ abstract class BaseMusicArtist extends BaseObject implements Persistent
                 return $this->getScanDeezerSearch();
                 break;
             case 4:
-                return $this->getScanSpotifySearch();
+                return $this->getScanDeezerAlbums();
                 break;
             case 5:
-                return $this->getSlug();
+                return $this->getScanSpotifySearch();
                 break;
             case 6:
-                return $this->getId();
+                return $this->getSlug();
                 break;
             case 7:
-                return $this->getCreatedAt();
+                return $this->getId();
                 break;
             case 8:
+                return $this->getCreatedAt();
+                break;
+            case 9:
                 return $this->getUpdatedAt();
                 break;
             default:
@@ -1239,11 +1301,12 @@ abstract class BaseMusicArtist extends BaseObject implements Persistent
             $keys[1] => $this->getAlias(),
             $keys[2] => $this->getImage(),
             $keys[3] => $this->getScanDeezerSearch(),
-            $keys[4] => $this->getScanSpotifySearch(),
-            $keys[5] => $this->getSlug(),
-            $keys[6] => $this->getId(),
-            $keys[7] => $this->getCreatedAt(),
-            $keys[8] => $this->getUpdatedAt(),
+            $keys[4] => $this->getScanDeezerAlbums(),
+            $keys[5] => $this->getScanSpotifySearch(),
+            $keys[6] => $this->getSlug(),
+            $keys[7] => $this->getId(),
+            $keys[8] => $this->getCreatedAt(),
+            $keys[9] => $this->getUpdatedAt(),
         );
         $virtualColumns = $this->virtualColumns;
         foreach ($virtualColumns as $key => $virtualColumn) {
@@ -1310,18 +1373,21 @@ abstract class BaseMusicArtist extends BaseObject implements Persistent
                 $this->setScanDeezerSearch($value);
                 break;
             case 4:
-                $this->setScanSpotifySearch($value);
+                $this->setScanDeezerAlbums($value);
                 break;
             case 5:
-                $this->setSlug($value);
+                $this->setScanSpotifySearch($value);
                 break;
             case 6:
-                $this->setId($value);
+                $this->setSlug($value);
                 break;
             case 7:
-                $this->setCreatedAt($value);
+                $this->setId($value);
                 break;
             case 8:
+                $this->setCreatedAt($value);
+                break;
+            case 9:
                 $this->setUpdatedAt($value);
                 break;
         } // switch()
@@ -1352,11 +1418,12 @@ abstract class BaseMusicArtist extends BaseObject implements Persistent
         if (array_key_exists($keys[1], $arr)) $this->setAlias($arr[$keys[1]]);
         if (array_key_exists($keys[2], $arr)) $this->setImage($arr[$keys[2]]);
         if (array_key_exists($keys[3], $arr)) $this->setScanDeezerSearch($arr[$keys[3]]);
-        if (array_key_exists($keys[4], $arr)) $this->setScanSpotifySearch($arr[$keys[4]]);
-        if (array_key_exists($keys[5], $arr)) $this->setSlug($arr[$keys[5]]);
-        if (array_key_exists($keys[6], $arr)) $this->setId($arr[$keys[6]]);
-        if (array_key_exists($keys[7], $arr)) $this->setCreatedAt($arr[$keys[7]]);
-        if (array_key_exists($keys[8], $arr)) $this->setUpdatedAt($arr[$keys[8]]);
+        if (array_key_exists($keys[4], $arr)) $this->setScanDeezerAlbums($arr[$keys[4]]);
+        if (array_key_exists($keys[5], $arr)) $this->setScanSpotifySearch($arr[$keys[5]]);
+        if (array_key_exists($keys[6], $arr)) $this->setSlug($arr[$keys[6]]);
+        if (array_key_exists($keys[7], $arr)) $this->setId($arr[$keys[7]]);
+        if (array_key_exists($keys[8], $arr)) $this->setCreatedAt($arr[$keys[8]]);
+        if (array_key_exists($keys[9], $arr)) $this->setUpdatedAt($arr[$keys[9]]);
     }
 
     /**
@@ -1372,6 +1439,7 @@ abstract class BaseMusicArtist extends BaseObject implements Persistent
         if ($this->isColumnModified(MusicArtistPeer::ALIAS)) $criteria->add(MusicArtistPeer::ALIAS, $this->alias);
         if ($this->isColumnModified(MusicArtistPeer::IMAGE)) $criteria->add(MusicArtistPeer::IMAGE, $this->image);
         if ($this->isColumnModified(MusicArtistPeer::SCAN_DEEZER_SEARCH)) $criteria->add(MusicArtistPeer::SCAN_DEEZER_SEARCH, $this->scan_deezer_search);
+        if ($this->isColumnModified(MusicArtistPeer::SCAN_DEEZER_ALBUMS)) $criteria->add(MusicArtistPeer::SCAN_DEEZER_ALBUMS, $this->scan_deezer_albums);
         if ($this->isColumnModified(MusicArtistPeer::SCAN_SPOTIFY_SEARCH)) $criteria->add(MusicArtistPeer::SCAN_SPOTIFY_SEARCH, $this->scan_spotify_search);
         if ($this->isColumnModified(MusicArtistPeer::SLUG)) $criteria->add(MusicArtistPeer::SLUG, $this->slug);
         if ($this->isColumnModified(MusicArtistPeer::ID)) $criteria->add(MusicArtistPeer::ID, $this->id);
@@ -1444,6 +1512,7 @@ abstract class BaseMusicArtist extends BaseObject implements Persistent
         $copyObj->setAlias($this->getAlias());
         $copyObj->setImage($this->getImage());
         $copyObj->setScanDeezerSearch($this->getScanDeezerSearch());
+        $copyObj->setScanDeezerAlbums($this->getScanDeezerAlbums());
         $copyObj->setScanSpotifySearch($this->getScanSpotifySearch());
         $copyObj->setSlug($this->getSlug());
         $copyObj->setCreatedAt($this->getCreatedAt());
@@ -2489,6 +2558,7 @@ abstract class BaseMusicArtist extends BaseObject implements Persistent
         $this->alias = null;
         $this->image = null;
         $this->scan_deezer_search = null;
+        $this->scan_deezer_albums = null;
         $this->scan_spotify_search = null;
         $this->slug = null;
         $this->id = null;
