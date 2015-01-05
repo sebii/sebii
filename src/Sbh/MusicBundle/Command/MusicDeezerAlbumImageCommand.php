@@ -33,8 +33,8 @@ class MusicDeezerAlbumImageCommand extends ContainerAwareCommand
     protected function configure()
     {
         $this
-            ->setName('sbh:music:deezer:artist:image')
-            ->setDescription('Download artist image of deezer');
+            ->setName('sbh:music:deezer:album:image')
+            ->setDescription('Download album image of deezer');
     }
     
     /**
@@ -111,71 +111,76 @@ class MusicDeezerAlbumImageCommand extends ContainerAwareCommand
     {
         $imgPath = $this->getImgPath();
         
-        $output->writeln('> Recherche des artistes ayant au moins 1 album et 1 association Deezer et pas d\'image téléchargée');
-        $musicArtists = MusicArtistQuery::create()
-            ->useMusicDeezerArtistQuery()
-                ->filterByArtistId(null, Criteria::NOT_EQUAL)
+        $output->writeln('> Recherche des albums Deezer ayant au moins 1 piste et 1 association Deezer et pas d\'image téléchargée');
+        $musicAlbums = MusicAlbumQuery::create()
+            ->useMusicDeezerAlbumQuery()
+                ->filterByAlbumId(null, Criteria::NOT_EQUAL)
                 ->filterByImage(false)
             ->endUse()
-            ->useMusicAlbumQuery()
-                ->filterByArtistId(null, Criteria::NOT_EQUAL)
+            ->useMusicTrackQuery()
+                ->filterByAlbumId(null, Criteria::NOT_EQUAL)
             ->endUse()
+            ->groupById()
             ->find();
-        $output->writeln('    - ' . $musicArtists->count() . ' artistes trouvés');
+        $output->writeln('    - ' . $musicAlbums->count() . ' albums trouvés');
         
-        foreach ($musicArtists as $musicArtist)
+        foreach ($musicAlbums as $musicAlbum)
         {
-            $output->writeln('    - Artiste ' . $musicArtist->getName());
-            $deezerUrl = 'https://api.deezer.com/artist/' . $musicArtist->getMusicDeezerArtists()->getFirst()->getDeezerId() . '/image';
-            $output->writeln('        > Ouverture de l\'url ' . $deezerUrl);
-            $ch        = curl_init();
-            curl_setopt($ch, CURLOPT_HEADER, true);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_URL, $deezerUrl);
-            $deezerOut    = curl_exec($ch);
-            $deezerArr    = explode("\r\n", $deezerOut);
-            $deezerImgUrl = $deezerUrl;
-            foreach ($deezerArr as $deezerHeader)
+            $output->writeln('    - album ' . $musicAlbum->getName());
+            foreach ($musicAlbum->getMusicDeezerAlbums() as $deezerAlbum)
             {
-                if (substr($deezerHeader, 0, 10) === 'Location: ')
+                $deezerUrl = 'https://api.deezer.com/album/' . $deezerAlbum->getDeezerId() . '/image';
+                $output->writeln('        > Ouverture de l\'url ' . $deezerUrl);
+                $ch        = curl_init();
+                curl_setopt($ch, CURLOPT_HEADER, true);
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt($ch, CURLOPT_URL, $deezerUrl);
+                $deezerOut    = curl_exec($ch);
+                $deezerArr    = explode("\r\n", $deezerOut);
+                $deezerImgUrl = $deezerUrl;
+                foreach ($deezerArr as $deezerHeader)
                 {
-                    $deezerImgUrl = str_replace('-80-', '-100-', preg_replace('#/([0-9]+x[0-9]+)-#', '/1000x1000-', substr($deezerHeader, 10)));
-                    $output->writeln('        > Récupération de la vraie url ' . $deezerImgUrl);
+                    if (substr($deezerHeader, 0, 10) === 'Location: ')
+                    {
+                        $deezerImgUrl = str_replace('-80-', '-100-', preg_replace('#/([0-9]+x[0-9]+)-#', '/1000x1000-', substr($deezerHeader, 10)));
+                        $output->writeln('        > Récupération de la vraie url ' . $deezerImgUrl);
+                    }
                 }
-            }
-            $output->writeln('        > Récupération de l\'image Deezer');
-            $deezerImgName = 'deezer_artist_' . $musicArtist->getMusicDeezerArtists()->getFirst()->getDeezerId() . '.jpg';
-            $deezerThmName = 'deezer_artist_' . $musicArtist->getMusicDeezerArtists()->getFirst()->getDeezerId() . '_thumb.jpg';
-            $fs      = new Filesystem();
-            $imagine = new Imagine();
-            $imagine
-                ->open($deezerImgUrl)
-                ->save($imgPath . DIRECTORY_SEPARATOR . $deezerImgName, array('jpeg_quality' => 100));
-            $imagine
-                ->open($imgPath . DIRECTORY_SEPARATOR . $deezerImgName)
-                ->resize(new Box(300, 300))
-                ->save($imgPath . DIRECTORY_SEPARATOR . $deezerThmName, array('jpeg_quality' => 100));
-            $fs->chmod($imgPath . DIRECTORY_SEPARATOR . $deezerImgName, 0777);
-            $fs->chmod($imgPath . DIRECTORY_SEPARATOR . $deezerThmName, 0777);
-            $output->writeln('        > Sauvegarde de l\'image Deezer ' . $deezerImgName);
-            $musicArtist->getMusicDeezerArtists()->getFirst()->setImage(true)->save();
-            if ($musicArtist->getImage() == false)
-            {
-                $output->writeln('        > Image de l\'artiste ' . $musicArtist->getName() . ' inexistante ');
-                $artistImgName = 'artist_' . $musicArtist->getId() . '.jpg';
-                $artistThmName = 'artist_' . $musicArtist->getId() . '_thumb.jpg';
-                $imagine       = new Imagine();
+                $output->writeln('        > Récupération de l\'image Deezer');
+                $deezerImgName = 'deezer_album_' . $deezerAlbum->getDeezerId() . '.jpg';
+                $deezerThmName = 'deezer_album_' . $deezerAlbum->getDeezerId() . '_thumb.jpg';
+                $fs      = new Filesystem();
+                $imagine = new Imagine();
                 $imagine
-                    ->open($imgPath . DIRECTORY_SEPARATOR . $deezerImgName)
-                    ->save($imgPath . DIRECTORY_SEPARATOR . $artistImgName, array('jpeg_quality' => 100));
+                    ->open($deezerImgUrl)
+                    ->save($imgPath . DIRECTORY_SEPARATOR . $deezerImgName, array('jpeg_quality' => 100));
                 $imagine
                     ->open($imgPath . DIRECTORY_SEPARATOR . $deezerImgName)
                     ->resize(new Box(300, 300))
-                    ->save($imgPath . DIRECTORY_SEPARATOR . $artistThmName, array('jpeg_quality' => 100));
-                $fs->chmod($imgPath . DIRECTORY_SEPARATOR . $artistImgName, 0777);
-                $fs->chmod($imgPath . DIRECTORY_SEPARATOR . $artistThmName, 0777);
-                $output->writeln('        > Sauvegarde de l\'image Deezer en tant qu\'image de l\'artist ' . $artistImgName);
-                $musicArtist
+                    ->save($imgPath . DIRECTORY_SEPARATOR . $deezerThmName, array('jpeg_quality' => 100));
+                $fs->chmod($imgPath . DIRECTORY_SEPARATOR . $deezerImgName, 0777);
+                $fs->chmod($imgPath . DIRECTORY_SEPARATOR . $deezerThmName, 0777);
+                $output->writeln('        > Sauvegarde de l\'image Deezer ' . $deezerImgName);
+                $deezerAlbum->setImage(true)->save();
+            }
+            if ($musicAlbum->getImage() == false)
+            {
+                $deezerImgName = 'deezer_album_' . $musicAlbum->getMusicDeezerAlbums()->getFirst()->getDeezerId() . '.jpg';
+                $output->writeln('        > Image de l\'album ' . $musicAlbum->getName() . ' inexistante ');
+                $albumImgName = 'album_' . $musicAlbum->getId() . '.jpg';
+                $albumThmName = 'album_' . $musicAlbum->getId() . '_thumb.jpg';
+                $imagine       = new Imagine();
+                $imagine
+                    ->open($imgPath . DIRECTORY_SEPARATOR . $deezerImgName)
+                    ->save($imgPath . DIRECTORY_SEPARATOR . $albumImgName, array('jpeg_quality' => 100));
+                $imagine
+                    ->open($imgPath . DIRECTORY_SEPARATOR . $deezerImgName)
+                    ->resize(new Box(300, 300))
+                    ->save($imgPath . DIRECTORY_SEPARATOR . $albumThmName, array('jpeg_quality' => 100));
+                $fs->chmod($imgPath . DIRECTORY_SEPARATOR . $albumImgName, 0777);
+                $fs->chmod($imgPath . DIRECTORY_SEPARATOR . $albumThmName, 0777);
+                $output->writeln('        > Sauvegarde de l\'image Deezer en tant qu\'image de l\'album ' . $albumImgName);
+                $musicAlbum
                     ->setImage(true)
                     ->save();
             }

@@ -10,12 +10,12 @@
 {% block content %}
 <div class="row listen-on">
     <div class="col-sm-6 listen-on-deezer">
-        {% if artist.musicDeezerArtists | length > 0 %}
-            <a href="http://www.deezer.com/artist/{{ artist.musicDeezerArtists.first.deezerId }}" target="extSbh">
-                <img src="{{ asset("bundles/sbhmusic/images/deezer-flat-circle-icon.png") }}" alt="(Deezer)" />
-                Deezer
-            </a>
-        {% endif %}
+    {% if artist.musicDeezerArtists | length > 0 %}
+        <a href="http://www.deezer.com/artist/{{ artist.musicDeezerArtists.first.deezerId }}" target="extSbh">
+            <img src="{{ asset("bundles/sbhmusic/images/deezer-flat-circle-icon.png") }}" alt="(Deezer)" />
+            Deezer
+        </a>
+    {% endif %}
     </div>
     <div class="col-sm-6 listen-on-spotify">
         {% if artist.musicSpotifyArtists | length > 0 %}
@@ -28,11 +28,16 @@
 </div>
 <div class="row">
 {% for album in albums %}
-    <div class="col-sm-4 col-lg-3 music-artist">
-        <a href="#">
-            <img src="{{ asset("bundles/sbhmusic/images/album_0.png") }}" class="img-responsive music-artist-image" />
-            <span class="music-artist-name">{{ album.name }}</span>
+    <div class="col-sm-4 col-lg-3 music-album">
+        <a href="{{ path("sbh_music_front_album", {artistId: artist.id, albumId: album.id}) }}">
+            <img src="{% if album.image %}{{ asset("ii/music/_img/album_" ~ album.id ~ "_thumb.jpg") }}{% else %}{{ asset("bundles/sbhmusic/images/album_0.png") }}{% endif %}" class="img-responsive music-album-image" />
+            <span class="music-album-name">{{ album.name }}</span>
         </a>
+        <span class="music-album-stream">
+            {% if album.musicDeezerAlbums | length > 0 %}<a href="http://www.deezer.com/album/{{ album.musicDeezerAlbums.first.deezerId }}" target="extSbh"><img src="{{ asset("bundles/sbhmusic/images/deezer-flat-circle-icon.png") }}" alt="(Deezer)" /></a>{% endif %}
+            <!--<img src="{{ asset("bundles/sbhmusic/images/spotify-flat-circle-icon.png") }}" alt="(Spotify)" />-->
+            <!--<img src="{{ asset("bundles/sbhmusic/images/itunes-flat-circle-icon.png") }}" alt="(iTunes)" />-->
+        </span>
     </div>
 {% endfor %}
 </div>
@@ -55,6 +60,16 @@
     }
     .listen-on div a img {
         height: 30px;
+    }
+    .music-album {
+        height: 260px;
+    }
+    .music-album-stream {
+        display: block;
+        height: 32px;
+    }
+    .music-album-stream img {
+        height: 32px;
     }
 </style>
 {% endblock %}

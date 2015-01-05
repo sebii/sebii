@@ -45,6 +45,7 @@ class MusicDeezerAlbumTableMap extends TableMap
         $this->addColumn('deezer_id', 'DeezerId', 'INTEGER', false, null, null);
         $this->addForeignKey('album_id', 'AlbumId', 'INTEGER', 'music_album', 'id', false, null, null);
         $this->addColumn('name', 'Name', 'VARCHAR', false, 255, null);
+        $this->addColumn('image', 'Image', 'BOOLEAN', false, 1, false);
         $this->addForeignKey('artist_deezer_id', 'ArtistDeezerId', 'INTEGER', 'music_deezer_artist', 'deezer_id', false, null, null);
         $this->addColumn('main_genre_deezer_id', 'MainGenreDeezerId', 'INTEGER', false, null, null);
         $this->addColumn('genre_deezer_ids', 'GenreDeezerIds', 'ARRAY', false, null, null);

@@ -1,0 +1,59 @@
+{% extends "::base.html.twig" %}
+
+{% block breadcrumb %}
+    <li><a href="/">Musique</a></li>
+    <li><a href="{{ path("sbh_music_front_artist", {artistId: artist.id}) }}">{{ artist.name }}</a></li>
+    <li><a href="{{ path("sbh_music_front_album", {artistId: artist.id, albumId: album.id}) }}">{{ album.name }}</a></li>
+    <li><a href="{{ path("sbh_music_front_album_deezer_link", {artistId: artist.id, albumId: album.id}) }}">Recherche sur Deezer</a></li>
+{% endblock breadcrumb %}
+
+{% block pagetitle %}{{ artist.name }} - {{ album.name }} - Recherche sur Deezer{% endblock pagetitle %}
+
+{% block content %}
+<div class="row">
+    <div class="col-sm-3">
+        <img src="{% if album.image %}{{ asset("ii/music/_img/album_" ~ album.id ~ "_thumb.jpg") }}{% else %}{{ asset("bundles/sbhmusic/images/album_0.png") }}{% endif %}" class="img-responsive music-album-image" />
+    </div>
+    <div class="col-sm-9">
+        <p><b>{{ album.name }}</b> de {{ artist.name }}</p>
+    </div>
+</div>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Deezer ID</th>
+            <th>Pochette</th>
+            <th>Nom sur Deezer</th>
+            <th>Type</th>
+            <th>Déjà lié à</th>
+            <th>Lier</th>
+        </tr>
+    </thead>
+    <tfoot></tfoot>
+    <tbody>
+{% for deezerAlbum in deezerAlbums %}
+        <tr>
+            <td>{{ deezerAlbum.deezerId }}</td>
+            <td><img src="{% if deezerAlbum.image %}{{ asset("ii/music/_img/deezer_album_" ~ deezerAlbum.deezerId ~ "_thumb.jpg") }}{% else %}{{ asset("bundles/sbhmusic/images/album_0.png") }}{% endif %}" alt="(pochette)" /></td>
+            <td>
+                <b>{{ deezerAlbum.name }}</b><br />
+                de {% if deezerAlbum.musicDeezerArtist %}{{ deezerAlbum.musicDeezerArtist.name }}{% endif %}
+            </td>
+            <td>{{ deezerAlbum.recordType }}</td>
+            <td>
+            {% if deezerAlbum.musicAlbum %}
+                <b>{{ deezerAlbum.musicAlbum.name }}</b><br />
+                de {% if deezerAlbum.musicAlbum.musicArtist %}{{ deezerAlbum.musicAlbum.musicArtist.name }}{% endif %}
+            {% endif %}
+            </td>
+            <td><a href="{{ path("sbh_music_front_album_deezer_link", {artistId: artist.id, albumId: album.id, deezerId: deezerAlbum.deezerId}) }}">Lier</a></td>
+        </tr>
+{% endfor %}
+    </tbody>
+</table>
+<style>
+    table.table td img {
+        width: 80px;
+    }
+</style>
+{% endblock content %}

@@ -98,6 +98,7 @@ class MusicDeezerArtistAlbumsCommand extends ContainerAwareCommand
                             ->setMainGenreDeezerId($deezerAlbumData->genre_id)
                             ->setRecordType($deezerAlbumData->record_type)
                             ->setMusicAlbum($musicAlbum)
+                            ->setMusicDeezerArtist($deezerArtist)
                             ->save();
                         $output->writeln('            > Enregistrement');
                     }

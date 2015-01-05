@@ -107,6 +107,7 @@
         <column name="deezer_id" type="integer" />
         <column name="album_id" type="integer" />
         <column name="name" type="varchar" />
+        <column name="image" type="boolean" defaultValue="false" />
         <column name="artist_deezer_id" type="integer" />
         <column name="main_genre_deezer_id" type="integer" />
         <column name="genre_deezer_ids" type="array" />

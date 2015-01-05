@@ -23,6 +23,7 @@ use Sbh\MusicBundle\Model\MusicDeezerTrack;
  * @method MusicDeezerAlbumQuery orderByDeezerId($order = Criteria::ASC) Order by the deezer_id column
  * @method MusicDeezerAlbumQuery orderByAlbumId($order = Criteria::ASC) Order by the album_id column
  * @method MusicDeezerAlbumQuery orderByName($order = Criteria::ASC) Order by the name column
+ * @method MusicDeezerAlbumQuery orderByImage($order = Criteria::ASC) Order by the image column
  * @method MusicDeezerAlbumQuery orderByArtistDeezerId($order = Criteria::ASC) Order by the artist_deezer_id column
  * @method MusicDeezerAlbumQuery orderByMainGenreDeezerId($order = Criteria::ASC) Order by the main_genre_deezer_id column
  * @method MusicDeezerAlbumQuery orderByGenreDeezerIds($order = Criteria::ASC) Order by the genre_deezer_ids column
@@ -43,6 +44,7 @@ use Sbh\MusicBundle\Model\MusicDeezerTrack;
  * @method MusicDeezerAlbumQuery groupByDeezerId() Group by the deezer_id column
  * @method MusicDeezerAlbumQuery groupByAlbumId() Group by the album_id column
  * @method MusicDeezerAlbumQuery groupByName() Group by the name column
+ * @method MusicDeezerAlbumQuery groupByImage() Group by the image column
  * @method MusicDeezerAlbumQuery groupByArtistDeezerId() Group by the artist_deezer_id column
  * @method MusicDeezerAlbumQuery groupByMainGenreDeezerId() Group by the main_genre_deezer_id column
  * @method MusicDeezerAlbumQuery groupByGenreDeezerIds() Group by the genre_deezer_ids column
@@ -82,6 +84,7 @@ use Sbh\MusicBundle\Model\MusicDeezerTrack;
  * @method MusicDeezerAlbum findOneByDeezerId(int $deezer_id) Return the first MusicDeezerAlbum filtered by the deezer_id column
  * @method MusicDeezerAlbum findOneByAlbumId(int $album_id) Return the first MusicDeezerAlbum filtered by the album_id column
  * @method MusicDeezerAlbum findOneByName(string $name) Return the first MusicDeezerAlbum filtered by the name column
+ * @method MusicDeezerAlbum findOneByImage(boolean $image) Return the first MusicDeezerAlbum filtered by the image column
  * @method MusicDeezerAlbum findOneByArtistDeezerId(int $artist_deezer_id) Return the first MusicDeezerAlbum filtered by the artist_deezer_id column
  * @method MusicDeezerAlbum findOneByMainGenreDeezerId(int $main_genre_deezer_id) Return the first MusicDeezerAlbum filtered by the main_genre_deezer_id column
  * @method MusicDeezerAlbum findOneByGenreDeezerIds(array $genre_deezer_ids) Return the first MusicDeezerAlbum filtered by the genre_deezer_ids column
@@ -101,6 +104,7 @@ use Sbh\MusicBundle\Model\MusicDeezerTrack;
  * @method array findByDeezerId(int $deezer_id) Return MusicDeezerAlbum objects filtered by the deezer_id column
  * @method array findByAlbumId(int $album_id) Return MusicDeezerAlbum objects filtered by the album_id column
  * @method array findByName(string $name) Return MusicDeezerAlbum objects filtered by the name column
+ * @method array findByImage(boolean $image) Return MusicDeezerAlbum objects filtered by the image column
  * @method array findByArtistDeezerId(int $artist_deezer_id) Return MusicDeezerAlbum objects filtered by the artist_deezer_id column
  * @method array findByMainGenreDeezerId(int $main_genre_deezer_id) Return MusicDeezerAlbum objects filtered by the main_genre_deezer_id column
  * @method array findByGenreDeezerIds(array $genre_deezer_ids) Return MusicDeezerAlbum objects filtered by the genre_deezer_ids column
@@ -222,7 +226,7 @@ abstract class BaseMusicDeezerAlbumQuery extends ModelCriteria
      */
     protected function findPkSimple($key, $con)
     {
-        $sql = 'SELECT `deezer_id`, `album_id`, `name`, `artist_deezer_id`, `main_genre_deezer_id`, `genre_deezer_ids`, `record_type`, `upc`, `label`, `nb_tracks`, `duration`, `nb_fans`, `rating`, `release_date`, `available`, `explicit_lyrics`, `id`, `created_at`, `updated_at` FROM `music_deezer_album` WHERE `id` = :p0';
+        $sql = 'SELECT `deezer_id`, `album_id`, `name`, `image`, `artist_deezer_id`, `main_genre_deezer_id`, `genre_deezer_ids`, `record_type`, `upc`, `label`, `nb_tracks`, `duration`, `nb_fans`, `rating`, `release_date`, `available`, `explicit_lyrics`, `id`, `created_at`, `updated_at` FROM `music_deezer_album` WHERE `id` = :p0';
         try {
             $stmt = $con->prepare($sql);
       $stmt->bindValue(':p0', $key, PDO::PARAM_INT);
@@ -424,6 +428,33 @@ abstract class BaseMusicDeezerAlbumQuery extends ModelCriteria
         }
 
         return $this->addUsingAlias(MusicDeezerAlbumPeer::NAME, $name, $comparison);
+    }
+
+    /**
+     * Filter the query on the image column
+     *
+     * Example usage:
+     * <code>
+     * $query->filterByImage(true); // WHERE image = true
+     * $query->filterByImage('yes'); // WHERE image = true
+     * </code>
+     *
+     * @param     boolean|string $image The value to use as filter.
+     *              Non-boolean arguments are converted using the following rules:
+     *                * 1, '1', 'true',  'on',  and 'yes' are converted to boolean true
+     *                * 0, '0', 'false', 'off', and 'no'  are converted to boolean false
+     *              Check on string values is case insensitive (so 'FaLsE' is seen as 'false').
+     * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @return MusicDeezerAlbumQuery The current query, for fluid interface
+     */
+    public function filterByImage($image = null, $comparison = null)
+    {
+        if (is_string($image)) {
+            $image = in_array(strtolower($image), array('false', 'off', '-', 'no', 'n', '0', '')) ? false : true;
+        }
+
+        return $this->addUsingAlias(MusicDeezerAlbumPeer::IMAGE, $image, $comparison);
     }
 
     /**

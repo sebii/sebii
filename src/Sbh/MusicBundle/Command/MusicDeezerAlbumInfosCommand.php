@@ -89,6 +89,9 @@ class MusicDeezerAlbumInfosCommand extends ContainerAwareCommand
                         ->save();
                 }
             }
+            $deezerArtist = MusicDeezerArtistQuery::create()
+                ->filterByDeezerId($deezerData->artist->id)
+                ->findOne();
             $deezerAlbum
                 ->setName($deezerData->title)
                 ->setUpc($deezerData->upc)
@@ -102,6 +105,7 @@ class MusicDeezerAlbumInfosCommand extends ContainerAwareCommand
                 ->setRecordType($deezerData->record_type)
                 ->setAvailable($deezerData->available)
                 ->setExplicitLyrics($deezerData->explicit_lyrics)
+                ->setMusicDeezerArtist($deezerArtist)
                 ->save();
             $output->writeln('        > Album deezer mis à jour');
             $output->writeln('        - Traitement des pistes');
@@ -129,8 +133,8 @@ class MusicDeezerAlbumInfosCommand extends ContainerAwareCommand
                     $output->writeln('                > Création de l\'artiste Deezer "' . $deezerDataTrack->artist->name . '"');
                     $deezerArtist = new MusicDeezerArtist();
                     $deezerArtist
-                        ->setDeezerId($musicDeezerTrack->artist->id)
-                        ->setName($musicDeezerTrack->artist->name)
+                        ->setDeezerId($deezerDataTrack->artist->id)
+                        ->setName($deezerDataTrack->artist->name)
                         ->save();
                 }
                 $deezerTrack
@@ -146,7 +150,7 @@ class MusicDeezerAlbumInfosCommand extends ContainerAwareCommand
                 $output->writeln('                > Sauvegarde des données de la piste');
             }
             $musicAlbum
-//                ->setScanDeezerAlbum(false)
+                ->setScanDeezerAlbum(false)
                 ->save();
             $output->writeln('        > Signalé comme scanné');
         }

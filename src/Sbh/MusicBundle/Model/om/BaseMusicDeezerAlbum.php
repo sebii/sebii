@@ -65,6 +65,13 @@ abstract class BaseMusicDeezerAlbum extends BaseObject implements Persistent
     protected $name;
 
     /**
+     * The value for the image field.
+     * Note: this column has a database default value of: false
+     * @var        boolean
+     */
+    protected $image;
+
+    /**
      * The value for the artist_deezer_id field.
      * @var        int
      */
@@ -210,6 +217,27 @@ abstract class BaseMusicDeezerAlbum extends BaseObject implements Persistent
     protected $musicDeezerTracksScheduledForDeletion = null;
 
     /**
+     * Applies default values to this object.
+     * This method should be called from the object's constructor (or
+     * equivalent initialization method).
+     * @see        __construct()
+     */
+    public function applyDefaultValues()
+    {
+        $this->image = false;
+    }
+
+    /**
+     * Initializes internal state of BaseMusicDeezerAlbum object.
+     * @see        applyDefaults()
+     */
+    public function __construct()
+    {
+        parent::__construct();
+        $this->applyDefaultValues();
+    }
+
+    /**
      * Get the [deezer_id] column value.
      *
      * @return int
@@ -240,6 +268,17 @@ abstract class BaseMusicDeezerAlbum extends BaseObject implements Persistent
     {
 
         return $this->name;
+    }
+
+    /**
+     * Get the [image] column value.
+     *
+     * @return boolean
+     */
+    public function getImage()
+    {
+
+        return $this->image;
     }
 
     /**
@@ -597,6 +636,35 @@ abstract class BaseMusicDeezerAlbum extends BaseObject implements Persistent
 
         return $this;
     } // setName()
+
+    /**
+     * Sets the value of the [image] column.
+     * Non-boolean arguments are converted using the following rules:
+     *   * 1, '1', 'true',  'on',  and 'yes' are converted to boolean true
+     *   * 0, '0', 'false', 'off', and 'no'  are converted to boolean false
+     * Check on string values is case insensitive (so 'FaLsE' is seen as 'false').
+     *
+     * @param boolean|integer|string $v The new value
+     * @return MusicDeezerAlbum The current object (for fluent API support)
+     */
+    public function setImage($v)
+    {
+        if ($v !== null) {
+            if (is_string($v)) {
+                $v = in_array(strtolower($v), array('false', 'off', '-', 'no', 'n', '0', '')) ? false : true;
+            } else {
+                $v = (boolean) $v;
+            }
+        }
+
+        if ($this->image !== $v) {
+            $this->image = $v;
+            $this->modifiedColumns[] = MusicDeezerAlbumPeer::IMAGE;
+        }
+
+
+        return $this;
+    } // setImage()
 
     /**
      * Set the value of [artist_deezer_id] column.
@@ -1006,6 +1074,10 @@ abstract class BaseMusicDeezerAlbum extends BaseObject implements Persistent
      */
     public function hasOnlyDefaultValues()
     {
+            if ($this->image !== false) {
+                return false;
+            }
+
         // otherwise, everything was equal, so return true
         return true;
     } // hasOnlyDefaultValues()
@@ -1031,23 +1103,24 @@ abstract class BaseMusicDeezerAlbum extends BaseObject implements Persistent
             $this->deezer_id = ($row[$startcol + 0] !== null) ? (int) $row[$startcol + 0] : null;
             $this->album_id = ($row[$startcol + 1] !== null) ? (int) $row[$startcol + 1] : null;
             $this->name = ($row[$startcol + 2] !== null) ? (string) $row[$startcol + 2] : null;
-            $this->artist_deezer_id = ($row[$startcol + 3] !== null) ? (int) $row[$startcol + 3] : null;
-            $this->main_genre_deezer_id = ($row[$startcol + 4] !== null) ? (int) $row[$startcol + 4] : null;
-            $this->genre_deezer_ids = $row[$startcol + 5];
+            $this->image = ($row[$startcol + 3] !== null) ? (boolean) $row[$startcol + 3] : null;
+            $this->artist_deezer_id = ($row[$startcol + 4] !== null) ? (int) $row[$startcol + 4] : null;
+            $this->main_genre_deezer_id = ($row[$startcol + 5] !== null) ? (int) $row[$startcol + 5] : null;
+            $this->genre_deezer_ids = $row[$startcol + 6];
             $this->genre_deezer_ids_unserialized = null;
-            $this->record_type = ($row[$startcol + 6] !== null) ? (int) $row[$startcol + 6] : null;
-            $this->upc = ($row[$startcol + 7] !== null) ? (string) $row[$startcol + 7] : null;
-            $this->label = ($row[$startcol + 8] !== null) ? (string) $row[$startcol + 8] : null;
-            $this->nb_tracks = ($row[$startcol + 9] !== null) ? (int) $row[$startcol + 9] : null;
-            $this->duration = ($row[$startcol + 10] !== null) ? (int) $row[$startcol + 10] : null;
-            $this->nb_fans = ($row[$startcol + 11] !== null) ? (int) $row[$startcol + 11] : null;
-            $this->rating = ($row[$startcol + 12] !== null) ? (int) $row[$startcol + 12] : null;
-            $this->release_date = ($row[$startcol + 13] !== null) ? (string) $row[$startcol + 13] : null;
-            $this->available = ($row[$startcol + 14] !== null) ? (boolean) $row[$startcol + 14] : null;
-            $this->explicit_lyrics = ($row[$startcol + 15] !== null) ? (boolean) $row[$startcol + 15] : null;
-            $this->id = ($row[$startcol + 16] !== null) ? (int) $row[$startcol + 16] : null;
-            $this->created_at = ($row[$startcol + 17] !== null) ? (string) $row[$startcol + 17] : null;
-            $this->updated_at = ($row[$startcol + 18] !== null) ? (string) $row[$startcol + 18] : null;
+            $this->record_type = ($row[$startcol + 7] !== null) ? (int) $row[$startcol + 7] : null;
+            $this->upc = ($row[$startcol + 8] !== null) ? (string) $row[$startcol + 8] : null;
+            $this->label = ($row[$startcol + 9] !== null) ? (string) $row[$startcol + 9] : null;
+            $this->nb_tracks = ($row[$startcol + 10] !== null) ? (int) $row[$startcol + 10] : null;
+            $this->duration = ($row[$startcol + 11] !== null) ? (int) $row[$startcol + 11] : null;
+            $this->nb_fans = ($row[$startcol + 12] !== null) ? (int) $row[$startcol + 12] : null;
+            $this->rating = ($row[$startcol + 13] !== null) ? (int) $row[$startcol + 13] : null;
+            $this->release_date = ($row[$startcol + 14] !== null) ? (string) $row[$startcol + 14] : null;
+            $this->available = ($row[$startcol + 15] !== null) ? (boolean) $row[$startcol + 15] : null;
+            $this->explicit_lyrics = ($row[$startcol + 16] !== null) ? (boolean) $row[$startcol + 16] : null;
+            $this->id = ($row[$startcol + 17] !== null) ? (int) $row[$startcol + 17] : null;
+            $this->created_at = ($row[$startcol + 18] !== null) ? (string) $row[$startcol + 18] : null;
+            $this->updated_at = ($row[$startcol + 19] !== null) ? (string) $row[$startcol + 19] : null;
             $this->resetModified();
 
             $this->setNew(false);
@@ -1057,7 +1130,7 @@ abstract class BaseMusicDeezerAlbum extends BaseObject implements Persistent
             }
             $this->postHydrate($row, $startcol, $rehydrate);
 
-            return $startcol + 19; // 19 = MusicDeezerAlbumPeer::NUM_HYDRATE_COLUMNS.
+            return $startcol + 20; // 20 = MusicDeezerAlbumPeer::NUM_HYDRATE_COLUMNS.
 
         } catch (Exception $e) {
             throw new PropelException("Error populating MusicDeezerAlbum object", $e);
@@ -1339,6 +1412,9 @@ abstract class BaseMusicDeezerAlbum extends BaseObject implements Persistent
         if ($this->isColumnModified(MusicDeezerAlbumPeer::NAME)) {
             $modifiedColumns[':p' . $index++]  = '`name`';
         }
+        if ($this->isColumnModified(MusicDeezerAlbumPeer::IMAGE)) {
+            $modifiedColumns[':p' . $index++]  = '`image`';
+        }
         if ($this->isColumnModified(MusicDeezerAlbumPeer::ARTIST_DEEZER_ID)) {
             $modifiedColumns[':p' . $index++]  = '`artist_deezer_id`';
         }
@@ -1406,6 +1482,9 @@ abstract class BaseMusicDeezerAlbum extends BaseObject implements Persistent
                         break;
                     case '`name`':
             $stmt->bindValue($identifier, $this->name, PDO::PARAM_STR);
+                        break;
+                    case '`image`':
+            $stmt->bindValue($identifier, (int) $this->image, PDO::PARAM_INT);
                         break;
                     case '`artist_deezer_id`':
             $stmt->bindValue($identifier, $this->artist_deezer_id, PDO::PARAM_INT);
@@ -1625,51 +1704,54 @@ abstract class BaseMusicDeezerAlbum extends BaseObject implements Persistent
                 return $this->getName();
                 break;
             case 3:
-                return $this->getArtistDeezerId();
+                return $this->getImage();
                 break;
             case 4:
-                return $this->getMainGenreDeezerId();
+                return $this->getArtistDeezerId();
                 break;
             case 5:
-                return $this->getGenreDeezerIds();
+                return $this->getMainGenreDeezerId();
                 break;
             case 6:
-                return $this->getRecordType();
+                return $this->getGenreDeezerIds();
                 break;
             case 7:
-                return $this->getUpc();
+                return $this->getRecordType();
                 break;
             case 8:
-                return $this->getLabel();
+                return $this->getUpc();
                 break;
             case 9:
-                return $this->getNbTracks();
+                return $this->getLabel();
                 break;
             case 10:
-                return $this->getDuration();
+                return $this->getNbTracks();
                 break;
             case 11:
-                return $this->getNbFans();
+                return $this->getDuration();
                 break;
             case 12:
-                return $this->getRating();
+                return $this->getNbFans();
                 break;
             case 13:
-                return $this->getReleaseDate();
+                return $this->getRating();
                 break;
             case 14:
-                return $this->getAvailable();
+                return $this->getReleaseDate();
                 break;
             case 15:
-                return $this->getExplicitLyrics();
+                return $this->getAvailable();
                 break;
             case 16:
-                return $this->getId();
+                return $this->getExplicitLyrics();
                 break;
             case 17:
-                return $this->getCreatedAt();
+                return $this->getId();
                 break;
             case 18:
+                return $this->getCreatedAt();
+                break;
+            case 19:
                 return $this->getUpdatedAt();
                 break;
             default:
@@ -1704,22 +1786,23 @@ abstract class BaseMusicDeezerAlbum extends BaseObject implements Persistent
             $keys[0] => $this->getDeezerId(),
             $keys[1] => $this->getAlbumId(),
             $keys[2] => $this->getName(),
-            $keys[3] => $this->getArtistDeezerId(),
-            $keys[4] => $this->getMainGenreDeezerId(),
-            $keys[5] => $this->getGenreDeezerIds(),
-            $keys[6] => $this->getRecordType(),
-            $keys[7] => $this->getUpc(),
-            $keys[8] => $this->getLabel(),
-            $keys[9] => $this->getNbTracks(),
-            $keys[10] => $this->getDuration(),
-            $keys[11] => $this->getNbFans(),
-            $keys[12] => $this->getRating(),
-            $keys[13] => $this->getReleaseDate(),
-            $keys[14] => $this->getAvailable(),
-            $keys[15] => $this->getExplicitLyrics(),
-            $keys[16] => $this->getId(),
-            $keys[17] => $this->getCreatedAt(),
-            $keys[18] => $this->getUpdatedAt(),
+            $keys[3] => $this->getImage(),
+            $keys[4] => $this->getArtistDeezerId(),
+            $keys[5] => $this->getMainGenreDeezerId(),
+            $keys[6] => $this->getGenreDeezerIds(),
+            $keys[7] => $this->getRecordType(),
+            $keys[8] => $this->getUpc(),
+            $keys[9] => $this->getLabel(),
+            $keys[10] => $this->getNbTracks(),
+            $keys[11] => $this->getDuration(),
+            $keys[12] => $this->getNbFans(),
+            $keys[13] => $this->getRating(),
+            $keys[14] => $this->getReleaseDate(),
+            $keys[15] => $this->getAvailable(),
+            $keys[16] => $this->getExplicitLyrics(),
+            $keys[17] => $this->getId(),
+            $keys[18] => $this->getCreatedAt(),
+            $keys[19] => $this->getUpdatedAt(),
         );
         $virtualColumns = $this->virtualColumns;
         foreach ($virtualColumns as $key => $virtualColumn) {
@@ -1780,59 +1863,62 @@ abstract class BaseMusicDeezerAlbum extends BaseObject implements Persistent
                 $this->setName($value);
                 break;
             case 3:
-                $this->setArtistDeezerId($value);
+                $this->setImage($value);
                 break;
             case 4:
-                $this->setMainGenreDeezerId($value);
+                $this->setArtistDeezerId($value);
                 break;
             case 5:
+                $this->setMainGenreDeezerId($value);
+                break;
+            case 6:
                 if (!is_array($value)) {
                     $v = trim(substr($value, 2, -2));
                     $value = $v ? explode(' | ', $v) : array();
                 }
                 $this->setGenreDeezerIds($value);
                 break;
-            case 6:
+            case 7:
                 $valueSet = MusicDeezerAlbumPeer::getValueSet(MusicDeezerAlbumPeer::RECORD_TYPE);
                 if (isset($valueSet[$value])) {
                     $value = $valueSet[$value];
                 }
                 $this->setRecordType($value);
                 break;
-            case 7:
+            case 8:
                 $this->setUpc($value);
                 break;
-            case 8:
+            case 9:
                 $this->setLabel($value);
                 break;
-            case 9:
+            case 10:
                 $this->setNbTracks($value);
                 break;
-            case 10:
+            case 11:
                 $this->setDuration($value);
                 break;
-            case 11:
+            case 12:
                 $this->setNbFans($value);
                 break;
-            case 12:
+            case 13:
                 $this->setRating($value);
                 break;
-            case 13:
+            case 14:
                 $this->setReleaseDate($value);
                 break;
-            case 14:
+            case 15:
                 $this->setAvailable($value);
                 break;
-            case 15:
+            case 16:
                 $this->setExplicitLyrics($value);
                 break;
-            case 16:
+            case 17:
                 $this->setId($value);
                 break;
-            case 17:
+            case 18:
                 $this->setCreatedAt($value);
                 break;
-            case 18:
+            case 19:
                 $this->setUpdatedAt($value);
                 break;
         } // switch()
@@ -1862,22 +1948,23 @@ abstract class BaseMusicDeezerAlbum extends BaseObject implements Persistent
         if (array_key_exists($keys[0], $arr)) $this->setDeezerId($arr[$keys[0]]);
         if (array_key_exists($keys[1], $arr)) $this->setAlbumId($arr[$keys[1]]);
         if (array_key_exists($keys[2], $arr)) $this->setName($arr[$keys[2]]);
-        if (array_key_exists($keys[3], $arr)) $this->setArtistDeezerId($arr[$keys[3]]);
-        if (array_key_exists($keys[4], $arr)) $this->setMainGenreDeezerId($arr[$keys[4]]);
-        if (array_key_exists($keys[5], $arr)) $this->setGenreDeezerIds($arr[$keys[5]]);
-        if (array_key_exists($keys[6], $arr)) $this->setRecordType($arr[$keys[6]]);
-        if (array_key_exists($keys[7], $arr)) $this->setUpc($arr[$keys[7]]);
-        if (array_key_exists($keys[8], $arr)) $this->setLabel($arr[$keys[8]]);
-        if (array_key_exists($keys[9], $arr)) $this->setNbTracks($arr[$keys[9]]);
-        if (array_key_exists($keys[10], $arr)) $this->setDuration($arr[$keys[10]]);
-        if (array_key_exists($keys[11], $arr)) $this->setNbFans($arr[$keys[11]]);
-        if (array_key_exists($keys[12], $arr)) $this->setRating($arr[$keys[12]]);
-        if (array_key_exists($keys[13], $arr)) $this->setReleaseDate($arr[$keys[13]]);
-        if (array_key_exists($keys[14], $arr)) $this->setAvailable($arr[$keys[14]]);
-        if (array_key_exists($keys[15], $arr)) $this->setExplicitLyrics($arr[$keys[15]]);
-        if (array_key_exists($keys[16], $arr)) $this->setId($arr[$keys[16]]);
-        if (array_key_exists($keys[17], $arr)) $this->setCreatedAt($arr[$keys[17]]);
-        if (array_key_exists($keys[18], $arr)) $this->setUpdatedAt($arr[$keys[18]]);
+        if (array_key_exists($keys[3], $arr)) $this->setImage($arr[$keys[3]]);
+        if (array_key_exists($keys[4], $arr)) $this->setArtistDeezerId($arr[$keys[4]]);
+        if (array_key_exists($keys[5], $arr)) $this->setMainGenreDeezerId($arr[$keys[5]]);
+        if (array_key_exists($keys[6], $arr)) $this->setGenreDeezerIds($arr[$keys[6]]);
+        if (array_key_exists($keys[7], $arr)) $this->setRecordType($arr[$keys[7]]);
+        if (array_key_exists($keys[8], $arr)) $this->setUpc($arr[$keys[8]]);
+        if (array_key_exists($keys[9], $arr)) $this->setLabel($arr[$keys[9]]);
+        if (array_key_exists($keys[10], $arr)) $this->setNbTracks($arr[$keys[10]]);
+        if (array_key_exists($keys[11], $arr)) $this->setDuration($arr[$keys[11]]);
+        if (array_key_exists($keys[12], $arr)) $this->setNbFans($arr[$keys[12]]);
+        if (array_key_exists($keys[13], $arr)) $this->setRating($arr[$keys[13]]);
+        if (array_key_exists($keys[14], $arr)) $this->setReleaseDate($arr[$keys[14]]);
+        if (array_key_exists($keys[15], $arr)) $this->setAvailable($arr[$keys[15]]);
+        if (array_key_exists($keys[16], $arr)) $this->setExplicitLyrics($arr[$keys[16]]);
+        if (array_key_exists($keys[17], $arr)) $this->setId($arr[$keys[17]]);
+        if (array_key_exists($keys[18], $arr)) $this->setCreatedAt($arr[$keys[18]]);
+        if (array_key_exists($keys[19], $arr)) $this->setUpdatedAt($arr[$keys[19]]);
     }
 
     /**
@@ -1892,6 +1979,7 @@ abstract class BaseMusicDeezerAlbum extends BaseObject implements Persistent
         if ($this->isColumnModified(MusicDeezerAlbumPeer::DEEZER_ID)) $criteria->add(MusicDeezerAlbumPeer::DEEZER_ID, $this->deezer_id);
         if ($this->isColumnModified(MusicDeezerAlbumPeer::ALBUM_ID)) $criteria->add(MusicDeezerAlbumPeer::ALBUM_ID, $this->album_id);
         if ($this->isColumnModified(MusicDeezerAlbumPeer::NAME)) $criteria->add(MusicDeezerAlbumPeer::NAME, $this->name);
+        if ($this->isColumnModified(MusicDeezerAlbumPeer::IMAGE)) $criteria->add(MusicDeezerAlbumPeer::IMAGE, $this->image);
         if ($this->isColumnModified(MusicDeezerAlbumPeer::ARTIST_DEEZER_ID)) $criteria->add(MusicDeezerAlbumPeer::ARTIST_DEEZER_ID, $this->artist_deezer_id);
         if ($this->isColumnModified(MusicDeezerAlbumPeer::MAIN_GENRE_DEEZER_ID)) $criteria->add(MusicDeezerAlbumPeer::MAIN_GENRE_DEEZER_ID, $this->main_genre_deezer_id);
         if ($this->isColumnModified(MusicDeezerAlbumPeer::GENRE_DEEZER_IDS)) $criteria->add(MusicDeezerAlbumPeer::GENRE_DEEZER_IDS, $this->genre_deezer_ids);
@@ -1974,6 +2062,7 @@ abstract class BaseMusicDeezerAlbum extends BaseObject implements Persistent
         $copyObj->setDeezerId($this->getDeezerId());
         $copyObj->setAlbumId($this->getAlbumId());
         $copyObj->setName($this->getName());
+        $copyObj->setImage($this->getImage());
         $copyObj->setArtistDeezerId($this->getArtistDeezerId());
         $copyObj->setMainGenreDeezerId($this->getMainGenreDeezerId());
         $copyObj->setGenreDeezerIds($this->getGenreDeezerIds());
@@ -2433,6 +2522,7 @@ abstract class BaseMusicDeezerAlbum extends BaseObject implements Persistent
         $this->deezer_id = null;
         $this->album_id = null;
         $this->name = null;
+        $this->image = null;
         $this->artist_deezer_id = null;
         $this->main_genre_deezer_id = null;
         $this->genre_deezer_ids = null;
@@ -2454,6 +2544,7 @@ abstract class BaseMusicDeezerAlbum extends BaseObject implements Persistent
         $this->alreadyInValidation = false;
         $this->alreadyInClearAllReferencesDeep = false;
         $this->clearAllReferences();
+        $this->applyDefaultValues();
         $this->resetModified();
         $this->setNew(true);
         $this->setDeleted(false);

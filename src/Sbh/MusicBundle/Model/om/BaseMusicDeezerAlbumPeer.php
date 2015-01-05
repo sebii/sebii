@@ -32,13 +32,13 @@ abstract class BaseMusicDeezerAlbumPeer
     const TM_CLASS = 'Sbh\\MusicBundle\\Model\\map\\MusicDeezerAlbumTableMap';
 
     /** The total number of columns. */
-    const NUM_COLUMNS = 19;
+    const NUM_COLUMNS = 20;
 
     /** The number of lazy-loaded columns. */
     const NUM_LAZY_LOAD_COLUMNS = 0;
 
     /** The number of columns to hydrate (NUM_COLUMNS - NUM_LAZY_LOAD_COLUMNS) */
-    const NUM_HYDRATE_COLUMNS = 19;
+    const NUM_HYDRATE_COLUMNS = 20;
 
     /** the column name for the deezer_id field */
     const DEEZER_ID = 'music_deezer_album.deezer_id';
@@ -48,6 +48,9 @@ abstract class BaseMusicDeezerAlbumPeer
 
     /** the column name for the name field */
     const NAME = 'music_deezer_album.name';
+
+    /** the column name for the image field */
+    const IMAGE = 'music_deezer_album.image';
 
     /** the column name for the artist_deezer_id field */
     const ARTIST_DEEZER_ID = 'music_deezer_album.artist_deezer_id';
@@ -122,12 +125,12 @@ abstract class BaseMusicDeezerAlbumPeer
      * e.g. MusicDeezerAlbumPeer::$fieldNames[MusicDeezerAlbumPeer::TYPE_PHPNAME][0] = 'Id'
      */
     protected static $fieldNames = array (
-        BasePeer::TYPE_PHPNAME => array ('DeezerId', 'AlbumId', 'Name', 'ArtistDeezerId', 'MainGenreDeezerId', 'GenreDeezerIds', 'RecordType', 'Upc', 'Label', 'NbTracks', 'Duration', 'NbFans', 'Rating', 'ReleaseDate', 'Available', 'ExplicitLyrics', 'Id', 'CreatedAt', 'UpdatedAt', ),
-        BasePeer::TYPE_STUDLYPHPNAME => array ('deezerId', 'albumId', 'name', 'artistDeezerId', 'mainGenreDeezerId', 'genreDeezerIds', 'recordType', 'upc', 'label', 'nbTracks', 'duration', 'nbFans', 'rating', 'releaseDate', 'available', 'explicitLyrics', 'id', 'createdAt', 'updatedAt', ),
-        BasePeer::TYPE_COLNAME => array (MusicDeezerAlbumPeer::DEEZER_ID, MusicDeezerAlbumPeer::ALBUM_ID, MusicDeezerAlbumPeer::NAME, MusicDeezerAlbumPeer::ARTIST_DEEZER_ID, MusicDeezerAlbumPeer::MAIN_GENRE_DEEZER_ID, MusicDeezerAlbumPeer::GENRE_DEEZER_IDS, MusicDeezerAlbumPeer::RECORD_TYPE, MusicDeezerAlbumPeer::UPC, MusicDeezerAlbumPeer::LABEL, MusicDeezerAlbumPeer::NB_TRACKS, MusicDeezerAlbumPeer::DURATION, MusicDeezerAlbumPeer::NB_FANS, MusicDeezerAlbumPeer::RATING, MusicDeezerAlbumPeer::RELEASE_DATE, MusicDeezerAlbumPeer::AVAILABLE, MusicDeezerAlbumPeer::EXPLICIT_LYRICS, MusicDeezerAlbumPeer::ID, MusicDeezerAlbumPeer::CREATED_AT, MusicDeezerAlbumPeer::UPDATED_AT, ),
-        BasePeer::TYPE_RAW_COLNAME => array ('DEEZER_ID', 'ALBUM_ID', 'NAME', 'ARTIST_DEEZER_ID', 'MAIN_GENRE_DEEZER_ID', 'GENRE_DEEZER_IDS', 'RECORD_TYPE', 'UPC', 'LABEL', 'NB_TRACKS', 'DURATION', 'NB_FANS', 'RATING', 'RELEASE_DATE', 'AVAILABLE', 'EXPLICIT_LYRICS', 'ID', 'CREATED_AT', 'UPDATED_AT', ),
-        BasePeer::TYPE_FIELDNAME => array ('deezer_id', 'album_id', 'name', 'artist_deezer_id', 'main_genre_deezer_id', 'genre_deezer_ids', 'record_type', 'upc', 'label', 'nb_tracks', 'duration', 'nb_fans', 'rating', 'release_date', 'available', 'explicit_lyrics', 'id', 'created_at', 'updated_at', ),
-        BasePeer::TYPE_NUM => array (0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, )
+        BasePeer::TYPE_PHPNAME => array ('DeezerId', 'AlbumId', 'Name', 'Image', 'ArtistDeezerId', 'MainGenreDeezerId', 'GenreDeezerIds', 'RecordType', 'Upc', 'Label', 'NbTracks', 'Duration', 'NbFans', 'Rating', 'ReleaseDate', 'Available', 'ExplicitLyrics', 'Id', 'CreatedAt', 'UpdatedAt', ),
+        BasePeer::TYPE_STUDLYPHPNAME => array ('deezerId', 'albumId', 'name', 'image', 'artistDeezerId', 'mainGenreDeezerId', 'genreDeezerIds', 'recordType', 'upc', 'label', 'nbTracks', 'duration', 'nbFans', 'rating', 'releaseDate', 'available', 'explicitLyrics', 'id', 'createdAt', 'updatedAt', ),
+        BasePeer::TYPE_COLNAME => array (MusicDeezerAlbumPeer::DEEZER_ID, MusicDeezerAlbumPeer::ALBUM_ID, MusicDeezerAlbumPeer::NAME, MusicDeezerAlbumPeer::IMAGE, MusicDeezerAlbumPeer::ARTIST_DEEZER_ID, MusicDeezerAlbumPeer::MAIN_GENRE_DEEZER_ID, MusicDeezerAlbumPeer::GENRE_DEEZER_IDS, MusicDeezerAlbumPeer::RECORD_TYPE, MusicDeezerAlbumPeer::UPC, MusicDeezerAlbumPeer::LABEL, MusicDeezerAlbumPeer::NB_TRACKS, MusicDeezerAlbumPeer::DURATION, MusicDeezerAlbumPeer::NB_FANS, MusicDeezerAlbumPeer::RATING, MusicDeezerAlbumPeer::RELEASE_DATE, MusicDeezerAlbumPeer::AVAILABLE, MusicDeezerAlbumPeer::EXPLICIT_LYRICS, MusicDeezerAlbumPeer::ID, MusicDeezerAlbumPeer::CREATED_AT, MusicDeezerAlbumPeer::UPDATED_AT, ),
+        BasePeer::TYPE_RAW_COLNAME => array ('DEEZER_ID', 'ALBUM_ID', 'NAME', 'IMAGE', 'ARTIST_DEEZER_ID', 'MAIN_GENRE_DEEZER_ID', 'GENRE_DEEZER_IDS', 'RECORD_TYPE', 'UPC', 'LABEL', 'NB_TRACKS', 'DURATION', 'NB_FANS', 'RATING', 'RELEASE_DATE', 'AVAILABLE', 'EXPLICIT_LYRICS', 'ID', 'CREATED_AT', 'UPDATED_AT', ),
+        BasePeer::TYPE_FIELDNAME => array ('deezer_id', 'album_id', 'name', 'image', 'artist_deezer_id', 'main_genre_deezer_id', 'genre_deezer_ids', 'record_type', 'upc', 'label', 'nb_tracks', 'duration', 'nb_fans', 'rating', 'release_date', 'available', 'explicit_lyrics', 'id', 'created_at', 'updated_at', ),
+        BasePeer::TYPE_NUM => array (0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, )
     );
 
     /**
@@ -137,12 +140,12 @@ abstract class BaseMusicDeezerAlbumPeer
      * e.g. MusicDeezerAlbumPeer::$fieldNames[BasePeer::TYPE_PHPNAME]['Id'] = 0
      */
     protected static $fieldKeys = array (
-        BasePeer::TYPE_PHPNAME => array ('DeezerId' => 0, 'AlbumId' => 1, 'Name' => 2, 'ArtistDeezerId' => 3, 'MainGenreDeezerId' => 4, 'GenreDeezerIds' => 5, 'RecordType' => 6, 'Upc' => 7, 'Label' => 8, 'NbTracks' => 9, 'Duration' => 10, 'NbFans' => 11, 'Rating' => 12, 'ReleaseDate' => 13, 'Available' => 14, 'ExplicitLyrics' => 15, 'Id' => 16, 'CreatedAt' => 17, 'UpdatedAt' => 18, ),
-        BasePeer::TYPE_STUDLYPHPNAME => array ('deezerId' => 0, 'albumId' => 1, 'name' => 2, 'artistDeezerId' => 3, 'mainGenreDeezerId' => 4, 'genreDeezerIds' => 5, 'recordType' => 6, 'upc' => 7, 'label' => 8, 'nbTracks' => 9, 'duration' => 10, 'nbFans' => 11, 'rating' => 12, 'releaseDate' => 13, 'available' => 14, 'explicitLyrics' => 15, 'id' => 16, 'createdAt' => 17, 'updatedAt' => 18, ),
-        BasePeer::TYPE_COLNAME => array (MusicDeezerAlbumPeer::DEEZER_ID => 0, MusicDeezerAlbumPeer::ALBUM_ID => 1, MusicDeezerAlbumPeer::NAME => 2, MusicDeezerAlbumPeer::ARTIST_DEEZER_ID => 3, MusicDeezerAlbumPeer::MAIN_GENRE_DEEZER_ID => 4, MusicDeezerAlbumPeer::GENRE_DEEZER_IDS => 5, MusicDeezerAlbumPeer::RECORD_TYPE => 6, MusicDeezerAlbumPeer::UPC => 7, MusicDeezerAlbumPeer::LABEL => 8, MusicDeezerAlbumPeer::NB_TRACKS => 9, MusicDeezerAlbumPeer::DURATION => 10, MusicDeezerAlbumPeer::NB_FANS => 11, MusicDeezerAlbumPeer::RATING => 12, MusicDeezerAlbumPeer::RELEASE_DATE => 13, MusicDeezerAlbumPeer::AVAILABLE => 14, MusicDeezerAlbumPeer::EXPLICIT_LYRICS => 15, MusicDeezerAlbumPeer::ID => 16, MusicDeezerAlbumPeer::CREATED_AT => 17, MusicDeezerAlbumPeer::UPDATED_AT => 18, ),
-        BasePeer::TYPE_RAW_COLNAME => array ('DEEZER_ID' => 0, 'ALBUM_ID' => 1, 'NAME' => 2, 'ARTIST_DEEZER_ID' => 3, 'MAIN_GENRE_DEEZER_ID' => 4, 'GENRE_DEEZER_IDS' => 5, 'RECORD_TYPE' => 6, 'UPC' => 7, 'LABEL' => 8, 'NB_TRACKS' => 9, 'DURATION' => 10, 'NB_FANS' => 11, 'RATING' => 12, 'RELEASE_DATE' => 13, 'AVAILABLE' => 14, 'EXPLICIT_LYRICS' => 15, 'ID' => 16, 'CREATED_AT' => 17, 'UPDATED_AT' => 18, ),
-        BasePeer::TYPE_FIELDNAME => array ('deezer_id' => 0, 'album_id' => 1, 'name' => 2, 'artist_deezer_id' => 3, 'main_genre_deezer_id' => 4, 'genre_deezer_ids' => 5, 'record_type' => 6, 'upc' => 7, 'label' => 8, 'nb_tracks' => 9, 'duration' => 10, 'nb_fans' => 11, 'rating' => 12, 'release_date' => 13, 'available' => 14, 'explicit_lyrics' => 15, 'id' => 16, 'created_at' => 17, 'updated_at' => 18, ),
-        BasePeer::TYPE_NUM => array (0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, )
+        BasePeer::TYPE_PHPNAME => array ('DeezerId' => 0, 'AlbumId' => 1, 'Name' => 2, 'Image' => 3, 'ArtistDeezerId' => 4, 'MainGenreDeezerId' => 5, 'GenreDeezerIds' => 6, 'RecordType' => 7, 'Upc' => 8, 'Label' => 9, 'NbTracks' => 10, 'Duration' => 11, 'NbFans' => 12, 'Rating' => 13, 'ReleaseDate' => 14, 'Available' => 15, 'ExplicitLyrics' => 16, 'Id' => 17, 'CreatedAt' => 18, 'UpdatedAt' => 19, ),
+        BasePeer::TYPE_STUDLYPHPNAME => array ('deezerId' => 0, 'albumId' => 1, 'name' => 2, 'image' => 3, 'artistDeezerId' => 4, 'mainGenreDeezerId' => 5, 'genreDeezerIds' => 6, 'recordType' => 7, 'upc' => 8, 'label' => 9, 'nbTracks' => 10, 'duration' => 11, 'nbFans' => 12, 'rating' => 13, 'releaseDate' => 14, 'available' => 15, 'explicitLyrics' => 16, 'id' => 17, 'createdAt' => 18, 'updatedAt' => 19, ),
+        BasePeer::TYPE_COLNAME => array (MusicDeezerAlbumPeer::DEEZER_ID => 0, MusicDeezerAlbumPeer::ALBUM_ID => 1, MusicDeezerAlbumPeer::NAME => 2, MusicDeezerAlbumPeer::IMAGE => 3, MusicDeezerAlbumPeer::ARTIST_DEEZER_ID => 4, MusicDeezerAlbumPeer::MAIN_GENRE_DEEZER_ID => 5, MusicDeezerAlbumPeer::GENRE_DEEZER_IDS => 6, MusicDeezerAlbumPeer::RECORD_TYPE => 7, MusicDeezerAlbumPeer::UPC => 8, MusicDeezerAlbumPeer::LABEL => 9, MusicDeezerAlbumPeer::NB_TRACKS => 10, MusicDeezerAlbumPeer::DURATION => 11, MusicDeezerAlbumPeer::NB_FANS => 12, MusicDeezerAlbumPeer::RATING => 13, MusicDeezerAlbumPeer::RELEASE_DATE => 14, MusicDeezerAlbumPeer::AVAILABLE => 15, MusicDeezerAlbumPeer::EXPLICIT_LYRICS => 16, MusicDeezerAlbumPeer::ID => 17, MusicDeezerAlbumPeer::CREATED_AT => 18, MusicDeezerAlbumPeer::UPDATED_AT => 19, ),
+        BasePeer::TYPE_RAW_COLNAME => array ('DEEZER_ID' => 0, 'ALBUM_ID' => 1, 'NAME' => 2, 'IMAGE' => 3, 'ARTIST_DEEZER_ID' => 4, 'MAIN_GENRE_DEEZER_ID' => 5, 'GENRE_DEEZER_IDS' => 6, 'RECORD_TYPE' => 7, 'UPC' => 8, 'LABEL' => 9, 'NB_TRACKS' => 10, 'DURATION' => 11, 'NB_FANS' => 12, 'RATING' => 13, 'RELEASE_DATE' => 14, 'AVAILABLE' => 15, 'EXPLICIT_LYRICS' => 16, 'ID' => 17, 'CREATED_AT' => 18, 'UPDATED_AT' => 19, ),
+        BasePeer::TYPE_FIELDNAME => array ('deezer_id' => 0, 'album_id' => 1, 'name' => 2, 'image' => 3, 'artist_deezer_id' => 4, 'main_genre_deezer_id' => 5, 'genre_deezer_ids' => 6, 'record_type' => 7, 'upc' => 8, 'label' => 9, 'nb_tracks' => 10, 'duration' => 11, 'nb_fans' => 12, 'rating' => 13, 'release_date' => 14, 'available' => 15, 'explicit_lyrics' => 16, 'id' => 17, 'created_at' => 18, 'updated_at' => 19, ),
+        BasePeer::TYPE_NUM => array (0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, )
     );
 
     /** The enumerated values for this table */
@@ -274,6 +277,7 @@ abstract class BaseMusicDeezerAlbumPeer
             $criteria->addSelectColumn(MusicDeezerAlbumPeer::DEEZER_ID);
             $criteria->addSelectColumn(MusicDeezerAlbumPeer::ALBUM_ID);
             $criteria->addSelectColumn(MusicDeezerAlbumPeer::NAME);
+            $criteria->addSelectColumn(MusicDeezerAlbumPeer::IMAGE);
             $criteria->addSelectColumn(MusicDeezerAlbumPeer::ARTIST_DEEZER_ID);
             $criteria->addSelectColumn(MusicDeezerAlbumPeer::MAIN_GENRE_DEEZER_ID);
             $criteria->addSelectColumn(MusicDeezerAlbumPeer::GENRE_DEEZER_IDS);
@@ -294,6 +298,7 @@ abstract class BaseMusicDeezerAlbumPeer
             $criteria->addSelectColumn($alias . '.deezer_id');
             $criteria->addSelectColumn($alias . '.album_id');
             $criteria->addSelectColumn($alias . '.name');
+            $criteria->addSelectColumn($alias . '.image');
             $criteria->addSelectColumn($alias . '.artist_deezer_id');
             $criteria->addSelectColumn($alias . '.main_genre_deezer_id');
             $criteria->addSelectColumn($alias . '.genre_deezer_ids');
@@ -532,11 +537,11 @@ abstract class BaseMusicDeezerAlbumPeer
     public static function getPrimaryKeyHashFromRow($row, $startcol = 0)
     {
         // If the PK cannot be derived from the row, return null.
-        if ($row[$startcol + 16] === null) {
+        if ($row[$startcol + 17] === null) {
             return null;
         }
 
-        return (string) $row[$startcol + 16];
+        return (string) $row[$startcol + 17];
     }
 
     /**
@@ -551,7 +556,7 @@ abstract class BaseMusicDeezerAlbumPeer
     public static function getPrimaryKeyFromRow($row, $startcol = 0)
     {
 
-        return (int) $row[$startcol + 16];
+        return (int) $row[$startcol + 17];
     }
 
     /**

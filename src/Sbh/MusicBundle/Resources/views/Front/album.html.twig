@@ -1,0 +1,64 @@
+{% extends "::base.html.twig" %}
+
+{% block breadcrumb %}
+    <li><a href="/">Musique</a></li>
+    <li><a href="{{ path("sbh_music_front_artist", {artistId: artist.id}) }}">{{ artist.name }}</a></li>
+    <li><a href="{{ path("sbh_music_front_album", {artistId: artist.id, albumId: album.id}) }}">{{ album.name }}</a></li>
+{% endblock breadcrumb %}
+
+{% block pagetitle %}{{ artist.name }} - {{ album.name }}{% endblock pagetitle %}
+
+{% block content %}
+<div class="row">
+    <div class="col-sm-3">
+        <img src="{% if album.image %}{{ asset("ii/music/_img/album_" ~ album.id ~ "_thumb.jpg") }}{% else %}{{ asset("bundles/sbhmusic/images/album_0.png") }}{% endif %}" class="img-responsive music-album-image" />
+    </div>
+    <div class="col-sm-9">
+        <p><b>{{ album.name }}</b> de {{ artist.name }}</p>
+        <div class="row listen-on">
+            <div class="col-sm-12 listen-on-deezer {% if album.musicDeezerAlbums | length == 0 %}listen-on-no{% endif %}">
+                <a href="{% if album.musicDeezerAlbums | length > 0 %}http://www.deezer.com/album/{{ album.musicDeezerAlbums.first.deezerId }}{% else %}{{ path("sbh_music_front_album_deezer_link", {artistId: artist.id, albumId: album.id}) }}{% endif %}" target="extSbh">
+                    <img src="{{ asset("bundles/sbhmusic/images/deezer-flat-circle-icon.png") }}" alt="(Deezer)" />
+                    Deezer
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+<table class="table">
+    <thead></thead>
+    <tfoot></tfoot>
+    <tbody>
+    {% for track in tracks %}
+        <tr>
+            <td>{{ track.track }}</td>
+            <td>{{ track.name }}</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+<style>
+    .listen-on {
+        padding-bottom: 10px;
+    }
+    .listen-on div a {
+        display: inline-block;
+        height: 30px;
+        width: 100%;
+        border-radius: 15px;
+        color: #EEEEEE;
+    }
+    .listen-on .listen-on-deezer a {
+        background-color: #484848;
+    }
+    .listen-on .listen-on-spotify a {
+        background-color: #75ad01;
+    }
+    .listen-on .listen-on-no a {
+        background-color: #EEEEEE;
+    }
+    .listen-on div a img {
+        height: 30px;
+    }
+</style>
+{% endblock content %}
