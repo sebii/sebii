@@ -14,8 +14,6 @@ use Sbh\MusicBundle\Model\MusicArtist;
 use Sbh\MusicBundle\Model\MusicArtistQuery;
 use Sbh\MusicBundle\Model\MusicAlbum;
 use Sbh\MusicBundle\Model\MusicAlbumQuery;
-use Sbh\MusicBundle\Model\MusicTrack;
-use Sbh\MusicBundle\Model\MusicTrackQuery;
 
 /**
  * 
@@ -40,47 +38,6 @@ class MusicTagsAssociateCommand extends ContainerAwareCommand
     }
     
     /**
-     * récupération de l'iiPath
-     * 
-     * Récupère l'adresse du dossier ii et le génère si non trouvé
-     * @since 1.0.0 Création -- sebii
-     * @access protected
-     * @return string
-     */
-    protected function getIiPath()
-    {
-        $fs      = new FileSystem();
-        $webPath = realpath($this->getContainer()->get('kernel')->getRootDir() .
-                            DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR .
-                            'web');
-        $iiPath  = $webPath . DIRECTORY_SEPARATOR . 'ii';
-        if (!$fs->exists($iiPath))
-        {
-            $fs->mkdir($iiPath, 0777);
-        }
-        return realpath($iiPath);
-    }
-    
-    /**
-     * récupération du musicPath
-     * 
-     * Récupère l'adresse du dossier music et le génère si non trouvé
-     * @since 1.0.0 Création -- sebii
-     * @access protected
-     * @return string
-     */
-    protected function getMusicPath()
-    {
-        $fs        = new FileSystem();
-        $musicPath = $this->getIiPath() . DIRECTORY_SEPARATOR . 'music';
-        if (!$fs->exists($musicPath))
-        {
-            $fs->mkdir($musicPath, 0777);
-        }
-        return realpath($musicPath);
-    }
-    
-    /**
      * Execution
      * 
      * Execution de la commande
@@ -92,8 +49,6 @@ class MusicTagsAssociateCommand extends ContainerAwareCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $musicPath = $this->getMusicPath();
-        
         $output->writeln('> Scan des tags musicaux');
         $files = FileQuery::create()
             ->filterByType(FilePeer::TYPE_MUSIC)
@@ -102,6 +57,7 @@ class MusicTagsAssociateCommand extends ContainerAwareCommand
             ->endUse()
             ->find();
         $output->writeln('    - ' . $files->count() . ' entrées trouvées');
+        $tagsList = array();
         
         foreach ($files as $file)
         {
@@ -112,29 +68,32 @@ class MusicTagsAssociateCommand extends ContainerAwareCommand
             {
                 $tagsInfos[$originalTag->getName()][$originalTag->getType()] = $originalTag->getValue();
                 $output->writeln('            - ' . $originalTag->getType() . '->' . $originalTag->getName() . ' : ' . $originalTag->getValue());
+                if (!isset($tagsList[$originalTag->getType()]))
+                {
+                    $tagsList[$originalTag->getType()] = array();
+                }
+                if (!in_array($originalTag->getName(), $tagsList[$originalTag->getType()]))
+                {
+                    $tagsList[$originalTag->getType()][] = $originalTag->getName();
+                }
             }
             
             $output->writeln('        > Récupération des tags');
-//            var_dump($tagsInfos);
             /* Récupération de l'artist */
-            $artistName = isset($tagsInfos['artist']['id3v2']) ? trim($tagsInfos['artist']['id3v2']) : '';
-            $artistName = (strlen($artistName) == 0 && isset($tagsInfos['artist']['id3v1'])) ? trim($tagsInfos['artist']['id3v1']) : $artistName;
+            $artistName = isset($tagsInfos['artist']['id3v2']) ? $tagsInfos['artist']['id3v2'] : '';
+            $artistName = (strlen($artistName) == 0 && isset($tagsInfos['artist']['vorbiscomment'])) ? $tagsInfos['artist']['vorbiscomment'] : $artistName;
+            $artistName = (strlen($artistName) == 0 && isset($tagsInfos['artist']['id3v1'])) ? $tagsInfos['artist']['id3v1'] : $artistName;
+            $artistName = trim($artistName);
             $output->writeln('            - Artiste : ' . $artistName);
             /* Récupération de l'artiste groupé */
-            $bandName = isset($tagsInfos['band']['id3v2']) ? trim($tagsInfos['band']['id3v2']) : '';
+            $bandName = isset($tagsInfos['band']['id3v2']) ? $tagsInfos['band']['id3v2'] : '';
+            $bandName = (strlen($bandName) == 0 && isset($tagsInfos['albumartist']['vorbiscomment'])) ? $tagsInfos['albumartist']['vorbiscomment'] : $bandName;
             $output->writeln('            - Artiste général : ' . $bandName);
-            /* Récupération de l'album */
-            $albumName = isset($tagsInfos['album']['id3v2']) ? trim($tagsInfos['album']['id3v2']) : '';
-            $albumName = (strlen($albumName) == 0 && isset($tagsInfos['album']['id3v1'])) ? trim($tagsInfos['album']['id3v1']) : $albumName;
+            /* Récupération de l'artist */
+            $albumName = isset($tagsInfos['album']['id3v2']) ? $tagsInfos['album']['id3v2'] : '';
+            $albumName = (strlen($albumName) == 0 && isset($tagsInfos['album']['vorbiscomment'])) ? $tagsInfos['album']['vorbiscomment'] : $albumName;
+            $albumName = (strlen($albumName) == 0 && isset($tagsInfos['album']['id3v1'])) ? $tagsInfos['album']['id3v1'] : $albumName;
             $output->writeln('            - Album : ' . $albumName);
-            /* Récupération du nom de piste */
-            $trackName = isset($tagsInfos['title']['id3v2']) ? trim($tagsInfos['title']['id3v2']) : '';
-            $trackName = (strlen($trackName) == 0 && isset($tagsInfos['artist']['id3v1'])) ? trim($tagsInfos['artist']['id3v1']) : $trackName;
-            $output->writeln('            - Titre : ' . $trackName);
-            /* Récupération de la piste */
-            $trackNumber = isset($tagsInfos['track_number']['id3v2']) ? intval(trim($tagsInfos['track_number']['id3v2'])) : 0;
-            $trackNumber = ($trackNumber == 0 && isset($tagsInfos['track']['id3v1'])) ? intval(trim($tagsInfos['track']['id3v1'])) : $trackNumber;
-            $output->writeln('            - Numéro de piste : ' . $trackNumber);
             
             $output->writeln('        > Traitement des tags');
             $artist = null;
@@ -197,57 +156,16 @@ class MusicTagsAssociateCommand extends ContainerAwareCommand
                 $output->writeln('            - Album #' . $band->getId() . ' trouvé : ' . $band->getName());
             }
             
-            $track = null;
-            if (!is_null($artist) && !is_null($album) && strlen($trackName) > 0)
-            {
-                $track = MusicTrackQuery::create()
-                    ->filterByName($trackName)
-                    ->filterByMusicAlbum($album)
-                    ->filterByMusicArtist($artist)
-                    ->findOne();
-                if (is_null($track))
-                {
-                    $output->writeln('            - Création de la piste de ' . $album->getName() . ' : ' . $trackName);
-                    $track = new MusicTrack();
-                    $track
-                        ->setName($trackName)
-                        ->setMusicArtist($artist)
-                        ->setMusicAlbum($album)
-                        ->save();
-                }
-                $track
-                    ->setTrack($trackNumber)
-                    ->save();
-                $output->writeln('            - Piste #' . $track->getId() . ' trouvé : ' . $track->getName());
-            }
-            
-            if (!is_null($track))
-            {
-                $file->getMusicFiles()->getFirst()
-                    ->setMusicTrack($track)
-//                    ->setAssociateTags(false)
-                    ->save();
-                $output->writeln('            - Piste #' . $track->getId() . ' associée au fichier musical #' . $file->getMusicFiles()->getFirst()->getId() . '/' . $file->getId());
-            }
-//            unset(  $tagsInfos['filesize'],
-//                    $tagsInfos['fileformat'],
-//                    $tagsInfos['channels'],
-//                    $tagsInfos['sampleRate'],
-//                    $tagsInfos['bitrate'],
-//                    $tagsInfos['channelMode'],
-//                    $tagsInfos['bitrateMode'],
-//                    $tagsInfos['lossless'],
-//                    $tagsInfos['encoderOptions'],
-//                    $tagsInfos['compressionRatio'],
-//                    $tagsInfos['encoding'],
-//                    $tagsInfos['mime_type'],
-//                    $tagsInfos['playtime_seconds'],
-//                    $tagsInfos['artist']['id3v2'], $tagsInfos['artist']['id3v1'],
-//                    $tagsInfos['album']['id3v2'], $tagsInfos['album']['id3v1']
-//                 );
-//            print_r($tagsInfos);
-//            var_dump($artistName, $bandName, $albumName);
-//            exit();
+            break;
+        }
+        
+        ksort($tagsInfos);
+        foreach ($tagsList as $key => $values)
+        {
+            $output->writeln('');
+            $output->writeln('  Liste : ' . $key);
+            sort($values);
+            $output->writeln('        ' . implode(', ', $values));
         }
     }
 }

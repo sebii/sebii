@@ -68,19 +68,37 @@ class FrontController extends Controller
      * 
      * @since 1.0.0 Création -- sebii
      * @access public
+     * @Route("/{_lang}/music/albums/{page}", name="sbh_music_front_albums", requirements={"_lang"="\w{2}", "page"="\d+"}, defaults={"_lang"="fr", "page"="1"})
+     */
+    public function albumsAction($page)
+    {
+        $albums = MusicAlbumQuery::create()
+            ->orderByName(Criteria::ASC)
+            ->find();
+        
+        return $this->render('SbhMusicBundle:Front:albums.html.twig', array(
+                'albums' => $albums,
+        ));
+    }
+    
+    /**
+     * 
+     * @since 1.0.0 Création -- sebii
+     * @access public
      * @param Sbh\MusicBundle\Model\MusicArtist $artist
      * @param Sbh\MusicBundle\Model\MusicAlbum $album
-     * @Route("/{_lang}/music/album/{artistId}/{albumId}", name="sbh_music_front_album", requirements={"_lang"="\w{2}", "artistId"="\d+", "albumId"="\d+"}, defaults={"_lang"="fr"})
-     * @ParamConverter("artist", class="Sbh\MusicBundle\Model\MusicArtist", options={"mapping": {"artistId": "id"}})
+     * @Route("/{_lang}/music/album/{albumId}", name="sbh_music_front_album", requirements={"_lang"="\w{2}", "albumId"="\d+"}, defaults={"_lang"="fr"})
      * @ParamConverter("album", class="Sbh\MusicBundle\Model\MusicAlbum", options={"mapping": {"albumId": "id"}})
      */
-    public function albumAction(MusicArtist $artist, MusicAlbum $album)
+    public function albumAction(MusicAlbum $album)
     {
         $tracks = MusicTrackQuery::create()
             ->filterByMusicAlbum($album)
             ->orderByDisc(Criteria::ASC)
             ->orderByTrack(Criteria::ASC)
             ->find();
+        
+        $artist = $album->getMusicArtist();
         
         return $this->render('SbhMusicBundle:Front:album.html.twig', array(
                 'artist' => $artist,
