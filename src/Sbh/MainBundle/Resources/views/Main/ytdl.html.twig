@@ -1,0 +1,25 @@
+{% extends "::base.html.twig" %}
+
+{% block breadcrumb %}
+    <li><a href="{{ path("sbh_main_main_ytdl") }}">Récupérateur de Vidéo</a></li>
+{% endblock breadcrumb %}
+
+{% block pagetitle %}Recuperateur de Video{% endblock pagetitle %}
+
+{% block content %}
+{{ form_start(formUrl) }}
+<div class="row">
+    <div class="form-group">
+        {{ form_label(formUrl.url, "URL de la vidéo", {label_attr: {class: "col-sm-3 control-label"}}) }}
+        <div class="col-sm-9">
+            {{ form_widget(formUrl.url, {attr: {class: "form-control", placeholder: "URL de la vidéo"}}) }}
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-sm-9 col-sm-offset-3">
+            {{ form_widget(formUrl.save, {attr: {class: "btn btn-primary"}}) }}
+        </div>
+    </div>
+</div>
+{{ form_end(formUrl) }}
+{% endblock content %}
