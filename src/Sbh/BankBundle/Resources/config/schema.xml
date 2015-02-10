@@ -1,0 +1,129 @@
+<database name="default" namespace="Sbh\BankBundle\Model" defaultIdMethod="native">
+    <table name="bank_group">
+        <column name="name" type="varchar" primaryString="true" />
+        
+        <behavior name="sluggable" />
+        
+        <vendor type="mysql">
+            <parameter name="Charset" value="utf8" />
+        </vendor>
+    </table>
+    
+    <table name="bank_agency">
+        <column name="name" type="varchar" primaryString="true" />
+        <column name="bank_group_id" type="integer" />
+        
+        <behavior name="sluggable" />
+        
+        <foreign-key foreignTable="bank_group" onDelete="setnull" onUpdate="cascade" name="fk_bank_agency_bank_group">
+            <reference local="bank_group_id" foreign="id" />
+        </foreign-key>
+        
+        <vendor type="mysql">
+            <parameter name="Charset" value="utf8" />
+        </vendor>
+    </table>
+    
+    <table name="bank_account">
+        <column name="name" type="varchar" primaryString="true" />
+        <column name="user_id" type="integer" />
+        <column name="type" type="enum" valueSet="checking" defaultValue="checking" />
+        <column name="bank_agency_id" type="integer" />
+        
+        <behavior name="sluggable" />
+        
+        <foreign-key foreignTable="bank_agency" onDelete="setnull" onUpdate="cascade" name="fk_bank_account_bank_agency">
+            <reference local="bank_agency_id" foreign="id" />
+        </foreign-key>
+        
+        <vendor type="mysql">
+            <parameter name="Charset" value="utf8" />
+        </vendor>
+    </table>
+    
+    <table name="bank_payee">
+        <column name="name" type="varchar" />
+        <column name="user_id" type="integer" />
+        
+        <vendor type="mysql">
+            <parameter name="Charset" value="utf8" />
+        </vendor>
+    </table>
+    
+    <table name="bank_category_regroupment">
+        <column name="name" type="varchar" />
+        <column name="user_id" type="integer" />
+        <column name="type" type="enum" valueSet="payment,deposit" defaultValue="payment" />
+        
+        <vendor type="mysql">
+            <parameter name="Charset" value="utf8" />
+        </vendor>
+    </table>
+    
+    <table name="bank_category">
+        <column name="name" type="varchar" />
+        <column name="user_id" type="integer" />
+        <column name="bank_category_regroupment_id" type="integer" />
+        <column name="type" type="enum" valueSet="payment,deposit" defaultValue="payment" />
+        
+        <foreign-key foreignTable="bank_category_regroupment" onDelete="setnull" onUpdate="cascade" name="fk_bank_category_bank_category_regroupment">
+            <reference local="bank_category_regroupment_id" foreign="id" />
+        </foreign-key>
+        
+        <vendor type="mysql">
+            <parameter name="Charset" value="utf8" />
+        </vendor>
+    </table>
+    
+    <table name="bank_frequent_operation">
+        <column name="bank_account_id" type="integer" />
+        <column name="name" type="varchar" />
+        <column name="date" type="timestamp" />
+        <column name="bank_payee_id" type="integer" />
+        <column name="bank_category_id" type="integer" />
+        <column name="payment" type="float" />
+        <column name="deposit" type="float" />
+        
+        <foreign-key foreignTable="bank_account" onDelete="setnull" onUpdate="cascade" name="fk_bank_frequent_operation_bank_account">
+            <reference local="bank_account_id" foreign="id" />
+        </foreign-key>
+        <foreign-key foreignTable="bank_payee" onDelete="setnull" onUpdate="cascade" name="fk_bank_frequent_operation_bank_payee">
+            <reference local="bank_payee_id" foreign="id" />
+        </foreign-key>
+        <foreign-key foreignTable="bank_category" onDelete="setnull" onUpdate="cascade" name="fk_bank_frequent_operation_bank_category">
+            <reference local="bank_category_id" foreign="id" />
+        </foreign-key>
+        
+        <vendor type="mysql">
+            <parameter name="Charset" value="utf8" />
+        </vendor>
+    </table>
+    
+    <table name="bank_operation">
+        <column name="bank_account_id" type="integer" />
+        <column name="name" type="varchar" />
+        <column name="date" type="timestamp" />
+        <column name="bank_payee_id" type="integer" />
+        <column name="bank_category_id" type="integer" />
+        <column name="payment" type="float" />
+        <column name="deposit" type="float" />
+        <column name="bank_frequent_operation_id" type="integer" />
+        
+        <foreign-key foreignTable="bank_account" onDelete="setnull" onUpdate="cascade" name="fk_bank_operation_bank_account">
+            <reference local="bank_account_id" foreign="id" />
+        </foreign-key>
+        <foreign-key foreignTable="bank_payee" onDelete="setnull" onUpdate="cascade" name="fk_bank_operation_bank_payee">
+            <reference local="bank_payee_id" foreign="id" />
+        </foreign-key>
+        <foreign-key foreignTable="bank_category" onDelete="setnull" onUpdate="cascade" name="fk_bank_operation_bank_category">
+            <reference local="bank_category_id" foreign="id" />
+        </foreign-key>
+        <foreign-key foreignTable="bank_frequent_operation" onDelete="setnull" onUpdate="cascade" name="fk_bank_operation_bank_frequent_operation">
+            <reference local="bank_frequent_operation_id" foreign="id" />
+        </foreign-key>
+        
+        <vendor type="mysql">
+            <parameter name="Charset" value="utf8" />
+        </vendor>
+    </table>
+</database>

@@ -1,0 +1,4 @@
+services:
+#    sbh_bank.example:
+#        class: Sbh\BankBundle\Example
+#        arguments: [@service_id, "plain_value", %parameter%]
