@@ -9,4 +9,6 @@
 /build/
 /vendor/
 /bin/
+/nbproject/
+/web/ii/*
 /composer.phar

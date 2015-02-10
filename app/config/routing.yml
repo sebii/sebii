@@ -1,3 +1,12 @@
+sbh_bank:
+    resource: "@SbhBankBundle/Resources/config/routing.yml"
+    prefix:   /
+
+sbh_music:
+    resource: "@SbhMusicBundle/Controller"
+    type:     annotation
+    prefix:   /
+
 sbh_start:
     resource: "@SbhStartBundle/Controller"
     type:     annotation

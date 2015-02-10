@@ -19,6 +19,8 @@ class AppKernel extends Kernel
             new Propel\PropelBundle\PropelBundle(),
             new Sbh\MainBundle\SbhMainBundle(),
             new Sbh\StartBundle\SbhStartBundle(),
+            new Sbh\MusicBundle\SbhMusicBundle(),
+            new Sbh\BankBundle\SbhBankBundle(),
         );
 
         if (in_array($this->getEnvironment(), array('dev', 'test'))) {
